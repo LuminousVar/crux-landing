@@ -1,5 +1,31 @@
 <script lang="ts">
-	const words = ['Automate.', 'Monitor.', 'Analyze.'];
+	const lines = [
+		['Automate.', 'Schedule.', 'Backup.'],
+		['Monitor.', 'Visualize.', 'Alert.'],
+		['Analyze.', 'Diagnose.', 'Respond.']
+	];
+
+	let indices = $state([0, 0, 0]);
+	let visible = $state([true, true, true]);
+
+	$effect(() => {
+		let tick = 0;
+
+		const timer = setInterval(() => {
+			const line = tick % 3;
+
+			visible[line] = false;
+
+			setTimeout(() => {
+				indices[line] = (indices[line] + 1) % lines[line].length;
+				visible[line] = true;
+			}, 300);
+
+			tick++;
+		}, 5000);
+
+		return () => clearInterval(timer);
+	});
 
 	function makePaths(position: number) {
 		return Array.from({ length: 36 }, (_, i) => ({
@@ -58,25 +84,41 @@
 			id="hero-heading"
 			class="mb-8 text-6xl font-bold tracking-tighter text-content sm:text-7xl md:text-8xl"
 		>
-			{#each words as word, wi (wi)}
-				<span class="block">
-					{#each word.split('') as letter, li (li)}
-						<span
-							class="inline-block"
-							style="animation: letter-in 0.6s {wi * 0.15 +
-								li * 0.05}s both cubic-bezier(0.34,1.56,0.64,1)">{letter}</span
-						>
-					{/each}
+			<span class="block overflow-hidden">
+				<span
+					class="inline-block transition-all duration-300 {visible[0]
+						? 'opacity-100 translate-y-0'
+						: 'opacity-0 -translate-y-3'}"
+				>
+					{lines[0][indices[0]]}
 				</span>
-			{/each}
+			</span>
+			<span class="block overflow-hidden">
+				<span
+					class="inline-block transition-all duration-300 {visible[1]
+						? 'opacity-100 translate-y-0'
+						: 'opacity-0 -translate-y-3'}"
+				>
+					{lines[1][indices[1]]}
+				</span>
+			</span>
+			<span class="block overflow-hidden">
+				<span
+					class="inline-block transition-all duration-300 {visible[2]
+						? 'opacity-100 translate-y-0'
+						: 'opacity-0 -translate-y-3'}"
+				>
+					{lines[2][indices[2]]}
+				</span>
+			</span>
 		</h1>
 
-		<div style="animation: fade-up 0.6s 0.8s both">
+		<div>
 			<a
 				href="#features"
-				class="inline-flex items-center gap-2 rounded-2xl bg-surface px-8 py-4 text-base font-semibold text-content transition-all duration-300 hover:-translate-y-0.5 hover:bg-elevated"
+				class="inline-flex items-center gap-2 rounded-lg border border-edge bg-elevated px-8 py-4 text-base font-semibold text-content transition-all duration-300 hover:-translate-y-0.5 hover:bg-surface"
 			>
-				Explore Crux
+				Get Started
 				<span class="text-muted transition-transform duration-300 group-hover:translate-x-0.5"
 					>→</span
 				>
