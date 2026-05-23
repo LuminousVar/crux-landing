@@ -120,9 +120,9 @@
 
 			<!-- Real-time Monitoring (col-span-2) -->
 			<div
-				class="col-span-2 flex h-56 flex-col justify-between rounded-lg border border-edge bg-surface p-5"
+				class="col-span-2 flex h-56 flex-col overflow-hidden rounded-lg border border-edge bg-surface"
 			>
-				<div>
+				<div class="p-5">
 					<div class="mb-2 flex items-center gap-1.5">
 						<span class="text-accent"><Activity size={13} /></span>
 						<span class="font-mono text-[10px] uppercase tracking-wide text-muted">Monitoring</span>
@@ -133,20 +133,21 @@
 						network.
 					</p>
 				</div>
-				<div>
-					<div class="mb-1 flex justify-between font-mono text-[10px]">
+				<!-- Visual — flush to card edges -->
+				<div class="mt-auto">
+					<div class="mb-1 flex justify-between px-5 font-mono text-[10px]">
 						<span class="text-muted/60">Gi0/0 — bandwidth utilization</span>
 						<span class="text-success">● 98.2% uptime</span>
 					</div>
 					<svg
 						viewBox="0 0 320 48"
-						class="h-10 w-full"
+						class="h-12 w-full"
 						preserveAspectRatio="none"
 						aria-hidden="true"
 					>
 						<defs>
 							<linearGradient id="sparkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-								<stop offset="0%" style="stop-color: var(--color-accent); stop-opacity: 0.25" />
+								<stop offset="0%" style="stop-color: var(--color-accent); stop-opacity: 0.3" />
 								<stop offset="100%" style="stop-color: var(--color-accent); stop-opacity: 0" />
 							</linearGradient>
 						</defs>
@@ -166,9 +167,9 @@
 
 			<!-- AI Agent (col-span-1) -->
 			<div
-				class="col-span-1 flex h-56 flex-col justify-between rounded-lg border border-edge bg-surface p-5"
+				class="col-span-1 flex h-56 flex-col overflow-hidden rounded-lg border border-edge bg-surface"
 			>
-				<div>
+				<div class="p-5">
 					<div class="mb-2 flex items-center gap-1.5">
 						<span class="text-accent"><BrainCircuit size={13} /></span>
 						<span class="font-mono text-[10px] uppercase tracking-wide text-muted">AI</span>
@@ -178,7 +179,8 @@
 						Conversational assistant for network operations queries and automated runbook execution.
 					</p>
 				</div>
-				<div class="space-y-2">
+				<!-- Visual -->
+				<div class="mt-auto space-y-2 px-5 pb-5">
 					<div class="flex justify-end">
 						<div
 							class="max-w-[85%] rounded rounded-br-none border border-accent/20 bg-accent/10 px-2.5 py-1.5 font-mono text-[10px] text-accent"
@@ -198,9 +200,9 @@
 
 			<!-- Device Management (col-span-1) -->
 			<div
-				class="col-span-1 flex h-56 flex-col justify-between rounded-lg border border-edge bg-surface p-5"
+				class="col-span-1 flex h-56 flex-col overflow-hidden rounded-lg border border-edge bg-surface"
 			>
-				<div>
+				<div class="p-5">
 					<div class="mb-2 flex items-center gap-1.5">
 						<span class="text-accent"><Server size={13} /></span>
 						<span class="font-mono text-[10px] uppercase tracking-wide text-muted">Resources</span>
@@ -211,7 +213,8 @@
 						tracking.
 					</p>
 				</div>
-				<div class="space-y-2">
+				<!-- Visual -->
+				<div class="mt-auto space-y-2 px-5 pb-5">
 					{#each devices as device (device.name)}
 						<div class="flex items-center justify-between">
 							<div class="flex items-center gap-2">
@@ -228,9 +231,9 @@
 
 			<!-- Network Topology (col-span-1) -->
 			<div
-				class="col-span-1 flex h-56 flex-col justify-between rounded-lg border border-edge bg-surface p-5"
+				class="col-span-1 flex h-56 flex-col overflow-hidden rounded-lg border border-edge bg-surface"
 			>
-				<div>
+				<div class="p-5">
 					<div class="mb-2 flex items-center gap-1.5">
 						<span class="text-accent"><Network size={13} /></span>
 						<span class="font-mono text-[10px] uppercase tracking-wide text-muted">Monitoring</span>
@@ -240,7 +243,8 @@
 						Drag-and-drop visual topology editor with live link status and automatic layout.
 					</p>
 				</div>
-				<svg viewBox="0 0 110 80" class="h-16 w-full" fill="none" aria-hidden="true">
+				<!-- Visual — SVG flush to bottom -->
+				<svg viewBox="0 0 110 80" class="mt-auto h-20 w-full" fill="none" aria-hidden="true">
 					<line
 						x1="55"
 						y1="14"
@@ -315,9 +319,9 @@
 
 			<!-- AI Diagnostics (col-span-2) -->
 			<div
-				class="col-span-2 flex h-56 flex-col justify-between rounded-lg border border-edge bg-surface p-5"
+				class="col-span-2 flex h-56 flex-col overflow-hidden rounded-lg border border-edge bg-surface"
 			>
-				<div>
+				<div class="p-5">
 					<div class="mb-2 flex items-center gap-1.5">
 						<span class="text-accent"><Bot size={13} /></span>
 						<span class="font-mono text-[10px] uppercase tracking-wide text-muted">AI</span>
@@ -328,7 +332,10 @@
 						steps.
 					</p>
 				</div>
-				<div class="space-y-0.5 rounded border border-edge bg-canvas p-3 font-mono text-[10px]">
+				<!-- Visual — terminal flush to bottom -->
+				<div
+					class="mt-auto mx-5 mb-5 space-y-0.5 rounded border border-edge bg-canvas p-3 font-mono text-[10px]"
+				>
 					<div class="text-muted/50">$ crux diagnose 10.0.1.1</div>
 					<div class="text-content">▸ Running SNMP diagnostics...</div>
 					<div class="text-warning">✗ BGP session with 10.0.1.2 — DOWN</div>
@@ -339,9 +346,9 @@
 
 			<!-- IPAM (col-span-1) -->
 			<div
-				class="col-span-1 flex h-56 flex-col justify-between rounded-lg border border-edge bg-surface p-5"
+				class="col-span-1 flex h-56 flex-col overflow-hidden rounded-lg border border-edge bg-surface"
 			>
-				<div>
+				<div class="p-5">
 					<div class="mb-2 flex items-center gap-1.5">
 						<span class="text-accent"><MapPin size={13} /></span>
 						<span class="font-mono text-[10px] uppercase tracking-wide text-muted">Resources</span>
@@ -351,7 +358,8 @@
 						Subnet allocation, VLAN tracking, and IP conflict detection across all address spaces.
 					</p>
 				</div>
-				<div>
+				<!-- Visual -->
+				<div class="mt-auto px-5 pb-5">
 					<div class="mb-1.5 font-mono text-[10px] text-muted/60">10.0.0.0/22 — utilization</div>
 					<div class="grid grid-cols-8 gap-0.5">
 						{#each ipamSlots as slot (slot)}

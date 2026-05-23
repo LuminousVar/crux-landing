@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Hero from '$lib/components/sections/Hero.svelte';
 	import Introduction from '$lib/components/sections/Introduction.svelte';
-	import FeatureOverview from '$lib/components/sections/FeatureOverview.svelte';
+	import FeatureOrbit from '$lib/components/sections/FeatureOrbit.svelte';
 	import UseCases from '$lib/components/sections/UseCases.svelte';
 	import TechStack from '$lib/components/sections/TechStack.svelte';
 	import Faq from '$lib/components/sections/Faq.svelte';
@@ -11,7 +11,7 @@
 <main>
 	<Hero />
 	<Introduction />
-	<FeatureOverview />
+	<FeatureOrbit />
 	<UseCases />
 	<TechStack />
 	<Faq />
