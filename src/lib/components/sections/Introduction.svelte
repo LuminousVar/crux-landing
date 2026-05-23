@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Server, Cloud } from 'lucide-svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
+	import { Cloud, Server } from 'lucide-svelte';
 </script>
 
 <section id="introduction" aria-labelledby="intro-heading" class="bg-canvas py-24">
@@ -40,6 +40,10 @@
 					<li class="flex items-start gap-2">
 						<span class="mt-0.5 text-success">✓</span>
 						Bring your own AI provider (Groq, Ollama, Gemini)
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-0.5 text-success">✓</span>
+						Easy to set up
 					</li>
 				</ul>
 			</div>
