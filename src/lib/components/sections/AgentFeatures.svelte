@@ -79,17 +79,17 @@
 	];
 
 	const initialPositions = [
-		{ x: 40, y: 30 },
-		{ x: 255, y: 55 },
-		{ x: 490, y: 18 },
-		{ x: 710, y: 45 },
-		{ x: 75, y: 265 },
-		{ x: 330, y: 285 },
-		{ x: 565, y: 245 },
-		{ x: 770, y: 265 }
+		{ x: 20, y: 25 }, // BGP Status      — top-left
+		{ x: 355, y: 10 }, // MOP Generator   — top center-left
+		{ x: 645, y: 35 }, // Backup Audit    — top center-right
+		{ x: 975, y: 15 }, // Trap Summary    — top-right
+		{ x: 30, y: 335 }, // Health Check    — bottom-left
+		{ x: 360, y: 345 }, // High CPU        — bottom center-left
+		{ x: 640, y: 330 }, // Fault Analysis  — bottom center-right
+		{ x: 970, y: 350 } // Suggest feature — bottom-right
 	];
 
-	const rotations = [-3, 2, -1, 4, -2, 3, -4, 1];
+	const rotations = [-4, 3, -5, 2, 4, -3, 5, -2];
 
 	let noteStates = $state<NoteState[]>(
 		notes.map((n, i) => ({
@@ -101,16 +101,18 @@
 	);
 
 	let draggingId = $state<number | null>(null);
+	let topId = $state<number | null>(null);
 	let dragOffset = $state({ x: 0, y: 0 });
 	let sectionEl: HTMLElement | null = null;
 	let boardEl: HTMLElement | null = null;
 
-	// Card width matches w-52 (13rem = 208px)
-	const CARD_W = 208;
+	// Card width matches w-[250px]
+	const CARD_W = 250;
 
 	function handlePointerDown(e: PointerEvent, id: number) {
 		e.preventDefault();
 		draggingId = id;
+		topId = id;
 		const note = noteStates.find((n) => n.id === id)!;
 		dragOffset = { x: e.clientX - note.x, y: e.clientY - note.y };
 		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -149,6 +151,13 @@
 	onpointermove={handlePointerMove}
 	onpointerup={handlePointerUp}
 >
+	<!-- bottom hint -->
+	<p
+		class="absolute bottom-5 right-6 rounded-sm border border-dotted border-accent/30 px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest text-muted/70"
+	>
+		↕ Try moving the cards
+	</p>
+
 	<!-- grid background spans the full section -->
 	<div
 		class="pointer-events-none absolute inset-0 opacity-[0.35]"
@@ -165,12 +174,16 @@
 		</p>
 
 		<!-- board — visual height container only, no event handling -->
-		<div class="relative h-[480px]" bind:this={boardEl}>
+		<div class="relative h-[624px]" bind:this={boardEl}>
 			{#each noteStates as note, i (note.id)}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
-					class="absolute w-52 min-h-[265px] select-none rounded-lg bg-elevated p-6
-						{draggingId === note.id ? 'z-50 cursor-grabbing' : 'z-10 cursor-grab'}"
+					class="absolute w-[250px] min-h-[265px] select-none bg-elevated p-6
+						{draggingId === note.id
+						? 'z-50 cursor-grabbing'
+						: topId === note.id
+							? 'z-20 cursor-grab'
+							: 'z-10 cursor-grab'}"
 					style="transform: translate({note.x}px, {note.y}px) rotate({note.rotation}deg); top: 0; left: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), 0 20px 40px rgba(0,0,0,0.25);"
 					onpointerdown={(e) => handlePointerDown(e, note.id)}
 				>
@@ -194,9 +207,5 @@
 				</div>
 			{/each}
 		</div>
-
-		<p class="mt-4 text-right font-mono text-[10px] uppercase tracking-widest text-muted/40">
-			↕ Try moving the cards
-		</p>
 	</div>
 </section>
