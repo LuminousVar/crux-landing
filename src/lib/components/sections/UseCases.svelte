@@ -81,7 +81,7 @@
 
 		const tick = (t: number) => {
 			if (prev !== null && !_isHovered && !_isDragging) {
-				offset = (offset + (t - prev) / 4000) % COUNT;
+				offset = (offset + (t - prev) / 12000) % COUNT;
 			}
 			prev = t;
 			rafId = requestAnimationFrame(tick);
@@ -128,16 +128,16 @@
 			ry = lerp(0, 16, absRel) * sign;
 			s = lerp(1, 0.82, absRel);
 			op = lerp(1, 0.7, absRel);
-		} else if (absRel <= 1.7) {
-			const t = (absRel - 1) / 0.7;
-			tx = lerp(295, 490, t) * sign;
-			ry = lerp(16, 22, t) * sign;
-			s = lerp(0.82, 0.65, t);
+		} else if (absRel <= 1.3) {
+			const t = (absRel - 1) / 0.3;
+			tx = lerp(295, 400, t) * sign;
+			ry = lerp(16, 20, t) * sign;
+			s = lerp(0.82, 0.72, t);
 			op = lerp(0.7, 0, t);
 		} else {
-			tx = 490 * sign;
-			ry = 22 * sign;
-			s = 0.65;
+			tx = 400 * sign;
+			ry = 20 * sign;
+			s = 0.72;
 			op = 0;
 		}
 
