@@ -10,7 +10,10 @@
 		onclick={() => (open = !open)}
 	>
 		<span class="font-medium">{question}</span>
-		<span class="font-mono text-lg text-muted transition-transform duration-300" class:rotate-45={open}>
+		<span
+			class="font-mono text-lg text-muted transition-transform duration-300"
+			class:rotate-45={open}
+		>
 			+
 		</span>
 	</button>

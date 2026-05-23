@@ -20,7 +20,12 @@
 		},
 		{
 			layer: 'AI',
-			items: [{ name: 'OpenAI-compatible API' }, { name: 'Groq' }, { name: 'DeepSeek' }, { name: 'Gemini' }]
+			items: [
+				{ name: 'OpenAI-compatible API' },
+				{ name: 'Groq' },
+				{ name: 'DeepSeek' },
+				{ name: 'Gemini' }
+			]
 		},
 		{
 			layer: 'Deployment',
@@ -40,7 +45,7 @@
 	</p>
 
 	<div class="flex flex-col gap-6 rounded-lg border border-edge bg-surface p-8">
-		{#each groups as group, i}
+		{#each groups as group, i (i)}
 			<div>
 				<TechGroup layer={group.layer} items={group.items} />
 				{#if i < groups.length - 1}

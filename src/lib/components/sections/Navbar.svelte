@@ -20,16 +20,32 @@
 	class:backdrop-blur-md={scrolled}
 >
 	<nav
-		class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4"
+		class="mx-auto flex max-w-6xl items-center justify-between px-6 py-2.5"
 		aria-label="Main navigation"
 	>
-		<a href="/" class="font-mono text-xl font-bold text-accent">crux</a>
+		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+		<a href="/" aria-label="Crux home" class="flex items-center gap-2">
+			<img src="/crux-logo-nobg.svg" alt="" class="h-12 w-auto" aria-hidden="true" />
+			<span class="font-mono text-xl font-bold leading-none text-accent">Crux</span>
+		</a>
 
 		<ul class="hidden items-center gap-8 md:flex">
-			<li><a href="#features" class="text-sm text-muted transition-colors hover:text-content">Features</a></li>
-			<li><a href="#use-cases" class="text-sm text-muted transition-colors hover:text-content">Use Cases</a></li>
-			<li><a href="#tech" class="text-sm text-muted transition-colors hover:text-content">Tech</a></li>
-			<li><a href="#faq" class="text-sm text-muted transition-colors hover:text-content">FAQ</a></li>
+			<li>
+				<a href="#features" class="text-sm text-muted transition-colors hover:text-content"
+					>Features</a
+				>
+			</li>
+			<li>
+				<a href="#use-cases" class="text-sm text-muted transition-colors hover:text-content"
+					>Use Cases</a
+				>
+			</li>
+			<li>
+				<a href="#tech" class="text-sm text-muted transition-colors hover:text-content">Tech</a>
+			</li>
+			<li>
+				<a href="#faq" class="text-sm text-muted transition-colors hover:text-content">FAQ</a>
+			</li>
 		</ul>
 
 		<div class="flex items-center gap-4">

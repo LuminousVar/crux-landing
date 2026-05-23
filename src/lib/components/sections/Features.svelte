@@ -27,8 +27,14 @@
 			mock: {
 				label: 'Job Scheduler',
 				lines: [
-					{ text: '● backup-all        0 2 * * *   APPROVED    last: 02:00 OK', color: 'text-content' },
-					{ text: '● health-check       */15 * * * * AUTONOMOUS  next: 00:04', color: 'text-content' },
+					{
+						text: '● backup-all        0 2 * * *   APPROVED    last: 02:00 OK',
+						color: 'text-content'
+					},
+					{
+						text: '● health-check       */15 * * * * AUTONOMOUS  next: 00:04',
+						color: 'text-content'
+					},
 					{ text: '⏸ config-push        manual       PENDING APPROVAL', color: 'text-warning' },
 					{ text: '● firmware-update    0 6 * * 0   APPROVED    scheduled', color: 'text-content' }
 				]
@@ -119,7 +125,7 @@
 	</p>
 
 	<div class="divide-y divide-edge">
-		{#each features as feature, i}
+		{#each features as feature, i (i)}
 			<FeatureRow
 				number={feature.number}
 				tag={feature.tag}
@@ -137,7 +143,7 @@
 							<span class="font-mono text-xs text-muted">{feature.mock.label}</span>
 						</div>
 						<div class="p-5 font-mono text-xs leading-6">
-							{#each feature.mock.lines as line}
+							{#each feature.mock.lines as line, li (li)}
 								<p class={line.color}>{line.text}</p>
 							{/each}
 						</div>

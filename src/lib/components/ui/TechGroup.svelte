@@ -7,7 +7,7 @@
 		{layer}
 	</span>
 	<div class="flex flex-wrap gap-2">
-		{#each items as item}
+		{#each items as item, i (i)}
 			<span
 				class="rounded-md border border-edge bg-elevated px-3 py-1.5 font-mono text-xs text-content"
 			>

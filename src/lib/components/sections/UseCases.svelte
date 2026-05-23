@@ -46,7 +46,7 @@
 		</p>
 
 		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-			{#each cases as c}
+			{#each cases as c, i (i)}
 				<UseCaseCard role={c.role} description={c.description} icon={c.icon} />
 			{/each}
 		</div>

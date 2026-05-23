@@ -1,6 +1,12 @@
 <script lang="ts">
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let { role, description, icon: Icon }: { role: string; description: string; icon: any } = $props();
+	// lucide-svelte v1.0.1 ships Svelte 4 class types, not compatible with Svelte 5 Component
+	/* eslint-disable @typescript-eslint/no-explicit-any */
+	let {
+		role,
+		description,
+		icon: Icon
+	}: { role: string; description: string; icon: any } = $props();
+	/* eslint-enable @typescript-eslint/no-explicit-any */
 </script>
 
 <div

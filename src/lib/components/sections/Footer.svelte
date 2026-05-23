@@ -6,7 +6,11 @@
 	<div class="mx-auto max-w-6xl px-6 py-16">
 		<div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
 			<div class="lg:col-span-1">
-				<a href="/" class="font-mono text-xl font-bold text-accent">crux</a>
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+				<a href="/" aria-label="Crux home" class="flex items-center gap-2">
+					<img src="/crux-logo-nobg.svg" alt="" class="h-7 w-auto" aria-hidden="true" />
+					<span class="font-mono text-lg font-bold text-accent">crux</span>
+				</a>
 				<p class="mt-3 text-sm leading-relaxed text-muted">
 					Open-source network operations platform. Self-hosted, no telemetry.
 				</p>
@@ -24,10 +28,24 @@
 			<div>
 				<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">Product</p>
 				<ul class="flex flex-col gap-3">
-					<li><a href="#features" class="text-sm text-muted transition-colors hover:text-content">Features</a></li>
-					<li><a href="#use-cases" class="text-sm text-muted transition-colors hover:text-content">Use Cases</a></li>
-					<li><a href="#tech" class="text-sm text-muted transition-colors hover:text-content">Tech Stack</a></li>
-					<li><a href="#faq" class="text-sm text-muted transition-colors hover:text-content">FAQ</a></li>
+					<li>
+						<a href="#features" class="text-sm text-muted transition-colors hover:text-content"
+							>Features</a
+						>
+					</li>
+					<li>
+						<a href="#use-cases" class="text-sm text-muted transition-colors hover:text-content"
+							>Use Cases</a
+						>
+					</li>
+					<li>
+						<a href="#tech" class="text-sm text-muted transition-colors hover:text-content"
+							>Tech Stack</a
+						>
+					</li>
+					<li>
+						<a href="#faq" class="text-sm text-muted transition-colors hover:text-content">FAQ</a>
+					</li>
 				</ul>
 			</div>
 
