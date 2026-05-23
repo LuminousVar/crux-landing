@@ -166,7 +166,7 @@
 
 		<!-- board — visual height container only, no event handling -->
 		<div class="relative h-[480px]" bind:this={boardEl}>
-			{#each noteStates as note (note.id)}
+			{#each noteStates as note, i (note.id)}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
 					class="absolute w-52 min-h-[265px] select-none rounded-lg bg-elevated p-6
@@ -174,6 +174,14 @@
 					style="transform: translate({note.x}px, {note.y}px) rotate({note.rotation}deg); top: 0; left: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), 0 20px 40px rgba(0,0,0,0.25);"
 					onpointerdown={(e) => handlePointerDown(e, note.id)}
 				>
+					<!-- pin -->
+					<div
+						class="absolute left-1/2 top-0 z-10 h-[14px] w-[14px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+						style="background: {i % 2 === 0
+							? 'var(--color-danger)'
+							: 'var(--color-accent)'}; box-shadow: 0 3px 8px rgba(0,0,0,0.75), 0 1px 3px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.3);"
+					></div>
+
 					<div class="mb-[30px] flex items-center gap-2">
 						<span class="h-[3px] w-[3px] flex-shrink-0 rounded-full {note.dot}"></span>
 						<span class="font-mono text-[10px] uppercase tracking-wider text-muted"
