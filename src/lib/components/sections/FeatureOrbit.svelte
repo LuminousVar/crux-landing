@@ -95,16 +95,19 @@
 </script>
 
 <section id="features" aria-labelledby="features-heading" class="bg-canvas py-24">
-	<div class="mx-auto max-w-6xl px-6">
+	<div class="mx-auto max-w-7xl px-6">
 		<!-- Section header -->
-		<div class="mb-16 text-center">
-			<p class="mb-3 font-mono text-[10px] uppercase tracking-[0.25em] text-muted">
-				Platform Capabilities
+		<div>
+			<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">
+				01 // Platform Capabilities
 			</p>
-			<h2 id="features-heading" class="mb-2 text-2xl font-semibold tracking-tight text-content">
+			<h2
+				id="features-heading"
+				class="mb-4 text-4xl font-bold tracking-tight text-content md:text-5xl"
+			>
 				Every tool your NOC needs.
 			</h2>
-			<p class="text-sm text-muted">One platform. Zero silos.</p>
+			<p class="mb-16 max-w-xl text-base text-muted">One platform. Zero silos.</p>
 		</div>
 
 		<!-- Orbit — desktop -->
