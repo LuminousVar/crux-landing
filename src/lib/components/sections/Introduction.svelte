@@ -5,7 +5,7 @@
 
 <section id="introduction" aria-labelledby="intro-heading" class="bg-canvas py-24">
 	<div class="mx-auto max-w-4xl px-6">
-		<p class="mb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-muted/60">
+		<p class="mb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-muted">
 			Open Source · Self-Hosted or Cloud
 		</p>
 
@@ -57,19 +57,47 @@
 				<ul class="space-y-2 text-xs text-muted">
 					<li class="flex items-start gap-2">
 						<span class="mt-0.5 text-success">✓</span>
-						Connect via WireGuard — compatible with any WireGuard client
+						Crux manages the WireGuard tunnel — you only install the client
 					</li>
 					<li class="flex items-start gap-2">
 						<span class="mt-0.5 text-success">✓</span>
-						Email Crux Enterprise to request VPN access
+						Connect devices from multiple sites via one WireGuard hub — no per-site setup
 					</li>
 					<li class="flex items-start gap-2">
 						<span class="mt-0.5 text-success">✓</span>
-						We handle infrastructure, updates, and uptime
+						Works across NAT and firewalls — WireGuard handles traversal
 					</li>
 					<li class="flex items-start gap-2">
 						<span class="mt-0.5 text-success">✓</span>
-						Same open-source core — no feature lock-in
+						No server setup, no Compose files, no maintenance
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-0.5 text-success">✓</span>
+						No dedicated server or VM required on your end
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-0.5 text-success">✓</span>
+						No Postgres, no Valkey, no Celery worker config — we handle them all
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-0.5 text-success">✓</span>
+						Platform uptime managed by us — not your on-call
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-0.5 text-success">✓</span>
+						Always on the latest version — updates applied automatically
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-0.5 text-success">✓</span>
+						Start monitoring devices in under 10 minutes
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-0.5 text-success">✓</span>
+						Join the waitlist — early access opens soon
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="mt-0.5 text-success">✓</span>
+						Built-in AI provider included — or connect your own (Groq, DeepSeek, Gemini)
 					</li>
 				</ul>
 			</div>
