@@ -128,8 +128,8 @@
 			ry = lerp(0, 16, absRel) * sign;
 			s = lerp(1, 0.82, absRel);
 			op = lerp(1, 0.7, absRel);
-		} else if (absRel <= 1.3) {
-			const t = (absRel - 1) / 0.3;
+		} else if (absRel <= 1.35) {
+			const t = (absRel - 1) / 0.35;
 			tx = lerp(308, 408, t) * sign;
 			ry = lerp(16, 20, t) * sign;
 			s = lerp(0.82, 0.72, t);
