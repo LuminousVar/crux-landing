@@ -27,7 +27,9 @@
 		{watermark}
 	</span>
 
-	<span class="relative z-10 mb-6 font-mono text-[9px] uppercase tracking-[0.18em] text-black/40">
+	<span
+		class="relative z-10 mb-6 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-black/60"
+	>
 		# {tag}
 	</span>
 	<p

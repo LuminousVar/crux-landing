@@ -16,7 +16,7 @@
 			description:
 				'Every SNMP trap gets an AI-generated root-cause summary before you open the ticket. Less noise, faster triage, cleaner handoffs.',
 			color: '#f09870',
-			watermark: 'I'
+			watermark: 'S'
 		},
 		{
 			tag: 'Access Control',
