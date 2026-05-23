@@ -98,16 +98,16 @@
 	<div class="mx-auto max-w-7xl px-6">
 		<!-- Section header -->
 		<div>
-			<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">
-				01 // Platform Capabilities
-			</p>
+			<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">01 // Features</p>
 			<h2
 				id="features-heading"
 				class="mb-4 text-4xl font-bold tracking-tight text-content md:text-5xl"
 			>
-				Every tool your NOC needs.
+				All ops. One platform.
 			</h2>
-			<p class="mb-16 max-w-xl text-base text-muted">One platform. Zero silos.</p>
+			<p class="mb-16 max-w-xl text-base text-muted">
+				Monitoring, automation, and AI triage — built as one system, not bolted together.
+			</p>
 		</div>
 
 		<!-- Orbit — desktop -->
