@@ -124,18 +124,18 @@
 		let tx: number, ry: number, s: number, op: number;
 
 		if (absRel <= 1) {
-			tx = lerp(0, 295, absRel) * sign;
+			tx = lerp(0, 308, absRel) * sign;
 			ry = lerp(0, 16, absRel) * sign;
 			s = lerp(1, 0.82, absRel);
 			op = lerp(1, 0.7, absRel);
 		} else if (absRel <= 1.3) {
 			const t = (absRel - 1) / 0.3;
-			tx = lerp(295, 400, t) * sign;
+			tx = lerp(308, 408, t) * sign;
 			ry = lerp(16, 20, t) * sign;
 			s = lerp(0.82, 0.72, t);
 			op = lerp(0.7, 0, t);
 		} else {
-			tx = 400 * sign;
+			tx = 408 * sign;
 			ry = 20 * sign;
 			s = 0.72;
 			op = 0;
