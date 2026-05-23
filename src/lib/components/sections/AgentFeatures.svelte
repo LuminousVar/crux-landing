@@ -93,6 +93,11 @@
 
 	let draggingId = $state<number | null>(null);
 	let dragOffset = $state({ x: 0, y: 0 });
+	let sectionEl: HTMLElement | null = null;
+	let boardEl: HTMLElement | null = null;
+
+	// Card width matches w-52 (13rem = 208px)
+	const CARD_W = 208;
 
 	function handlePointerDown(e: PointerEvent, id: number) {
 		e.preventDefault();
@@ -105,8 +110,20 @@
 	function handlePointerMove(e: PointerEvent) {
 		if (draggingId === null) return;
 		const note = noteStates.find((n) => n.id === draggingId)!;
-		note.x = e.clientX - dragOffset.x;
-		note.y = e.clientY - dragOffset.y;
+
+		let newX = e.clientX - dragOffset.x;
+		let newY = e.clientY - dragOffset.y;
+
+		if (sectionEl && boardEl) {
+			const sr = sectionEl.getBoundingClientRect();
+			const br = boardEl.getBoundingClientRect();
+			// Clamp note position directly in board-relative coords
+			newX = Math.max(sr.left - br.left, Math.min(newX, sr.right - br.left - CARD_W));
+			newY = Math.max(sr.top - br.top, Math.min(newY, sr.bottom - br.top));
+		}
+
+		note.x = newX;
+		note.y = newY;
 	}
 
 	function handlePointerUp() {
@@ -114,10 +131,14 @@
 	}
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <section
 	id="agent-features"
 	aria-labelledby="agent-heading"
 	class="relative border-t border-edge bg-canvas py-24"
+	bind:this={sectionEl}
+	onpointermove={handlePointerMove}
+	onpointerup={handlePointerUp}
 >
 	<!-- grid background spans the full section -->
 	<div
@@ -134,13 +155,8 @@
 			Describe what you need. The agent handles the rest.
 		</p>
 
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div
-			class="relative h-[480px] overflow-hidden rounded-xl"
-			onpointermove={handlePointerMove}
-			onpointerup={handlePointerUp}
-			onpointerleave={handlePointerUp}
-		>
+		<!-- board — visual height container only, no event handling -->
+		<div class="relative h-[480px]" bind:this={boardEl}>
 			{#each noteStates as note (note.id)}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
@@ -150,7 +166,7 @@
 					onpointerdown={(e) => handlePointerDown(e, note.id)}
 				>
 					<div class="mb-2 flex items-center gap-2">
-						<span class="h-2 w-2 flex-shrink-0 rounded-full {note.dot}"></span>
+						<span class="h-[3px] w-[3px] flex-shrink-0 rounded-full {note.dot}"></span>
 						<span class="font-mono text-[10px] uppercase tracking-wider text-muted"
 							>{note.category}</span
 						>
