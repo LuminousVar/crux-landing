@@ -5,6 +5,7 @@
 		category: string;
 		title: string;
 		text: string;
+		tag: string;
 		x: number;
 		y: number;
 		rotation: number;
@@ -16,56 +17,64 @@
 			dot: 'bg-accent',
 			category: 'Monitoring',
 			title: 'BGP Status',
-			text: 'Check BGP session state on all edge routers. Flag any sessions in IDLE or ACTIVE state.'
+			text: 'Check BGP session state on all edge routers. Flag any sessions in IDLE or ACTIVE state, and return the peer AS, uptime, and prefix count for each.',
+			tag: 'routing / bgp / edge'
 		},
 		{
 			id: 2,
 			dot: 'bg-success',
 			category: 'Automation',
 			title: 'MOP Generator',
-			text: "Generate a maintenance operation procedure for tonight's config-push window."
+			text: "Generate a full maintenance operation procedure for tonight's config-push window. Include pre-checks, rollback steps, and a post-change verification checklist.",
+			tag: 'planning / ops / automation'
 		},
 		{
 			id: 3,
 			dot: 'bg-warning',
 			category: 'Automation',
 			title: 'Backup Audit',
-			text: "List all devices that haven't had a successful backup in the last 7 days."
+			text: "List all devices that haven't had a successful backup in the last 7 days. Group by site and include the timestamp of the last known-good backup.",
+			tag: 'compliance / backup / audit'
 		},
 		{
 			id: 4,
 			dot: 'bg-accent',
 			category: 'AI',
 			title: 'Trap Summary',
-			text: 'Summarize all SNMP traps from the last hour, grouped by severity and device.'
+			text: 'Summarize all SNMP traps from the last hour, grouped by severity and device. Highlight any traps that indicate repeated failures or escalating error counts.',
+			tag: 'snmp / alerts / triage'
 		},
 		{
 			id: 5,
 			dot: 'bg-success',
 			category: 'Monitoring',
 			title: 'Health Check',
-			text: 'Run a full health check on core-sw-01 — uptime, CPU load, and interface error counts.'
+			text: 'Run a full health check on core-sw-01. Return uptime, CPU load, memory usage, interface error counts, and any interfaces currently in a down state.',
+			tag: 'health / device / status'
 		},
 		{
 			id: 6,
 			dot: 'bg-warning',
 			category: 'Monitoring',
 			title: 'High CPU',
-			text: 'Show all devices reporting CPU above 80% in the last 15 minutes.'
+			text: 'Show all devices reporting CPU above 80% in the last 15 minutes. Include the process or task driving the spike if available from SNMP OIDs.',
+			tag: 'performance / cpu / alert'
 		},
 		{
 			id: 7,
 			dot: 'bg-danger',
 			category: 'AI',
 			title: 'Fault Analysis',
-			text: 'What caused the interface flap on dist-rt-02? Return root cause with remediation steps.'
+			text: 'What caused the interface flap on dist-rt-02? Analyze available SNMP data and return a root cause assessment with specific remediation commands.',
+			tag: 'diagnosis / ai / remediation'
 		},
 		{
 			id: 8,
 			dot: 'bg-muted',
 			category: 'Community',
 			title: 'Suggest a feature',
-			text: 'Have an idea for the AI agent? Open an issue on GitHub and help shape the roadmap.'
+			text: 'Have an idea for the AI agent? Open an issue on GitHub and describe the command or workflow you want supported. Every suggestion is reviewed.',
+			tag: 'community / feedback / roadmap'
 		}
 	];
 
@@ -160,19 +169,20 @@
 			{#each noteStates as note (note.id)}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
-					class="absolute w-52 select-none rounded-xl border border-edge bg-surface p-4
+					class="absolute w-52 min-h-[265px] select-none rounded-lg bg-elevated p-6
 						{draggingId === note.id ? 'z-50 cursor-grabbing' : 'z-10 cursor-grab'}"
-					style="transform: translate({note.x}px, {note.y}px) rotate({note.rotation}deg); top: 0; left: 0;"
+					style="transform: translate({note.x}px, {note.y}px) rotate({note.rotation}deg); top: 0; left: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), 0 20px 40px rgba(0,0,0,0.25);"
 					onpointerdown={(e) => handlePointerDown(e, note.id)}
 				>
-					<div class="mb-2 flex items-center gap-2">
+					<div class="mb-[30px] flex items-center gap-2">
 						<span class="h-[3px] w-[3px] flex-shrink-0 rounded-full {note.dot}"></span>
 						<span class="font-mono text-[10px] uppercase tracking-wider text-muted"
 							>{note.category}</span
 						>
 					</div>
-					<p class="mb-1.5 text-sm font-semibold text-content">{note.title}</p>
-					<p class="text-[11px] leading-relaxed text-muted">{note.text}</p>
+					<p class="mb-1.5 text-[17px] font-semibold text-content">{note.title}</p>
+					<p class="text-xs leading-relaxed text-muted">{note.text}</p>
+					<span class="mt-4 block font-mono text-[10px] text-muted/40">{note.tag}</span>
 				</div>
 			{/each}
 		</div>
