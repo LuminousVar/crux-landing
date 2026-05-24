@@ -53,6 +53,11 @@
 				'A managed Cloud deployment is coming soon. Crux handles the WireGuard tunnel — your devices stay on your own network, but you skip the self-hosting setup entirely. The self-hosted version remains free and open-source.'
 		},
 		{
+			question: 'What does the Cloud version handle that I would otherwise manage myself?',
+			answer:
+				'Everything infrastructure-related: PostgreSQL provisioning and backups, Valkey (Redis) setup, Celery worker scaling, TLS certificates, OS patches, and platform upgrades. You connect your devices through an encrypted tunnel — no Compose file, no server to maintain, no database to babysit. Your device credentials stay encrypted on your side of the tunnel and are never stored in Crux infrastructure.'
+		},
+		{
 			question: 'Can I contribute?',
 			answer:
 				'Yes. The repository accepts pull requests for bug fixes, new vendor templates, and feature additions. Check the contributing guide in the repo README for branch conventions and how to run the stack locally.'
@@ -62,7 +67,7 @@
 
 <section id="faq" class="border-t border-edge bg-surface py-24" aria-labelledby="faq-heading">
 	<div class="mx-auto max-w-3xl px-6">
-		<p class="mb-3 font-mono text-xs uppercase tracking-widest text-muted">05 // FAQ</p>
+		<p class="mb-3 font-mono text-xs uppercase tracking-widest text-muted">04 // FAQ</p>
 		<h2 id="faq-heading" class="mb-12 text-3xl font-bold text-content md:text-4xl">
 			Common questions
 		</h2>
