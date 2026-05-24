@@ -42,9 +42,6 @@
 				>
 			</li>
 			<li>
-				<a href="#tech" class="text-sm text-muted transition-colors hover:text-content">Tech</a>
-			</li>
-			<li>
 				<a href="#faq" class="text-sm text-muted transition-colors hover:text-content">FAQ</a>
 			</li>
 		</ul>

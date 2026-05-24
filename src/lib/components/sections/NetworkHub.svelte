@@ -65,8 +65,9 @@
 			One platform.<br />Every device.
 		</h2>
 		<p class="mb-16 max-w-xl text-base text-muted">
-			Crux connects to any device reachable by SSH or SNMP — 100+ vendor platforms supported via
-			Netmiko and NAPALM, with no per-vendor configuration required.
+			Configure devices over <span class="text-content">SSH, Telnet, RESTCONF, or NETCONF</span> —
+			and poll health metrics via <span class="text-content">SNMP</span>. 100+ vendor platforms
+			supported via Netmiko and NAPALM, with no per-vendor configuration required.
 		</p>
 
 		<!-- Hub diagram -->
