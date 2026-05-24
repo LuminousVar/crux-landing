@@ -175,10 +175,13 @@
 									<!-- Power LED visual -->
 									<circle cx="21" cy="65" r="2.5"
 										style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}; pointer-events: none;"/>
-									<!-- svelte-ignore a11y_click_events_have_key_events a11y_interactive_supports_focus -->
 									<circle cx="21" cy="65" r="9"
+										role="button"
+										tabindex="0"
+										aria-label="{devicePowered ? 'Power off' : 'Power on'}"
 										style="fill: transparent; cursor: pointer;"
 										onclick={() => (devicePowered = !devicePowered)}
+										onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? (devicePowered = !devicePowered) : null}
 									/>
 									<!-- Ethernet ports -->
 									<rect x="33" y="59" width="8" height="7" rx="1" style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"/>

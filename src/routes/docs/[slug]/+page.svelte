@@ -18,7 +18,7 @@
 <div class="flex">
 	<!-- Sidebar -->
 	<aside class="hidden w-56 shrink-0 border-r border-edge md:block">
-		<nav class="sticky top-12 h-[calc(100vh-3rem)] overflow-y-auto px-4 py-8">
+		<nav class="sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto px-4 py-8">
 			<p class="mb-3 px-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted/50">
 				{activeGroup.label}
 			</p>
