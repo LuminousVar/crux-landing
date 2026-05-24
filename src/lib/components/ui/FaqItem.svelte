@@ -5,7 +5,7 @@
 
 <div class="border-b border-edge">
 	<button
-		class="flex w-full items-center justify-between gap-4 py-5 text-left text-content transition-colors hover:text-accent"
+		class="flex w-full cursor-pointer items-center justify-between gap-4 py-5 text-left text-content transition-colors hover:text-accent"
 		aria-expanded={open}
 		onclick={() => (open = !open)}
 	>

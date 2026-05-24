@@ -1,6 +1,31 @@
 <script lang="ts">
-	import Badge from '$lib/components/ui/Badge.svelte';
-	import { Cloud, Server } from 'lucide-svelte';
+	import { Bot, Globe, Layers, ListChecks, Lock, RefreshCw, Shield, Zap } from 'lucide-svelte';
+
+	const selfHostedFeatures = [
+		{ icon: Layers, text: 'One compose.yaml — Postgres, Valkey, Celery, FastAPI, SvelteKit' },
+		{ icon: Lock, text: 'Credentials encrypted with AES-256 — never leave your network' },
+		{
+			icon: Bot,
+			text: 'Bring your own AI provider — Groq, Ollama, DeepSeek, Gemini, or any other'
+		},
+		{ icon: ListChecks, text: 'Immutable audit log — every change attributed and timestamped' }
+	];
+
+	const cloudFeatures = [
+		{
+			icon: Zap,
+			text: 'Zero infrastructure to manage — no Compose files, no Postgres, no on-call'
+		},
+		{
+			icon: Shield,
+			text: 'WireGuard tunnel managed by Crux — install only the client on your devices'
+		},
+		{
+			icon: Globe,
+			text: 'Works across NAT and firewalls — no port forwarding or static IP required'
+		},
+		{ icon: RefreshCw, text: 'Always on the latest version — updates applied automatically' }
+	];
 </script>
 
 <section id="introduction" aria-labelledby="intro-heading" class="bg-canvas py-24">
@@ -19,92 +44,162 @@
 			on your infrastructure or start on the cloud.
 		</p>
 
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-			<div class="rounded-lg border border-edge bg-surface p-6">
-				<div class="mb-4 flex items-center gap-3">
-					<Server size={18} class="text-muted" />
-					<span class="text-sm font-semibold text-content">Self-Hosted</span>
+		<!-- Vercel-style column grid -->
+		<div
+			class="relative grid grid-cols-1 divide-y divide-edge border border-edge md:grid-cols-2 md:divide-x md:divide-y-0"
+		>
+			<!-- ── Self-Hosted ───────────────────────────── -->
+			<div class="flex flex-col gap-8 p-8">
+				<!-- Header -->
+				<div>
+					<h3 class="mb-3 text-3xl font-bold tracking-tight text-content">Self-Hosted</h3>
+					<p class="text-sm leading-relaxed text-muted">
+						Full control over your infrastructure, credentials, and data.
+						<strong class="font-semibold text-content">Free forever.</strong>
+					</p>
 				</div>
-				<p class="mb-4 text-xs leading-relaxed text-muted">
-					Full control over your infrastructure, credentials, and data.
-				</p>
-				<ul class="space-y-2 text-xs text-muted">
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Deploy via Podman Compose or Docker Compose
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Your secrets never leave your network
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Bring your own AI provider (Groq, Ollama, Gemini)
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Easy to set up
-					</li>
+
+				<!-- Features -->
+				<ul class="flex flex-1 flex-col gap-4">
+					{#each selfHostedFeatures as feature (feature.text)}
+						<li class="flex items-start gap-3.5">
+							<div
+								class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-edge bg-elevated"
+							>
+								<svelte:component this={feature.icon} size={14} class="text-muted" />
+							</div>
+							<span class="pt-1 text-sm leading-relaxed text-muted">{feature.text}</span>
+						</li>
+					{/each}
 				</ul>
+
+				<!-- CTA -->
+				<a
+					href="https://github.com/LuminousVar/crux-landing"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="vercel-btn vercel-btn--ghost"
+				>
+					Deploy Now
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+					</svg>
+				</a>
 			</div>
 
-			<div class="rounded-lg border border-accent/30 bg-accent/5 p-6">
-				<div class="mb-4 flex items-center gap-3">
-					<Cloud size={18} class="text-accent" />
-					<span class="text-sm font-semibold text-content">Cloud</span>
-					<Badge label="Coming Soon" />
+			<!-- ── Cloud ─────────────────────────────────── -->
+			<div class="relative flex flex-col gap-8 p-8">
+				<!-- "Coming Soon" badge — sits on top border like Vercel "Popular" -->
+				<div class="absolute -top-3.5 left-1/2 -translate-x-1/2">
+					<span class="coming-soon-badge">Coming Soon</span>
 				</div>
-				<p class="mb-4 text-xs leading-relaxed text-muted">
-					Hosted infrastructure, secured over WireGuard VPN. Email us to get your device added to
-					the network.
-				</p>
-				<ul class="space-y-2 text-xs text-muted">
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Crux manages the WireGuard tunnel — you only install the client
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Connect devices from multiple sites via one WireGuard hub — no per-site setup
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Works across NAT and firewalls — WireGuard handles traversal
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						No server setup, no Compose files, no maintenance
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						No dedicated server or VM required on your end
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						No Postgres, no Valkey, no Celery worker config — we handle them all
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Platform uptime managed by us — not your on-call
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Always on the latest version — updates applied automatically
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Start monitoring devices in under 10 minutes
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Join the waitlist — early access opens soon
-					</li>
-					<li class="flex items-start gap-2">
-						<span class="mt-0.5 text-success">✓</span>
-						Built-in AI provider included — or connect your own (Groq, DeepSeek, Gemini)
-					</li>
+
+				<!-- Header -->
+				<div>
+					<h3 class="mb-3 text-3xl font-bold tracking-tight text-content">Cloud</h3>
+					<p class="text-sm leading-relaxed text-muted">
+						Managed infrastructure over WireGuard VPN. Zero server setup on your end.
+						<strong class="font-semibold text-content">Early access opening soon.</strong>
+					</p>
+				</div>
+
+				<!-- Features -->
+				<ul class="flex flex-1 flex-col gap-4">
+					{#each cloudFeatures as feature (feature.text)}
+						<li class="flex items-start gap-3.5">
+							<div
+								class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-edge bg-elevated"
+							>
+								<svelte:component this={feature.icon} size={14} class="text-muted" />
+							</div>
+							<span class="pt-1 text-sm leading-relaxed text-muted">{feature.text}</span>
+						</li>
+					{/each}
 				</ul>
+
+				<!-- CTA -->
+				<a href="mailto:luminousv@disroot.org" class="vercel-btn vercel-btn--accent">
+					Contact Us
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+					</svg>
+				</a>
 			</div>
 		</div>
 	</div>
 </section>
+
+<style>
+	/* ── Coming Soon badge (Vercel "Popular" style) ─── */
+	.coming-soon-badge {
+		display: inline-flex;
+		align-items: center;
+		padding: 3px 14px;
+		border-radius: 999px;
+		border: 1px solid var(--color-edge);
+		background: var(--color-canvas);
+		font-size: 11px;
+		font-weight: 500;
+		color: var(--color-muted);
+		white-space: nowrap;
+	}
+
+	/* ── Full-width pill buttons (Vercel style) ─────── */
+	.vercel-btn {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		padding: 14px 20px;
+		border-radius: 999px;
+		font-size: 0.9375rem;
+		font-weight: 500;
+		text-decoration: none;
+		transition:
+			background 0.15s,
+			border-color 0.15s,
+			color 0.15s;
+	}
+
+	.vercel-btn--ghost {
+		border: 1px solid var(--color-edge);
+		background: transparent;
+		color: var(--color-content);
+	}
+
+	.vercel-btn--ghost:hover {
+		background: var(--color-elevated);
+		border-color: var(--color-muted);
+	}
+
+	.vercel-btn--accent {
+		border: 1px solid var(--color-accent);
+		background: var(--color-accent);
+		color: #fff;
+	}
+
+	.vercel-btn--accent:hover {
+		background: var(--color-accent-muted);
+		border-color: var(--color-accent-muted);
+	}
+</style>
