@@ -12,12 +12,10 @@
 </script>
 
 <header
-	class="fixed top-0 z-50 w-full transition-all duration-300"
-	class:bg-transparent={!scrolled}
-	class:bg-surface={scrolled}
-	class:border-b={scrolled}
-	class:border-edge={scrolled}
-	class:backdrop-blur-md={scrolled}
+	class="fixed top-0 z-50 w-full border-b backdrop-blur-md transition-colors duration-300"
+	style="background-color: {scrolled
+		? 'var(--color-surface)'
+		: 'transparent'}; border-color: {scrolled ? 'var(--color-edge)' : 'transparent'};"
 >
 	<nav
 		class="mx-auto flex max-w-6xl items-center justify-between px-6 py-2.5"
