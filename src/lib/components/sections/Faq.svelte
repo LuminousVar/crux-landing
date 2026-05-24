@@ -67,7 +67,7 @@
 
 <section id="faq" class="border-t border-edge bg-surface py-24" aria-labelledby="faq-heading">
 	<div class="mx-auto max-w-3xl px-6">
-		<p class="mb-3 font-mono text-xs uppercase tracking-widest text-muted">04 // FAQ</p>
+		<p class="mb-3 font-mono text-xs uppercase tracking-widest text-muted">05 // FAQ</p>
 		<h2 id="faq-heading" class="mb-12 text-3xl font-bold text-content md:text-4xl">
 			Common questions
 		</h2>

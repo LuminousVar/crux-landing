@@ -158,7 +158,7 @@
 	class="border-t border-edge bg-canvas py-24"
 >
 	<div class="mx-auto max-w-7xl px-6">
-		<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">02 // Use Cases</p>
+		<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">03 // Use Cases</p>
 		<h2
 			id="use-cases-heading"
 			class="mb-4 text-4xl font-bold tracking-tight text-content md:text-5xl"

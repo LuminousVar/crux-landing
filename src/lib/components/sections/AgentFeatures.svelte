@@ -206,7 +206,7 @@
 	></div>
 
 	<div class="relative mx-auto max-w-7xl px-6">
-		<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">03 // AI Agent</p>
+		<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">04 // AI Agent</p>
 		<h2 id="agent-heading" class="mb-4 text-4xl font-bold tracking-tight text-content md:text-5xl">
 			Talk to your network.
 		</h2>
