@@ -1,6 +1,7 @@
 <script lang="ts">
 	/* eslint-disable @typescript-eslint/no-explicit-any */
 	import * as Icons from 'lucide-svelte';
+	import CodeBlock from '$lib/components/ui/code-block.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -50,7 +51,7 @@
 			<!-- Title -->
 			<h1 class="mb-4 text-4xl font-bold tracking-tight text-content">{module.label}</h1>
 
-			<!-- Subtitle description -->
+			<!-- Subtitle -->
 			<p class="mb-12 text-lg leading-relaxed text-muted">{module.description}</p>
 
 			<!-- Overview -->
@@ -73,9 +74,7 @@
 			<ul class="mb-12 space-y-4">
 				{#each module.howItWorks as item (item)}
 					<li class="flex items-start gap-3">
-						<span
-							class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent/40"
-							aria-hidden="true"
+						<span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent/40" aria-hidden="true"
 						></span>
 						<span class="text-base leading-relaxed text-content/80">{item}</span>
 					</li>
@@ -96,6 +95,21 @@
 					</li>
 				{/each}
 			</ol>
+
+			<!-- MikroTik Commands -->
+			{#if data.highlightedCommands.length > 0}
+				<p class="mb-1 font-mono text-xs uppercase tracking-widest text-muted/50">
+					MikroTik Commands
+				</p>
+				<p class="mb-6 text-xs text-muted/40">
+					Run these on your MikroTik device to enable this feature.
+				</p>
+				<div class="mb-12 space-y-4">
+					{#each data.highlightedCommands as cmd (cmd.label)}
+						<CodeBlock label={cmd.label} html={cmd.html} code={cmd.code} />
+					{/each}
+				</div>
+			{/if}
 
 			<!-- Technical Notes -->
 			<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted/50">Technical Notes</p>
