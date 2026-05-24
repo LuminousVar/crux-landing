@@ -36,6 +36,9 @@
 				>
 			</li>
 			<li>
+				<a href="/docs" class="text-sm text-muted transition-colors hover:text-content">Docs</a>
+			</li>
+			<li>
 				<a href="#use-cases" class="text-sm text-muted transition-colors hover:text-content"
 					>Use Cases</a
 				>

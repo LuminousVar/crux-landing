@@ -109,7 +109,7 @@
 
 	let editText = $state('');
 	let emailText = $state('');
-	let textareaEl: HTMLTextAreaElement | null = null;
+	let textareaEl = $state<HTMLTextAreaElement | null>(null);
 	let submitting = $state(false);
 	let submitted = $state(false);
 	let submitError = $state('');

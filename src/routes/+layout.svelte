@@ -1,8 +1,16 @@
 <script lang="ts">
 	import '../app.css';
 	import Navbar from '$lib/components/sections/Navbar.svelte';
+	import { page } from '$app/state';
 
 	let { children } = $props();
+
+	let isDocs = $derived(page.url.pathname.startsWith('/docs'));
+
+	$effect(() => {
+		history.scrollRestoration = 'manual';
+		window.scrollTo(0, 0);
+	});
 </script>
 
 <svelte:head>
@@ -13,5 +21,7 @@
 	/>
 </svelte:head>
 
-<Navbar />
+{#if !isDocs}
+	<Navbar />
+{/if}
 {@render children()}
