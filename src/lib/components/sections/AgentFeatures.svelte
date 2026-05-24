@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PUBLIC_FORMSPREE_URL } from '$env/static/public';
 	interface NoteState {
 		id: number;
 		dot: string;
@@ -106,13 +107,53 @@
 	let sectionEl: HTMLElement | null = null;
 	let boardEl: HTMLElement | null = null;
 
+	let editText = $state('');
+	let emailText = $state('');
+	let textareaEl: HTMLTextAreaElement | null = null;
+	let submitting = $state(false);
+	let submitted = $state(false);
+	let submitError = $state('');
+
+	async function handleSubmit() {
+		submitting = true;
+		submitError = '';
+		try {
+			const res = await fetch(PUBLIC_FORMSPREE_URL, {
+				method: 'POST',
+				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					message: editText,
+					...(emailText.trim() ? { _replyto: emailText } : {})
+				})
+			});
+			if (res.ok) {
+				submitted = true;
+				editText = '';
+				emailText = '';
+			} else {
+				submitError = 'Failed to send. Please try again.';
+			}
+		} catch {
+			submitError = 'Network error. Please try again.';
+		} finally {
+			submitting = false;
+		}
+	}
+
 	// Card width matches w-[250px]
 	const CARD_W = 250;
 
 	function handlePointerDown(e: PointerEvent, id: number) {
-		e.preventDefault();
-		draggingId = id;
 		topId = id;
+		if ((e.target as HTMLElement).closest('textarea, input, button')) {
+			// topId update triggers a synchronous DOM patch; defer focus so it lands after
+			if (id === 8 && textareaEl) {
+				const el = textareaEl;
+				queueMicrotask(() => el.focus());
+			}
+			return;
+		}
+		draggingId = id;
 		const note = noteStates.find((n) => n.id === id)!;
 		dragOffset = { x: e.clientX - note.x, y: e.clientY - note.y };
 		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -178,12 +219,13 @@
 			{#each noteStates as note, i (note.id)}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
-					class="absolute w-[250px] min-h-[265px] select-none bg-elevated p-6
+					class="absolute w-[250px] min-h-[265px] bg-elevated p-6
+						{note.id === 8 ? '' : 'select-none'}
 						{draggingId === note.id
-						? 'z-50 cursor-grabbing'
-						: topId === note.id
-							? 'z-20 cursor-grab'
-							: 'z-10 cursor-grab'}"
+							? 'z-50 cursor-grabbing'
+							: topId === note.id
+								? 'z-20 cursor-grab'
+								: 'z-10 cursor-grab'}"
 					style="transform: translate({note.x}px, {note.y}px) rotate({note.rotation}deg); top: 0; left: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), 0 20px 40px rgba(0,0,0,0.25);"
 					onpointerdown={(e) => handlePointerDown(e, note.id)}
 				>
@@ -202,8 +244,41 @@
 						>
 					</div>
 					<p class="mb-1.5 text-[17px] font-semibold text-content">{note.title}</p>
-					<p class="text-xs leading-relaxed text-muted">{note.text}</p>
-					<span class="mt-4 block font-mono text-[10px] text-muted/40">{note.tag}</span>
+					{#if note.id === 8}
+						<textarea
+							bind:this={textareaEl}
+							bind:value={editText}
+							class="w-full resize-none bg-transparent text-sm leading-relaxed text-content placeholder:text-muted/40 focus:outline-none"
+							style="caret-color: white; user-select: text;"
+							rows="5"
+							placeholder="Have an idea for the AI agent? Describe the command or workflow you want supported."
+						></textarea>
+						<input
+							type="email"
+							bind:value={emailText}
+							class="mt-3 w-full border-b border-edge bg-transparent pb-1.5 text-xs text-content placeholder:text-muted/40 focus:border-accent focus:outline-none"
+							placeholder="Email (optional)"
+						/>
+						{#if submitted}
+							<p class="mt-4 font-mono text-[11px] uppercase tracking-widest text-success">
+								Sent.
+							</p>
+						{:else}
+							<button
+								class="mt-4 w-full rounded-md bg-accent py-2 font-mono text-[11px] uppercase tracking-widest text-white transition-colors hover:bg-accent-muted disabled:cursor-not-allowed disabled:opacity-40"
+								disabled={!editText.trim() || submitting}
+								onclick={handleSubmit}
+							>
+								{submitting ? 'Sending…' : 'Send'}
+							</button>
+							{#if submitError}
+								<p class="mt-2 font-mono text-[10px] text-danger">{submitError}</p>
+							{/if}
+						{/if}
+					{:else}
+						<p class="text-sm leading-relaxed text-muted">{note.text}</p>
+						<span class="mt-4 block font-mono text-[10px] text-muted/40">{note.tag}</span>
+					{/if}
 				</div>
 			{/each}
 		</div>
