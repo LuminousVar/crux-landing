@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Hero from '$lib/components/sections/Hero.svelte';
+	import VendorStrip from '$lib/components/sections/VendorStrip.svelte';
 	import Introduction from '$lib/components/sections/Introduction.svelte';
 	import FeatureOrbit from '$lib/components/sections/FeatureOrbit.svelte';
 	import UseCases from '$lib/components/sections/UseCases.svelte';
@@ -10,6 +11,7 @@
 
 <main>
 	<Hero />
+	<VendorStrip />
 	<Introduction />
 	<FeatureOrbit />
 	<UseCases />
