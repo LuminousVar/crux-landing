@@ -265,7 +265,7 @@
 							</p>
 						{:else}
 							<button
-								class="mt-4 w-full rounded-md bg-accent py-2 font-mono text-[11px] uppercase tracking-widest text-white transition-colors hover:bg-accent-muted disabled:cursor-not-allowed disabled:opacity-40"
+								class="send-btn mt-4 w-full disabled:cursor-not-allowed disabled:opacity-40"
 								disabled={!editText.trim() || submitting}
 								onclick={handleSubmit}
 							>
@@ -284,3 +284,29 @@
 		</div>
 	</div>
 </section>
+
+<style>
+	.send-btn {
+		display: block;
+		padding: 8px 20px;
+		border-radius: 999px;
+		border: 1px solid rgba(255, 255, 255, 0.35);
+		background: transparent;
+		color: rgba(255, 255, 255, 0.55);
+		font-family: ui-monospace, 'Cascadia Code', monospace;
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		cursor: pointer;
+		transition:
+			border-color 0.2s,
+			background 0.2s,
+			color 0.2s;
+	}
+
+	.send-btn:hover:not(:disabled) {
+		border-color: rgba(255, 255, 255, 0.75);
+		background: rgba(255, 255, 255, 0.06);
+		color: #fff;
+	}
+</style>

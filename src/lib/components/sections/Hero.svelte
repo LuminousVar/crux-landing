@@ -114,15 +114,70 @@
 		</h1>
 
 		<div>
-			<a
-				href="#features"
-				class="inline-flex items-center gap-2 rounded-lg border border-edge bg-elevated px-8 py-4 text-base font-semibold text-content transition-all duration-300 hover:-translate-y-0.5 hover:bg-surface"
-			>
+			<a href="#features" class="hero-cta">
 				Get Started
-				<span class="text-muted transition-transform duration-300 group-hover:translate-x-0.5"
-					>→</span
-				>
+				<span class="hero-cta-arrow" aria-hidden="true">
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+					</svg>
+				</span>
 			</a>
 		</div>
 	</div>
 </section>
+
+<style>
+	.hero-cta {
+		display: inline-flex;
+		align-items: center;
+		padding: 14px 28px;
+		border-radius: 999px;
+		border: 1px solid rgba(255, 255, 255, 0.6);
+		background: rgba(255, 255, 255, 0.13);
+		color: #fff;
+		font-size: 1rem;
+		font-weight: 600;
+		text-decoration: none;
+		white-space: nowrap;
+		overflow: hidden;
+		transition:
+			background 0.2s,
+			border-color 0.2s,
+			padding-right 0.2s;
+	}
+
+	.hero-cta:hover {
+		background: rgba(255, 255, 255, 0.2);
+		border-color: rgba(255, 255, 255, 0.8);
+		padding-right: 18px;
+	}
+
+	.hero-cta-arrow {
+		display: inline-flex;
+		align-items: center;
+		width: 0;
+		margin-left: 0;
+		opacity: 0;
+		overflow: hidden;
+		flex-shrink: 0;
+		transition:
+			width 0.2s ease,
+			opacity 0.2s ease,
+			margin-left 0.2s ease;
+	}
+
+	.hero-cta:hover .hero-cta-arrow {
+		width: 16px;
+		margin-left: 8px;
+		opacity: 1;
+	}
+</style>
