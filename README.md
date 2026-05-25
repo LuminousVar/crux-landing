@@ -4,14 +4,14 @@ Landing page for the [Crux](https://github.com/LuminousVar/crux-landing) open-so
 
 ## Stack
 
-| Layer | Tool |
-|---|---|
-| Framework | SvelteKit + `@sveltejs/adapter-static` |
-| Language | TypeScript (strict, Svelte 5 runes) |
-| Styling | Tailwind CSS v4 |
-| Icons | lucide-svelte, simple-icons |
-| Package Manager | bun |
-| Deployment | Vercel (static) |
+| Layer           | Tool                                   |
+| --------------- | -------------------------------------- |
+| Framework       | SvelteKit + `@sveltejs/adapter-static` |
+| Language        | TypeScript (strict, Svelte 5 runes)    |
+| Styling         | Tailwind CSS v4                        |
+| Icons           | lucide-svelte, simple-icons            |
+| Package Manager | bun                                    |
+| Deployment      | Vercel (static)                        |
 
 ## Getting Started
 
@@ -49,8 +49,8 @@ Create a `.env` file at the project root:
 PUBLIC_FORMSPREE_URL=https://formspree.io/f/your-form-id
 ```
 
-| Variable | Description |
-|---|---|
+| Variable               | Description                                                 |
+| ---------------------- | ----------------------------------------------------------- |
 | `PUBLIC_FORMSPREE_URL` | Formspree endpoint for the AI Agent feature suggestion form |
 
 For Vercel deployment, add this variable under **Project Settings → Environment Variables**.
@@ -77,17 +77,17 @@ static/
 
 ## Sections
 
-| # | Section | Description |
-|---|---|---|
-| — | Hero | Rotating headline, animated background paths, CTA |
-| — | VendorStrip | Scrolling vendor logo marquee |
-| — | Introduction | Self-Hosted vs Cloud deployment cards (Vercel-style) |
-| 01 | Features | Interactive feature orbit — Monitor, Automate, AI, Security |
-| 02 | Integrations | Network hub diagram — Crux connected to 8 vendor nodes |
-| 03 | Use Cases | Role-based use case cards |
-| 04 | AI Agent | Draggable sticky note cards with AI agent command examples |
-| 05 | FAQ | Accordion FAQ |
-| — | Footer | Pre-footer CTA with gradient + 4-column footer |
+| #   | Section      | Description                                                 |
+| --- | ------------ | ----------------------------------------------------------- |
+| —   | Hero         | Rotating headline, animated background paths, CTA           |
+| —   | VendorStrip  | Scrolling vendor logo marquee                               |
+| —   | Introduction | Self-Hosted vs Cloud deployment cards (Vercel-style)        |
+| 01  | Features     | Interactive feature orbit — Monitor, Automate, AI, Security |
+| 02  | Integrations | Network hub diagram — Crux connected to 8 vendor nodes      |
+| 03  | Use Cases    | Role-based use case cards                                   |
+| 04  | AI Agent     | Draggable sticky note cards with AI agent command examples  |
+| 05  | FAQ          | Accordion FAQ                                               |
+| —   | Footer       | Pre-footer CTA with gradient + 4-column footer              |
 
 ## Deploying to Vercel
 

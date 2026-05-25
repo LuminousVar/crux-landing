@@ -112,8 +112,9 @@
 			</p>
 		</div>
 
-		<!-- Orbit — desktop -->
-		<div class="hidden justify-center md:flex">
+		<!-- Orbit — all screen sizes, scales down on mobile -->
+		<div class="flex justify-center">
+			<div class="orbit-scaler">
 			<div class="relative" style="width: {SIZE}px; height: {SIZE}px">
 				<!-- Orbit ring -->
 				<svg class="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
@@ -385,23 +386,29 @@
 					</button>
 				{/each}
 			</div>
-		</div>
-
-		<!-- Mobile fallback — 2-col grid -->
-		<div class="grid grid-cols-2 gap-3 md:hidden">
-			{#each features as feature, i (i)}
-				{@const Icon = feature.icon}
-				<div class="rounded-lg border border-edge bg-surface p-4">
-					<div class="mb-3 flex items-center gap-2">
-						<span class="text-accent"><Icon size={14} /></span>
-						<span class="font-mono text-[9px] uppercase tracking-wide text-muted"
-							>{feature.category}</span
-						>
-					</div>
-					<p class="mb-1 text-sm font-medium text-content">{feature.label}</p>
-					<p class="text-xs leading-relaxed text-muted">{feature.description}</p>
-				</div>
-			{/each}
+			</div>
 		</div>
 	</div>
 </section>
+
+<style>
+	.orbit-scaler {
+		transform-origin: top center;
+	}
+
+	/* Large phones (430–599px): slight scale down */
+	@media (max-width: 599px) and (min-width: 430px) {
+		.orbit-scaler {
+			transform: scale(0.78);
+			margin-bottom: -110px; /* 500 * (0.78 - 1) */
+		}
+	}
+
+	/* Small phones (< 430px): scale to fit ~375px screens */
+	@media (max-width: 429px) {
+		.orbit-scaler {
+			transform: scale(0.62);
+			margin-bottom: -190px; /* 500 * (0.62 - 1) */
+		}
+	}
+</style>
