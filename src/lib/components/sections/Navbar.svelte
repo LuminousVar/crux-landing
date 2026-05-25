@@ -31,16 +31,17 @@
 		: 'transparent'}; border-color: {scrolled || mobileOpen ? 'var(--color-edge)' : 'transparent'};"
 >
 	<nav
-		class="mx-auto flex max-w-6xl items-center justify-between px-6 py-2.5"
+		class="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center px-6 py-2.5 lg:grid-cols-[1fr_auto_1fr]"
 		aria-label="Main navigation"
 	>
+		<!-- Logo — left -->
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		<a href="/" aria-label="Crux home" class="flex items-center gap-2">
 			<img src="/crux-logo-nobg.svg" alt="" class="h-12 w-auto" aria-hidden="true" />
 			<span class="font-mono text-xl font-bold leading-none text-accent">Crux</span>
 		</a>
 
-		<!-- Desktop nav links -->
+		<!-- Desktop nav links — center -->
 		<ul class="hidden items-center gap-8 lg:flex">
 			<li>
 				<a href="#features" class="text-sm text-muted transition-colors hover:text-content"
@@ -61,8 +62,8 @@
 			</li>
 		</ul>
 
-		<!-- Desktop right: GitHub + CTA -->
-		<div class="hidden items-center gap-4 lg:flex">
+		<!-- Desktop right: GitHub + CTA — right (justify-end keeps it right-aligned) -->
+		<div class="hidden items-center justify-end gap-4 lg:flex">
 			<a
 				href="https://github.com/LuminousVar/crux-landing"
 				target="_blank"
@@ -92,7 +93,7 @@
 		</div>
 
 		<!-- Mobile: GitHub + hamburger -->
-		<div class="flex items-center gap-3 lg:hidden">
+		<div class="flex items-center justify-end gap-3 lg:hidden">
 			<a
 				href="https://github.com/LuminousVar/crux-landing"
 				target="_blank"
@@ -212,38 +213,43 @@
 		font-weight: 500;
 		text-decoration: none;
 		white-space: nowrap;
-		overflow: hidden;
 		transition:
 			border-color 0.2s,
 			background 0.2s,
-			color 0.2s,
-			padding-right 0.2s;
+			color 0.2s;
 	}
 
 	.moonshot-cta:hover {
 		border-color: rgba(255, 255, 255, 0.75);
 		background: rgba(255, 255, 255, 0.06);
 		color: #fff;
-		padding-right: 12px;
 	}
 
+	/* Arrow clip — expands from 0 to 14px on hover */
 	.moonshot-arrow {
 		display: inline-flex;
 		align-items: center;
 		width: 0;
-		margin-left: 0;
-		opacity: 0;
 		overflow: hidden;
 		flex-shrink: 0;
-		transition:
-			width 0.2s ease,
-			opacity 0.2s ease,
-			margin-left 0.2s ease;
+		transition: width 0.25s ease, margin-left 0.25s ease;
 	}
 
 	.moonshot-cta:hover .moonshot-arrow {
 		width: 14px;
 		margin-left: 6px;
+	}
+
+	/* SVG slides in from the left inside the clip */
+	.moonshot-arrow svg {
+		flex-shrink: 0;
+		transform: translateX(-10px);
+		opacity: 0;
+		transition: transform 0.25s ease, opacity 0.2s ease;
+	}
+
+	.moonshot-cta:hover .moonshot-arrow svg {
+		transform: translateX(0);
 		opacity: 1;
 	}
 

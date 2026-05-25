@@ -59,7 +59,7 @@
 </script>
 
 <section id="integrations" aria-labelledby="hub-heading" class="bg-canvas py-24">
-	<div class="mx-auto max-w-6xl px-6">
+	<div class="mx-auto max-w-7xl px-6">
 		<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">02 // Integrations</p>
 		<h2 id="hub-heading" class="mb-4 text-4xl font-bold tracking-tight text-content md:text-5xl">
 			One platform.<br />Every device.
