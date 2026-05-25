@@ -92,6 +92,9 @@
 
 	const rotations = [-4, 3, -5, 2, 4, -3, 5, -2];
 
+	// Card width matches w-[250px]
+	const CARD_W = 250;
+
 	let noteStates = $state<NoteState[]>(
 		notes.map((n, i) => ({
 			...n,
@@ -105,7 +108,9 @@
 	let topId = $state<number | null>(null);
 	let dragOffset = $state({ x: 0, y: 0 });
 	let sectionEl: HTMLElement | null = null;
-	let boardEl: HTMLElement | null = null;
+	let boardEl = $state<HTMLElement | null>(null);
+	let boardHeight = $state(624);
+	let positioned = $state(false);
 
 	let editText = $state('');
 	let emailText = $state('');
@@ -140,13 +145,52 @@
 		}
 	}
 
-	// Card width matches w-[250px]
-	const CARD_W = 250;
+	function repositionForWidth(w: number) {
+		if (w >= 1000) {
+			// Desktop: original 4-column scatter layout
+			boardHeight = 624;
+			noteStates.forEach((note, i) => {
+				note.x = initialPositions[i].x;
+				note.y = initialPositions[i].y;
+				note.rotation = rotations[i];
+			});
+		} else if (w >= 560) {
+			// Tablet: 2 columns
+			const col2 = Math.round(w / 2) + 10;
+			const rowH = 305;
+			boardHeight = 4 * rowH + 40;
+			noteStates.forEach((note, i) => {
+				note.x = i % 2 === 0 ? 20 : col2;
+				note.y = Math.floor(i / 2) * rowH + 20;
+				note.rotation = rotations[i];
+			});
+		} else {
+			// Phone: 1 column centered
+			const cx = Math.max(8, Math.round((w - CARD_W) / 2));
+			const rowH = 290;
+			boardHeight = 8 * rowH + 40;
+			noteStates.forEach((note, i) => {
+				note.x = cx + (i % 2 === 0 ? -6 : 6);
+				note.y = i * rowH + 20;
+				note.rotation = rotations[i] * 0.4;
+			});
+		}
+	}
+
+	$effect(() => {
+		if (!boardEl) return;
+		repositionForWidth(boardEl.getBoundingClientRect().width);
+		positioned = true;
+		const handler = () => {
+			if (boardEl) repositionForWidth(boardEl.getBoundingClientRect().width);
+		};
+		window.addEventListener('resize', handler);
+		return () => window.removeEventListener('resize', handler);
+	});
 
 	function handlePointerDown(e: PointerEvent, id: number) {
 		topId = id;
 		if ((e.target as HTMLElement).closest('textarea, input, button')) {
-			// topId update triggers a synchronous DOM patch; defer focus so it lands after
 			if (id === 8 && textareaEl) {
 				const el = textareaEl;
 				queueMicrotask(() => el.focus());
@@ -169,7 +213,6 @@
 		if (sectionEl && boardEl) {
 			const sr = sectionEl.getBoundingClientRect();
 			const br = boardEl.getBoundingClientRect();
-			// Clamp note position directly in board-relative coords
 			newX = Math.max(sr.left - br.left, Math.min(newX, sr.right - br.left - CARD_W));
 			newY = Math.max(sr.top - br.top, Math.min(newY, sr.bottom - br.top));
 		}
@@ -192,7 +235,7 @@
 	onpointermove={handlePointerMove}
 	onpointerup={handlePointerUp}
 >
-	<!-- bottom hint -->
+	<!-- bottom hint — desktop only -->
 	<p
 		class="absolute bottom-5 right-6 hidden rounded-sm border border-dotted border-accent/30 px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest text-muted/70 lg:block"
 	>
@@ -214,55 +257,12 @@
 			Describe what you need. The agent handles the rest.
 		</p>
 
-		<!-- Mobile / tablet: static card grid (< lg) -->
-		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:hidden">
-			{#each notes as note (note.id)}
-				<div class="bg-elevated p-5">
-					<div class="mb-4 flex items-center gap-2">
-						<span class="h-[3px] w-[3px] shrink-0 rounded-full {note.dot}"></span>
-						<span class="font-mono text-[10px] uppercase tracking-wider text-muted"
-							>{note.category}</span
-						>
-					</div>
-					<p class="mb-2 text-base font-semibold text-content">{note.title}</p>
-					{#if note.id === 8}
-						<textarea
-							bind:value={editText}
-							class="w-full resize-none bg-transparent text-sm leading-relaxed text-content placeholder:text-muted/40 focus:outline-none"
-							style="caret-color: white;"
-							rows="4"
-							placeholder="Have an idea for the AI agent? Describe the command or workflow you want supported."
-						></textarea>
-						<input
-							type="email"
-							bind:value={emailText}
-							class="mt-3 w-full border-b border-edge bg-transparent pb-1.5 text-xs text-content placeholder:text-muted/40 focus:border-accent focus:outline-none"
-							placeholder="Email (optional)"
-						/>
-						{#if submitted}
-							<p class="mt-4 font-mono text-[11px] uppercase tracking-widest text-success">Sent.</p>
-						{:else}
-							<button
-								class="send-btn mt-4 w-full disabled:cursor-not-allowed disabled:opacity-40"
-								disabled={!editText.trim() || submitting}
-								onclick={handleSubmit}
-							>
-								{submitting ? 'Sending…' : 'Send'}
-							</button>
-							{#if submitError}
-								<p class="mt-2 font-mono text-[10px] text-danger">{submitError}</p>
-							{/if}
-						{/if}
-					{:else}
-						<p class="text-sm leading-relaxed text-muted">{note.text}</p>
-						<span class="mt-3 block font-mono text-[10px] text-muted/40">{note.tag}</span>
-					{/if}
-				</div>
-			{/each}
-		</div>
-
-		<!-- Desktop: draggable board (lg+) -->
-		<div class="relative hidden h-[624px] lg:block" bind:this={boardEl}>
+		<!-- Draggable board — all screen sizes -->
+		<div
+			class="relative w-full transition-opacity duration-300"
+			style="height: {boardHeight}px; opacity: {positioned ? 1 : 0};"
+			bind:this={boardEl}
+		>
 			{#each noteStates as note, i (note.id)}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
@@ -273,7 +273,7 @@
 						: topId === note.id
 							? 'z-20 cursor-grab'
 							: 'z-10 cursor-grab'}"
-					style="transform: translate({note.x}px, {note.y}px) rotate({note.rotation}deg); top: 0; left: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), 0 20px 40px rgba(0,0,0,0.25);"
+					style="transform: translate({note.x}px, {note.y}px) rotate({note.rotation}deg); top: 0; left: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), 0 20px 40px rgba(0,0,0,0.25); touch-action: none;"
 					onpointerdown={(e) => handlePointerDown(e, note.id)}
 				>
 					<!-- pin -->
