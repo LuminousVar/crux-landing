@@ -57,11 +57,21 @@
 
 	let rotation = $state(0);
 	let selectedIdx = $state<number | null>(null);
+	let sectionEl = $state<HTMLElement | null>(null);
 
-	// Non-reactive shadow used inside rAF to avoid reactive tracking in callback
+	// Non-reactive shadows — avoid reactive tracking inside rAF/IO callbacks
 	let _paused = false;
+	let _visible = true;
 	$effect(() => {
 		_paused = selectedIdx !== null;
+	});
+
+	// Pause rotation when section is off-screen
+	$effect(() => {
+		if (!sectionEl) return;
+		const io = new IntersectionObserver(([e]) => { _visible = e.isIntersecting; }, { rootMargin: '100px' });
+		io.observe(sectionEl);
+		return () => io.disconnect();
 	});
 
 	$effect(() => {
@@ -69,7 +79,7 @@
 		let prev: number | null = null;
 
 		const tick = (t: number) => {
-			if (prev !== null && !_paused) {
+			if (prev !== null && !_paused && _visible) {
 				rotation = (rotation + (t - prev) * 0.006) % 360;
 			}
 			prev = t;
@@ -96,7 +106,7 @@
 	let devicePowered = $state(true);
 </script>
 
-<section id="features" aria-labelledby="features-heading" class="bg-canvas py-24">
+<section id="features" aria-labelledby="features-heading" class="bg-canvas py-24" bind:this={sectionEl}>
 	<div class="mx-auto max-w-7xl px-6">
 		<!-- Section header -->
 		<div>
@@ -364,7 +374,7 @@
 					{@const Icon = feature.icon}
 					<button
 						class="absolute flex flex-col items-center gap-1.5 focus:outline-none"
-						style="left: {pos.x}px; top: {pos.y}px; transform: translate(-50%, -50%)"
+						style="left: 0; top: 0; will-change: transform; transform: translate(calc({pos.x}px - 50%), calc({pos.y}px - 50%))"
 						onclick={() => select(i)}
 						aria-pressed={isActive}
 						aria-label={feature.label}

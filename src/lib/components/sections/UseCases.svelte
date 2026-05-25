@@ -65,9 +65,11 @@
 	let offset = $state(0);
 	let isHovered = $state(false);
 	let isDragging = $state(false);
+	let sectionEl = $state<HTMLElement | null>(null);
 
 	let _isHovered = false;
 	let _isDragging = false;
+	let _visible = true;
 	$effect(() => {
 		_isHovered = isHovered;
 	});
@@ -75,12 +77,20 @@
 		_isDragging = isDragging;
 	});
 
+	// Pause carousel when section is off-screen
+	$effect(() => {
+		if (!sectionEl) return;
+		const io = new IntersectionObserver(([e]) => { _visible = e.isIntersecting; }, { rootMargin: '100px' });
+		io.observe(sectionEl);
+		return () => io.disconnect();
+	});
+
 	$effect(() => {
 		let rafId: number;
 		let prev: number | null = null;
 
 		const tick = (t: number) => {
-			if (prev !== null && !_isHovered && !_isDragging) {
+			if (prev !== null && !_isHovered && !_isDragging && _visible) {
 				offset = (offset + (t - prev) / 12000) % COUNT;
 			}
 			prev = t;
@@ -156,6 +166,7 @@
 	id="use-cases"
 	aria-labelledby="use-cases-heading"
 	class="overflow-x-hidden border-t border-edge bg-canvas py-24"
+	bind:this={sectionEl}
 >
 	<div class="mx-auto max-w-7xl px-6">
 		<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">03 // Use Cases</p>
@@ -190,6 +201,7 @@
 					pointer-events: {pos.pointerEvents};
 					height: 400px;
 					transform-style: preserve-3d;
+					will-change: transform, opacity;
 				"
 			>
 				<UseCaseCard
