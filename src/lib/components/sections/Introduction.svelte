@@ -62,11 +62,12 @@
 				<!-- Features -->
 				<ul class="flex flex-1 flex-col gap-4">
 					{#each selfHostedFeatures as feature (feature.text)}
+						{@const Icon = feature.icon}
 						<li class="flex items-start gap-3.5">
 							<div
 								class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-edge bg-elevated"
 							>
-								<svelte:component this={feature.icon} size={14} class="text-muted" />
+								<Icon size={14} class="text-muted" />
 							</div>
 							<span class="pt-1 text-sm leading-relaxed text-muted">{feature.text}</span>
 						</li>
@@ -116,11 +117,12 @@
 				<!-- Features -->
 				<ul class="flex flex-1 flex-col gap-4">
 					{#each cloudFeatures as feature (feature.text)}
+						{@const Icon = feature.icon}
 						<li class="flex items-start gap-3.5">
 							<div
 								class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-edge bg-elevated"
 							>
-								<svelte:component this={feature.icon} size={14} class="text-muted" />
+								<Icon size={14} class="text-muted" />
 							</div>
 							<span class="pt-1 text-sm leading-relaxed text-muted">{feature.text}</span>
 						</li>

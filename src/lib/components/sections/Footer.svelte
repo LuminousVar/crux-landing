@@ -101,11 +101,7 @@
 					>
 						<GithubIcon size={17} />
 					</a>
-					<a
-						href="mailto:luminousv@disroot.org"
-						class="social-icon"
-						aria-label="Email"
-					>
+					<a href="mailto:luminousv@disroot.org" class="social-icon" aria-label="Email">
 						<svg
 							width="17"
 							height="17"

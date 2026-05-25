@@ -155,7 +155,7 @@
 <section
 	id="use-cases"
 	aria-labelledby="use-cases-heading"
-	class="border-t border-edge bg-canvas py-24"
+	class="overflow-x-hidden border-t border-edge bg-canvas py-24"
 >
 	<div class="mx-auto max-w-7xl px-6">
 		<p class="mb-4 font-mono text-xs uppercase tracking-widest text-muted">03 // Use Cases</p>
@@ -172,7 +172,7 @@
 
 	<div
 		class="relative mx-auto max-w-5xl select-none {isDragging ? 'cursor-grabbing' : 'cursor-grab'}"
-		style="perspective: 1000px; height: 420px;"
+		style="perspective: 1000px; height: 420px; touch-action: pan-y; overflow: hidden;"
 		role="group"
 		aria-label="Use cases carousel"
 		onmouseenter={() => (isHovered = true)}

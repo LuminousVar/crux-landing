@@ -28,9 +28,7 @@
 						<a
 							href="/docs/{mod.slug}"
 							class="block rounded px-2 py-1.5 text-sm transition-colors duration-100
-								{mod.slug === module.slug
-								? 'font-medium text-accent'
-								: 'text-muted hover:text-content'}"
+								{mod.slug === module.slug ? 'font-medium text-accent' : 'text-muted hover:text-content'}"
 						>
 							{mod.label}
 						</a>

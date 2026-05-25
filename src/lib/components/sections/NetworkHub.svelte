@@ -89,12 +89,7 @@
 						stroke-width="1"
 					/>
 					<!-- Motion path (inward: vendor → center) -->
-					<path
-						id="mp-{i}"
-						d="M {node.x} {node.y} L {CX} {CY}"
-						fill="none"
-						stroke="none"
-					/>
+					<path id="mp-{i}" d="M {node.x} {node.y} L {CX} {CY}" fill="none" stroke="none" />
 					<!-- Animated dot traveling toward center -->
 					<circle r="2.5" fill="var(--color-accent)" opacity="0.75">
 						<animateMotion
@@ -136,13 +131,7 @@
 					stroke="var(--color-accent)"
 					stroke-width="1.5"
 				/>
-				<image
-					href="/crux-logo-nobg.svg"
-					x={CX - 22}
-					y={CY - 22}
-					width="44"
-					height="44"
-				/>
+				<image href="/crux-logo-nobg.svg" x={CX - 22} y={CY - 22} width="44" height="44" />
 
 				<!-- Vendor nodes -->
 				{#each nodes as node}
@@ -155,13 +144,7 @@
 							stroke="var(--color-edge)"
 							stroke-width="1"
 						/>
-						<svg
-							viewBox="0 0 24 24"
-							width="18"
-							height="18"
-							x={node.x - 9}
-							y={node.y - 9}
-						>
+						<svg viewBox="0 0 24 24" width="18" height="18" x={node.x - 9} y={node.y - 9}>
 							<path d={node.path} fill="var(--color-muted)" />
 						</svg>
 					</g>
@@ -177,8 +160,8 @@
 						font-family="ui-monospace, 'Cascadia Code', monospace"
 						font-size="10"
 						fill="var(--color-muted)"
-						opacity="0.6"
-					>{node.label}</text>
+						opacity="0.6">{node.label}</text
+					>
 				{/each}
 			</svg>
 		</div>

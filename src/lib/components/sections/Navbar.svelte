@@ -1,6 +1,8 @@
 <script lang="ts">
 	import GithubIcon from '$lib/components/ui/GithubIcon.svelte';
+
 	let scrolled = $state(false);
+	let mobileOpen = $state(false);
 
 	$effect(() => {
 		const handler = () => {
@@ -9,13 +11,24 @@
 		window.addEventListener('scroll', handler, { passive: true });
 		return () => window.removeEventListener('scroll', handler);
 	});
+
+	$effect(() => {
+		document.body.style.overflow = mobileOpen ? 'hidden' : '';
+		return () => {
+			document.body.style.overflow = '';
+		};
+	});
+
+	function closeMenu() {
+		mobileOpen = false;
+	}
 </script>
 
 <header
 	class="fixed top-0 z-50 w-full border-b backdrop-blur-md transition-colors duration-300"
-	style="background-color: {scrolled
+	style="background-color: {scrolled || mobileOpen
 		? 'var(--color-surface)'
-		: 'transparent'}; border-color: {scrolled ? 'var(--color-edge)' : 'transparent'};"
+		: 'transparent'}; border-color: {scrolled || mobileOpen ? 'var(--color-edge)' : 'transparent'};"
 >
 	<nav
 		class="mx-auto flex max-w-6xl items-center justify-between px-6 py-2.5"
@@ -27,13 +40,15 @@
 			<span class="font-mono text-xl font-bold leading-none text-accent">Crux</span>
 		</a>
 
-		<ul class="hidden items-center gap-8 md:flex">
+		<!-- Desktop nav links -->
+		<ul class="hidden items-center gap-8 lg:flex">
 			<li>
 				<a href="#features" class="text-sm text-muted transition-colors hover:text-content"
 					>Features</a
 				>
 			</li>
 			<li>
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 				<a href="/docs" class="text-sm text-muted transition-colors hover:text-content">Docs</a>
 			</li>
 			<li>
@@ -46,7 +61,8 @@
 			</li>
 		</ul>
 
-		<div class="flex items-center gap-4">
+		<!-- Desktop right: GitHub + CTA -->
+		<div class="hidden items-center gap-4 lg:flex">
 			<a
 				href="https://github.com/LuminousVar/crux-landing"
 				target="_blank"
@@ -74,7 +90,113 @@
 				</span>
 			</a>
 		</div>
+
+		<!-- Mobile: GitHub + hamburger -->
+		<div class="flex items-center gap-3 lg:hidden">
+			<a
+				href="https://github.com/LuminousVar/crux-landing"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-muted transition-colors hover:text-content"
+				aria-label="GitHub"
+			>
+				<GithubIcon size={18} />
+			</a>
+			<button
+				class="hamburger"
+				onclick={() => (mobileOpen = !mobileOpen)}
+				aria-expanded={mobileOpen}
+				aria-label="Toggle navigation menu"
+			>
+				{#if mobileOpen}
+					<svg
+						width="18"
+						height="18"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="M18 6 6 18" /><path d="m6 6 12 12" />
+					</svg>
+				{:else}
+					<svg
+						width="18"
+						height="18"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="12" y2="12" /><line
+							x1="4"
+							x2="20"
+							y1="18"
+							y2="18"
+						/>
+					</svg>
+				{/if}
+			</button>
+		</div>
 	</nav>
+
+	<!-- Mobile dropdown menu -->
+	{#if mobileOpen}
+		<div class="border-t border-edge bg-surface lg:hidden">
+			<ul class="mx-auto max-w-6xl px-6 pb-4 pt-1">
+				<li>
+					<a
+						href="#features"
+						onclick={closeMenu}
+						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
+					>
+						Features
+					</a>
+				</li>
+				<li>
+					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+					<a
+						href="/docs"
+						onclick={closeMenu}
+						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
+					>
+						Docs
+					</a>
+				</li>
+				<li>
+					<a
+						href="#use-cases"
+						onclick={closeMenu}
+						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
+					>
+						Use Cases
+					</a>
+				</li>
+				<li>
+					<a
+						href="#faq"
+						onclick={closeMenu}
+						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
+					>
+						FAQ
+					</a>
+				</li>
+				<li class="pt-4">
+					<a
+						href="mailto:farelreyhan6@gmail.com"
+						onclick={closeMenu}
+						class="moonshot-cta w-full justify-center"
+					>
+						Contact Us
+					</a>
+				</li>
+			</ul>
+		</div>
+	{/if}
 </header>
 
 <style>
@@ -123,5 +245,26 @@
 		width: 14px;
 		margin-left: 6px;
 		opacity: 1;
+	}
+
+	.hamburger {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		border-radius: 6px;
+		border: 1px solid var(--color-edge);
+		background: transparent;
+		color: var(--color-muted);
+		cursor: pointer;
+		transition:
+			background 0.15s,
+			color 0.15s;
+	}
+
+	.hamburger:hover {
+		background: var(--color-elevated);
+		color: var(--color-content);
 	}
 </style>

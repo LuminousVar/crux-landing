@@ -70,8 +70,8 @@
 	}
 
 	.shiki-wrap :global(code) {
-		font-family: 'Fira Code', 'Cascadia Code', 'SF Mono', 'JetBrains Mono', 'Menlo', 'Consolas',
-			monospace;
+		font-family:
+			'Fira Code', 'Cascadia Code', 'SF Mono', 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
 		font-size: 0.8125rem;
 		line-height: 1.75;
 		counter-reset: none;

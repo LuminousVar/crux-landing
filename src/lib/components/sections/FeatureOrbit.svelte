@@ -157,62 +157,198 @@
 							<div>
 								<svg viewBox="0 0 195 110" width="195" height="110" aria-hidden="true">
 									<!-- Right face -->
-									<path d="M135,45 L185,15 L185,55 L135,85Z"
-										style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.75"/>
+									<path
+										d="M135,45 L185,15 L185,55 L135,85Z"
+										style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.75"
+									/>
 									<!-- Top face -->
-									<path d="M15,45 L135,45 L185,15 L65,15Z"
-										style="fill: var(--color-elevated); stroke: var(--color-edge); stroke-width: 0.75"/>
+									<path
+										d="M15,45 L135,45 L185,15 L65,15Z"
+										style="fill: var(--color-elevated); stroke: var(--color-edge); stroke-width: 0.75"
+									/>
 									<!-- Vent strips on top face -->
-									<line x1="27" y1="38" x2="147" y2="38" style="stroke: var(--color-edge); stroke-width: 1.5"/>
-									<line x1="38" y1="31" x2="158" y2="31" style="stroke: var(--color-edge); stroke-width: 1.5"/>
-									<line x1="50" y1="24" x2="170" y2="24" style="stroke: var(--color-edge); stroke-width: 1.5"/>
+									<line
+										x1="27"
+										y1="38"
+										x2="147"
+										y2="38"
+										style="stroke: var(--color-edge); stroke-width: 1.5"
+									/>
+									<line
+										x1="38"
+										y1="31"
+										x2="158"
+										y2="31"
+										style="stroke: var(--color-edge); stroke-width: 1.5"
+									/>
+									<line
+										x1="50"
+										y1="24"
+										x2="170"
+										y2="24"
+										style="stroke: var(--color-edge); stroke-width: 1.5"
+									/>
 									<!-- Front face -->
-									<rect x="15" y="45" width="120" height="40"
-										style="fill: var(--color-surface); stroke: var(--color-edge); stroke-width: 0.75"/>
+									<rect
+										x="15"
+										y="45"
+										width="120"
+										height="40"
+										style="fill: var(--color-surface); stroke: var(--color-edge); stroke-width: 0.75"
+									/>
 									<!-- Left bezel strip -->
-									<rect x="15" y="45" width="12" height="40"
-										style="fill: var(--color-elevated)"/>
+									<rect x="15" y="45" width="12" height="40" style="fill: var(--color-elevated)" />
 									<!-- Power LED visual -->
-									<circle cx="21" cy="65" r="2.5"
-										style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}; pointer-events: none;"/>
-									<circle cx="21" cy="65" r="9"
+									<circle
+										cx="21"
+										cy="65"
+										r="2.5"
+										style="fill: {devicePowered
+											? 'var(--color-success)'
+											: 'var(--color-edge)'}; pointer-events: none;"
+									/>
+									<circle
+										cx="21"
+										cy="65"
+										r="9"
 										role="button"
 										tabindex="0"
-										aria-label="{devicePowered ? 'Power off' : 'Power on'}"
+										aria-label={devicePowered ? 'Power off' : 'Power on'}
 										style="fill: transparent; cursor: pointer;"
 										onclick={() => (devicePowered = !devicePowered)}
-										onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? (devicePowered = !devicePowered) : null}
+										onkeydown={(e) =>
+											e.key === 'Enter' || e.key === ' ' ? (devicePowered = !devicePowered) : null}
 									/>
 									<!-- Ethernet ports -->
-									<rect x="33" y="59" width="8" height="7" rx="1" style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"/>
-									<rect x="44" y="59" width="8" height="7" rx="1" style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"/>
-									<rect x="55" y="59" width="8" height="7" rx="1" style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"/>
-									<rect x="66" y="59" width="8" height="7" rx="1" style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"/>
-									<rect x="77" y="59" width="8" height="7" rx="1" style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"/>
-									<rect x="88" y="59" width="8" height="7" rx="1" style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"/>
-									<rect x="99" y="59" width="8" height="7" rx="1" style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"/>
-									<rect x="110" y="59" width="8" height="7" rx="1" style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"/>
+									<rect
+										x="33"
+										y="59"
+										width="8"
+										height="7"
+										rx="1"
+										style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"
+									/>
+									<rect
+										x="44"
+										y="59"
+										width="8"
+										height="7"
+										rx="1"
+										style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"
+									/>
+									<rect
+										x="55"
+										y="59"
+										width="8"
+										height="7"
+										rx="1"
+										style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"
+									/>
+									<rect
+										x="66"
+										y="59"
+										width="8"
+										height="7"
+										rx="1"
+										style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"
+									/>
+									<rect
+										x="77"
+										y="59"
+										width="8"
+										height="7"
+										rx="1"
+										style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"
+									/>
+									<rect
+										x="88"
+										y="59"
+										width="8"
+										height="7"
+										rx="1"
+										style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"
+									/>
+									<rect
+										x="99"
+										y="59"
+										width="8"
+										height="7"
+										rx="1"
+										style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"
+									/>
+									<rect
+										x="110"
+										y="59"
+										width="8"
+										height="7"
+										rx="1"
+										style="fill: var(--color-canvas); stroke: var(--color-edge); stroke-width: 0.5"
+									/>
 									<!-- Port LEDs -->
-									<circle cx="37" cy="56" r="1.5" style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}"/>
-									<circle cx="48" cy="56" r="1.5" style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}"/>
-									<circle cx="59" cy="56" r="1.5" style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}"/>
-									<circle cx="70" cy="56" r="1.5" style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}"/>
-									<circle cx="81" cy="56" r="1.5" style="fill: {devicePowered ? 'var(--color-warning)' : 'var(--color-edge)'}"/>
-									<circle cx="92" cy="56" r="1.5" style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}"/>
-									<circle cx="103" cy="56" r="1.5" style="fill: var(--color-edge)"/>
-									<circle cx="114" cy="56" r="1.5" style="fill: var(--color-edge)"/>
+									<circle
+										cx="37"
+										cy="56"
+										r="1.5"
+										style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}"
+									/>
+									<circle
+										cx="48"
+										cy="56"
+										r="1.5"
+										style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}"
+									/>
+									<circle
+										cx="59"
+										cy="56"
+										r="1.5"
+										style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}"
+									/>
+									<circle
+										cx="70"
+										cy="56"
+										r="1.5"
+										style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}"
+									/>
+									<circle
+										cx="81"
+										cy="56"
+										r="1.5"
+										style="fill: {devicePowered ? 'var(--color-warning)' : 'var(--color-edge)'}"
+									/>
+									<circle
+										cx="92"
+										cy="56"
+										r="1.5"
+										style="fill: {devicePowered ? 'var(--color-success)' : 'var(--color-edge)'}"
+									/>
+									<circle cx="103" cy="56" r="1.5" style="fill: var(--color-edge)" />
+									<circle cx="114" cy="56" r="1.5" style="fill: var(--color-edge)" />
 									<!-- SFP uplink port -->
-									<rect x="121" y="57" width="11" height="9" rx="1"
-										style="fill: var(--color-canvas); stroke: {devicePowered ? 'var(--color-accent)' : 'var(--color-edge)'}; stroke-width: 0.75"/>
+									<rect
+										x="121"
+										y="57"
+										width="11"
+										height="9"
+										rx="1"
+										style="fill: var(--color-canvas); stroke: {devicePowered
+											? 'var(--color-accent)'
+											: 'var(--color-edge)'}; stroke-width: 0.75"
+									/>
 									<!-- Model label -->
-									<text x="76" y="78" text-anchor="middle"
+									<text
+										x="76"
+										y="78"
+										text-anchor="middle"
 										style="fill: var(--color-muted); font-family: monospace; font-size: 6px;"
-										opacity="0.5">CRX-SW-01</text>
+										opacity="0.5">CRX-SW-01</text
+									>
 								</svg>
 							</div>
 							<span
-								class="font-mono text-[9px] uppercase tracking-widest transition-colors duration-300 {devicePowered ? 'text-success' : 'text-muted'}"
-								style="{!devicePowered ? 'opacity: 0.35' : ''}"
+								class="font-mono text-[9px] uppercase tracking-widest transition-colors duration-300 {devicePowered
+									? 'text-success'
+									: 'text-muted'}"
+								style={!devicePowered ? 'opacity: 0.35' : ''}
 							>
 								{devicePowered ? '● online' : '○ offline'}
 							</span>

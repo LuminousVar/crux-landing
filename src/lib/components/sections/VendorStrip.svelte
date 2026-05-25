@@ -22,24 +22,24 @@
 	};
 
 	const vendors: Item[] = [
-		{ label: 'Cisco',       path: siCisco.path            },
-		{ label: 'Juniper',     path: siJunipernetworks.path  },
-		{ label: 'Arista',      path: null, imgSrc: '/logos/arista.png',     wordmark: true },
-		{ label: 'Huawei',      path: siHuawei.path           },
-		{ label: 'Aruba',       path: null, imgSrc: '/logos/aruba.svg',      wordmark: true },
-		{ label: 'Ruijie',      path: null, imgSrc: '/logos/ruijie.svg',     wordmark: true },
-		{ label: 'MikroTik',    path: siMikrotik.path         },
-		{ label: 'Ubiquiti',    path: siUbiquiti.path         },
-		{ label: 'VyOS',        path: null, imgSrc: '/logos/vyos.svg',       wordmark: false },
-		{ label: 'Fortinet',    path: siFortinet.path         },
-		{ label: 'Palo Alto',   path: siPaloaltonetworks.path },
+		{ label: 'Cisco', path: siCisco.path },
+		{ label: 'Juniper', path: siJunipernetworks.path },
+		{ label: 'Arista', path: null, imgSrc: '/logos/arista.png', wordmark: true },
+		{ label: 'Huawei', path: siHuawei.path },
+		{ label: 'Aruba', path: null, imgSrc: '/logos/aruba.svg', wordmark: true },
+		{ label: 'Ruijie', path: null, imgSrc: '/logos/ruijie.svg', wordmark: true },
+		{ label: 'MikroTik', path: siMikrotik.path },
+		{ label: 'Ubiquiti', path: siUbiquiti.path },
+		{ label: 'VyOS', path: null, imgSrc: '/logos/vyos.svg', wordmark: false },
+		{ label: 'Fortinet', path: siFortinet.path },
+		{ label: 'Palo Alto', path: siPaloaltonetworks.path },
 		{ label: 'Check Point', path: null, imgSrc: '/logos/checkpoint.svg', wordmark: true },
-		{ label: 'Sophos',      path: null, imgSrc: '/logos/sophos.svg',     wordmark: true },
-		{ label: 'pfSense',     path: siPfsense.path          },
-		{ label: 'OPNsense',    path: siOpnsense.path         },
-		{ label: 'F5',          path: siF5.path               },
-		{ label: 'Citrix',      path: siCitrix.path           },
-		{ label: 'Linux',       path: siLinux.path            },
+		{ label: 'Sophos', path: null, imgSrc: '/logos/sophos.svg', wordmark: true },
+		{ label: 'pfSense', path: siPfsense.path },
+		{ label: 'OPNsense', path: siOpnsense.path },
+		{ label: 'F5', path: siF5.path },
+		{ label: 'Citrix', path: siCitrix.path },
+		{ label: 'Linux', path: siLinux.path }
 	];
 
 	// Duplicate for seamless -50% loop
@@ -59,9 +59,7 @@
 	<div class="marquee flex w-max items-center">
 		{#each track as item, i (`${item.label}-${i}`)}
 			{#if i > 0}
-				<span class="shrink-0 select-none px-4 text-[10px] text-edge/50" aria-hidden="true"
-					>·</span
-				>
+				<span class="shrink-0 select-none px-4 text-[10px] text-edge/50" aria-hidden="true">·</span>
 			{/if}
 
 			<div class="flex shrink-0 items-center">
@@ -72,11 +70,7 @@
 					{:else}
 						<!-- Icon mark: show image + text label -->
 						<div class="flex items-center gap-2">
-							<img
-								src={item.imgSrc}
-								alt={item.label}
-								class="vendor-img h-[15px] w-auto shrink-0"
-							/>
+							<img src={item.imgSrc} alt={item.label} class="vendor-img h-[15px] w-auto shrink-0" />
 							<span class="text-sm text-muted/60">{item.label}</span>
 						</div>
 					{/if}

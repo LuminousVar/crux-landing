@@ -87,7 +87,7 @@
 			No modules found for <span class="text-muted">"{query}"</span>
 		</p>
 
-	<!-- Results -->
+		<!-- Results -->
 	{:else}
 		{#if query}
 			<p class="mb-8 text-xs text-muted/50">

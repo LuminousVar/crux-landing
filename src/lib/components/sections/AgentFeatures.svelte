@@ -194,7 +194,7 @@
 >
 	<!-- bottom hint -->
 	<p
-		class="absolute bottom-5 right-6 rounded-sm border border-dotted border-accent/30 px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest text-muted/70"
+		class="absolute bottom-5 right-6 hidden rounded-sm border border-dotted border-accent/30 px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest text-muted/70 lg:block"
 	>
 		↕ Try moving the cards
 	</p>
@@ -214,18 +214,65 @@
 			Describe what you need. The agent handles the rest.
 		</p>
 
-		<!-- board — visual height container only, no event handling -->
-		<div class="relative h-[624px]" bind:this={boardEl}>
+		<!-- Mobile / tablet: static card grid (< lg) -->
+		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:hidden">
+			{#each notes as note (note.id)}
+				<div class="bg-elevated p-5">
+					<div class="mb-4 flex items-center gap-2">
+						<span class="h-[3px] w-[3px] shrink-0 rounded-full {note.dot}"></span>
+						<span class="font-mono text-[10px] uppercase tracking-wider text-muted"
+							>{note.category}</span
+						>
+					</div>
+					<p class="mb-2 text-base font-semibold text-content">{note.title}</p>
+					{#if note.id === 8}
+						<textarea
+							bind:value={editText}
+							class="w-full resize-none bg-transparent text-sm leading-relaxed text-content placeholder:text-muted/40 focus:outline-none"
+							style="caret-color: white;"
+							rows="4"
+							placeholder="Have an idea for the AI agent? Describe the command or workflow you want supported."
+						></textarea>
+						<input
+							type="email"
+							bind:value={emailText}
+							class="mt-3 w-full border-b border-edge bg-transparent pb-1.5 text-xs text-content placeholder:text-muted/40 focus:border-accent focus:outline-none"
+							placeholder="Email (optional)"
+						/>
+						{#if submitted}
+							<p class="mt-4 font-mono text-[11px] uppercase tracking-widest text-success">Sent.</p>
+						{:else}
+							<button
+								class="send-btn mt-4 w-full disabled:cursor-not-allowed disabled:opacity-40"
+								disabled={!editText.trim() || submitting}
+								onclick={handleSubmit}
+							>
+								{submitting ? 'Sending…' : 'Send'}
+							</button>
+							{#if submitError}
+								<p class="mt-2 font-mono text-[10px] text-danger">{submitError}</p>
+							{/if}
+						{/if}
+					{:else}
+						<p class="text-sm leading-relaxed text-muted">{note.text}</p>
+						<span class="mt-3 block font-mono text-[10px] text-muted/40">{note.tag}</span>
+					{/if}
+				</div>
+			{/each}
+		</div>
+
+		<!-- Desktop: draggable board (lg+) -->
+		<div class="relative hidden h-[624px] lg:block" bind:this={boardEl}>
 			{#each noteStates as note, i (note.id)}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
 					class="absolute w-[250px] min-h-[265px] bg-elevated p-6
 						{note.id === 8 ? '' : 'select-none'}
 						{draggingId === note.id
-							? 'z-50 cursor-grabbing'
-							: topId === note.id
-								? 'z-20 cursor-grab'
-								: 'z-10 cursor-grab'}"
+						? 'z-50 cursor-grabbing'
+						: topId === note.id
+							? 'z-20 cursor-grab'
+							: 'z-10 cursor-grab'}"
 					style="transform: translate({note.x}px, {note.y}px) rotate({note.rotation}deg); top: 0; left: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), 0 20px 40px rgba(0,0,0,0.25);"
 					onpointerdown={(e) => handlePointerDown(e, note.id)}
 				>
@@ -260,9 +307,7 @@
 							placeholder="Email (optional)"
 						/>
 						{#if submitted}
-							<p class="mt-4 font-mono text-[11px] uppercase tracking-widest text-success">
-								Sent.
-							</p>
+							<p class="mt-4 font-mono text-[11px] uppercase tracking-widest text-success">Sent.</p>
 						{:else}
 							<button
 								class="send-btn mt-4 w-full disabled:cursor-not-allowed disabled:opacity-40"

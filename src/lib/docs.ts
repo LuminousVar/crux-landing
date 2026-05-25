@@ -774,7 +774,7 @@ export const docGroups: DocGroup[] = [
 				],
 				technicalNotes: [
 					'Cron expressions follow the standard 5-field POSIX format: minute hour day month weekday.',
-					"Celery Beat runs every 60 seconds — the actual trigger may be up to 60 seconds later than the scheduled cron time.",
+					'Celery Beat runs every 60 seconds — the actual trigger may be up to 60 seconds later than the scheduled cron time.',
 					'Disabling a schedule does not affect jobs already dispatched — those complete normally.',
 					'The backup_dispatcher Celery task (runs every 60 seconds) handles dispatching backup schedules.',
 					'Schedules for non-autonomous types (push_config, run_command) create jobs that enter the approval queue.'
@@ -788,7 +788,7 @@ export const docGroups: DocGroup[] = [
 				description:
 					'Scheduled configuration snapshots with line-by-line diff comparison and rollback support.',
 				overview:
-					"Backups automatically captures running configuration snapshots from your devices on a scheduled basis. Every snapshot is stored with a timestamp and the full configuration text. Crux provides a line-by-line diff view so you can immediately see what changed between any two backups, and a rollback feature that pushes a saved configuration back to the device through the standard approval workflow.",
+					'Backups automatically captures running configuration snapshots from your devices on a scheduled basis. Every snapshot is stored with a timestamp and the full configuration text. Crux provides a line-by-line diff view so you can immediately see what changed between any two backups, and a rollback feature that pushes a saved configuration back to the device through the standard approval workflow.',
 				capabilities: [
 					'Schedule automatic configuration backups for any managed device',
 					'Manual backup trigger available at any time from the backup page',
@@ -864,13 +864,13 @@ export const docGroups: DocGroup[] = [
 				],
 				howItWorks: [
 					"An administrator creates an invitation by entering the recipient's email and selecting a role. Crux generates a one-time token and sends an activation email (valid for 48 hours).",
-					"The recipient clicks the activation link, sets their password, and their account becomes active with the assigned role.",
+					'The recipient clicks the activation link, sets their password, and their account becomes active with the assigned role.',
 					'Deactivating a user immediately revokes all their active sessions by adding their JWT tokens to the Valkey token blacklist.',
 					'TOTP MFA: the user scans a QR code with an authenticator app; on each subsequent login, a 6-digit TOTP code is required.'
 				],
 				steps: [
 					'Navigate to /users and click Invite User.',
-					'Enter the recipient\'s email address and select their role.',
+					"Enter the recipient's email address and select their role.",
 					'Crux sends an activation email with a 48-hour link.',
 					'The recipient opens the link, sets a password, and their account is activated.',
 					'To change a role, click the user row and select a new role from the dropdown.'
@@ -902,7 +902,7 @@ export const docGroups: DocGroup[] = [
 				],
 				howItWorks: [
 					"Every sensitive API endpoint is guarded by a role check. When a request arrives, the user's JWT is decoded, their roles are resolved from the database, and their combined policies are evaluated.",
-					"Policies follow an action+resource model: e.g. jobs:approve on resource:* means the role can approve any job.",
+					'Policies follow an action+resource model: e.g. jobs:approve on resource:* means the role can approve any job.',
 					'Deny rules take precedence — if any policy matching the request is a deny, access is blocked regardless of allow policies.',
 					'Custom roles are created and stored in the database — no code changes are required.'
 				],
