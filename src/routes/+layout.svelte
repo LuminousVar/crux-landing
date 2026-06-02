@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import Navbar from '$lib/components/sections/Navbar.svelte';
+	import AIChatWidget from '$lib/components/AIChatWidget.svelte';
 	import { page } from '$app/state';
 
 	let { children } = $props();
@@ -25,3 +26,4 @@
 	<Navbar />
 {/if}
 {@render children()}
+<AIChatWidget />
