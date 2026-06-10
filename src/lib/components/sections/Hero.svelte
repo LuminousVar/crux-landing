@@ -133,7 +133,8 @@
 		</h1>
 
 		<div>
-			<a href="#features" class="hero-cta">
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a href="/demo" class="hero-cta">
 				Get Started
 				<span class="hero-cta-arrow" aria-hidden="true">
 					<svg

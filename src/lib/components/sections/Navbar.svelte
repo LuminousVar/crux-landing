@@ -44,7 +44,8 @@
 		<!-- Desktop nav links — center -->
 		<ul class="hidden items-center gap-8 lg:flex">
 			<li>
-				<a href="#features" class="text-sm text-muted transition-colors hover:text-content"
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+				<a href="/#features" class="text-sm text-muted transition-colors hover:text-content"
 					>Features</a
 				>
 			</li>
@@ -53,12 +54,14 @@
 				<a href="/docs" class="text-sm text-muted transition-colors hover:text-content">Docs</a>
 			</li>
 			<li>
-				<a href="#use-cases" class="text-sm text-muted transition-colors hover:text-content"
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+				<a href="/#use-cases" class="text-sm text-muted transition-colors hover:text-content"
 					>Use Cases</a
 				>
 			</li>
 			<li>
-				<a href="#faq" class="text-sm text-muted transition-colors hover:text-content">FAQ</a>
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+				<a href="/#faq" class="text-sm text-muted transition-colors hover:text-content">FAQ</a>
 			</li>
 		</ul>
 
@@ -73,8 +76,9 @@
 			>
 				<GithubIcon size={20} />
 			</a>
-			<a href="mailto:farelreyhan6@gmail.com" class="moonshot-cta">
-				Contact Us
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a href="/demo" class="moonshot-cta">
+				Get a Demo
 				<span class="moonshot-arrow" aria-hidden="true">
 					<svg
 						width="14"
@@ -150,8 +154,9 @@
 		<div class="border-t border-edge bg-surface lg:hidden">
 			<ul class="mx-auto max-w-6xl px-6 pb-4 pt-1">
 				<li>
+					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 					<a
-						href="#features"
+						href="/#features"
 						onclick={closeMenu}
 						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
 					>
@@ -169,8 +174,9 @@
 					</a>
 				</li>
 				<li>
+					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 					<a
-						href="#use-cases"
+						href="/#use-cases"
 						onclick={closeMenu}
 						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
 					>
@@ -178,8 +184,9 @@
 					</a>
 				</li>
 				<li>
+					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 					<a
-						href="#faq"
+						href="/#faq"
 						onclick={closeMenu}
 						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
 					>
@@ -187,12 +194,9 @@
 					</a>
 				</li>
 				<li class="pt-4">
-					<a
-						href="mailto:farelreyhan6@gmail.com"
-						onclick={closeMenu}
-						class="moonshot-cta w-full justify-center"
-					>
-						Contact Us
+					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+					<a href="/demo" onclick={closeMenu} class="moonshot-cta w-full justify-center">
+						Get a Demo
 					</a>
 				</li>
 			</ul>
