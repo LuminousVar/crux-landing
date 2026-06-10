@@ -1,5 +1,7 @@
 <script lang="ts">
 	import GithubIcon from '$lib/components/ui/GithubIcon.svelte';
+
+	const year = new Date().getFullYear();
 </script>
 
 <!-- Pre-footer CTA with gradient glow -->
@@ -86,8 +88,7 @@
 				</p>
 
 				<p class="mt-6 text-sm text-muted">
-					Copyright © 2026 Crux. All Rights Reserved.<br />
-					Built as an academic project.
+					© {year} Crux. Built as an academic project.
 				</p>
 
 				<!-- Social icons -->
@@ -131,11 +132,6 @@
 					<li>
 						<a href="#use-cases" class="text-sm text-muted transition-colors hover:text-content"
 							>Use Cases</a
-						>
-					</li>
-					<li>
-						<a href="#tech" class="text-sm text-muted transition-colors hover:text-content"
-							>Tech Stack</a
 						>
 					</li>
 					<li>
