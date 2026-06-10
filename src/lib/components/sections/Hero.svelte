@@ -8,6 +8,20 @@
 	let indices = $state([0, 0, 0]);
 	let visible = $state([true, true, true]);
 
+	// Pause the background path animations when the hero is scrolled off-screen
+	// (CSS animations keep painting otherwise — see perf note).
+	let sectionEl = $state<HTMLElement | null>(null);
+	let inView = $state(true);
+
+	$effect(() => {
+		if (!sectionEl) return;
+		const io = new IntersectionObserver(([e]) => (inView = e.isIntersecting), {
+			rootMargin: '100px'
+		});
+		io.observe(sectionEl);
+		return () => io.disconnect();
+	});
+
 	$effect(() => {
 		let tick = 0;
 
@@ -28,7 +42,7 @@
 	});
 
 	function makePaths(position: number) {
-		return Array.from({ length: 36 }, (_, i) => ({
+		return Array.from({ length: 14 }, (_, i) => ({
 			id: i,
 			d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${
 				380 - i * 5 * position
@@ -49,11 +63,16 @@
 </script>
 
 <section
+	bind:this={sectionEl}
 	class="relative flex min-h-screen items-center justify-center overflow-hidden"
 	aria-labelledby="hero-heading"
 >
 	<!-- Animated background paths -->
-	<div class="pointer-events-none absolute inset-0" aria-hidden="true">
+	<div
+		class="pointer-events-none absolute inset-0"
+		style="--play: {inView ? 'running' : 'paused'}; transform: translateY(-15%)"
+		aria-hidden="true"
+	>
 		{#each [pathsPos, pathsNeg] as paths, si (si)}
 			<svg
 				class="absolute inset-0 h-full w-full"
@@ -71,7 +90,7 @@
 						pathLength="1"
 						stroke-dasharray="0.35 0.65"
 						vector-effect="non-scaling-stroke"
-						style="animation: path-travel {path.duration}s {path.delay}s linear infinite"
+						style="animation: path-travel {path.duration}s {path.delay}s linear infinite; animation-play-state: var(--play)"
 					/>
 				{/each}
 			</svg>
