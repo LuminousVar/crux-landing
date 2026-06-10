@@ -1,16 +1,51 @@
+export interface DocCallout {
+	type: 'note' | 'warning' | 'tip';
+	text: string;
+}
+
+export interface DocTable {
+	title?: string;
+	headers: string[];
+	rows: string[][];
+}
+
+export interface DocDiagram {
+	title?: string;
+	ascii: string;
+}
+
 export interface DocModule {
 	slug: string;
 	label: string;
 	icon: string;
 	description: string;
 	capabilities: string[];
-	appRoute: string;
+	/** Route in the Crux app where this lives. Omit for concept/guide pages. */
+	appRoute?: string;
 	overview: string;
 	howItWorks: string[];
 	steps: string[];
 	commands?: { label: string; code: string }[];
 	commandsLabel?: string;
 	technicalNotes: string[];
+	/** REST API base path in the platform, e.g. '/api/v1/jobs'. */
+	apiBase?: string;
+	/** Who can access this module, e.g. 'Admin (all), Network Engineer (create)'. */
+	access?: string;
+	/** Things to set up before using this module. */
+	prerequisites?: string[];
+	/** Slugs of related modules — rendered as cross-link cards. */
+	related?: string[];
+	/** Highlighted note/warning/tip boxes. */
+	callouts?: DocCallout[];
+	/** Reference tables (state machines, type matrices, env var lists). */
+	tables?: DocTable[];
+	/** A single ASCII diagram (zero-dependency, monospace). */
+	diagram?: DocDiagram;
+	/** Problem → cause → fix entries. */
+	troubleshooting?: { problem: string; cause: string; fix: string }[];
+	/** Per-module frequently asked questions. */
+	faq?: { q: string; a: string }[];
 }
 
 export interface DocGroup {
@@ -56,12 +91,12 @@ export const docGroups: DocGroup[] = [
 					'Explore the module documentation for detailed usage of each platform feature.'
 				],
 				technicalNotes: [
-					'Supported deployment: Linux host with Podman Compose ≥ 4.x or Docker Compose v2.',
-					'Minimum requirements: 2 vCPU, 4 GB RAM, 20 GB disk for the full stack including PostgreSQL and Valkey.',
-					'Exposed host ports: 5173 (frontend), 8000 (backend API), 162/udp (SNMP trap receiver).',
+					'Supported deployment: Linux host with podman-compose or Docker Compose v2.',
+					'Exposed host ports: 3000 (frontend), 8000 (backend API), 162/udp (SNMP trap receiver).',
 					'No cloud dependencies — all services run in containers on your local network.',
 					'License: MIT. Source code available on GitHub.'
-				]
+				],
+				related: ['installation', 'configuration', 'architecture']
 			},
 			{
 				slug: 'installation',
@@ -69,31 +104,53 @@ export const docGroups: DocGroup[] = [
 				icon: 'Terminal',
 				appRoute: '/',
 				commandsLabel: 'Commands',
-				description: 'Deploy Crux on a Linux host using Podman Compose or Docker Compose.',
+				description: 'Deploy Crux on a Linux host with Podman Compose (or Docker Compose).',
 				overview:
-					'Crux ships as a multi-container application defined in a single compose.yaml file. The stack includes the SvelteKit frontend, FastAPI backend, Celery worker, Celery Beat scheduler, SNMP trap receiver, PostgreSQL 18, and Valkey. A single compose up command starts the entire stack. No cloud account, no registry login, and no Kubernetes required.',
+					'Crux ships as a multi-container application defined in a single compose.yaml. Prebuilt images are published to GHCR, or the stack can be built locally. One `podman-compose up -d` starts seven services: frontend, backend, Celery worker, Celery beat, SNMP trap receiver, PostgreSQL, and Valkey. After the stack is up you bootstrap the first admin account with a one-time script.',
 				capabilities: [
-					'Single compose.yaml starts the complete stack: frontend, backend, workers, trap receiver, database, and cache',
-					'Podman Compose and Docker Compose v2 both supported',
-					'PostgreSQL 18 and Valkey included — no external database or cache required',
-					'Environment-driven configuration via .env — no code changes needed to customise',
-					'All containers run as non-root users',
-					'Health checks on all services — compose waits for dependencies to be ready before starting dependents'
+					'Single compose.yaml brings up the full stack — frontend, backend, worker, beat, trap receiver, Postgres, Valkey',
+					'Prebuilt images on GHCR (ghcr.io/luminousvar/crux-backend and crux-frontend), or build locally',
+					'PostgreSQL 17 and Valkey 9 included — no external database or cache to provision',
+					'Environment-driven via .env — no code changes to customise',
+					'Health checks gate startup: backend, worker, and trap receiver wait for Postgres and Valkey to be ready',
+					'Persistent named volumes for Postgres data, Valkey data, and firmware storage'
+				],
+				prerequisites: [
+					'A Linux host with podman-compose (or Docker Compose v2) installed.',
+					'Outbound internet access to pull images from GHCR (or the ability to build locally).',
+					'UDP port 162 reachable from your devices if you want SNMP traps.'
+				],
+				tables: [
+					{
+						title: 'Services & host ports',
+						headers: ['Service', 'Role', 'Host port'],
+						rows: [
+							['frontend', 'SvelteKit UI', '127.0.0.1:3000'],
+							['backend', 'FastAPI REST API', '8000'],
+							['worker', 'Celery job executor', '—'],
+							['beat', 'Celery scheduler', '—'],
+							['trap-receiver', 'SNMP trap listener', '162/udp'],
+							['postgres', 'PostgreSQL 17 database', '—'],
+							['valkey', 'Valkey 9 broker + cache', '—']
+						]
+					}
 				],
 				howItWorks: [
-					'compose.yaml defines seven services: frontend, backend, celery-worker, celery-beat, snmp-trap-receiver, postgres, and valkey.',
-					'On first start, the backend runs Alembic database migrations automatically before accepting requests.',
-					'The backend creates a default Admin account using FIRST_ADMIN_EMAIL and FIRST_ADMIN_PASSWORD if no users exist.',
-					'All inter-service communication happens over an internal container network — only ports 5173, 8000, and 162/udp are exposed on the host.'
+					'compose.yaml defines seven services on an internal bridge network; only frontend (3000), backend (8000), and the trap receiver (162/udp) publish host ports.',
+					'Postgres and Valkey expose health checks; the backend, worker, and trap receiver start only once both are healthy.',
+					'On first start the backend auto-creates missing tables via SQLAlchemy metadata.create_all — there is no automatic migration of existing columns.',
+					'No admin user exists by default — you create the first one with the bootstrap script, which prints an activation link.',
+					'The worker and beat containers run Celery; the trap receiver runs a standalone listener on UDP 162.'
 				],
 				steps: [
-					'Ensure Podman Compose (≥ 4.x) or Docker Compose (v2) is installed on a Linux host.',
-					'Clone the Crux repository.',
-					'Copy the example environment file: cp .env.example .env',
-					'Edit .env — at minimum set ENCRYPTION_KEY, POSTGRES_PASSWORD, and SECRET_KEY. See the Configuration guide for all variables.',
-					'Start the stack: podman compose up -d',
-					'Verify all services are healthy: podman compose ps',
-					'Open http://localhost:5173 and log in with FIRST_ADMIN_EMAIL / FIRST_ADMIN_PASSWORD.'
+					'Install podman-compose (or Docker Compose v2) on a Linux host.',
+					'Clone the Crux repository and enter it.',
+					'Copy the example env file: cp env.example .env',
+					'Edit .env — at minimum set ENCRYPTION_KEY, JWT_SECRET_KEY, and POSTGRES_PASSWORD (see the Configuration guide).',
+					'Start the stack: podman-compose up -d',
+					'Verify all services are healthy: podman-compose ps',
+					'Bootstrap the first admin account (see commands), open the printed activation link, set a password.',
+					'Log in at http://localhost:3000.'
 				],
 				commands: [
 					{
@@ -103,37 +160,54 @@ cd crux`
 					},
 					{
 						label: 'Copy environment file',
-						code: `cp .env.example .env`
+						code: `cp env.example .env`
 					},
 					{
 						label: 'Start the full stack',
-						code: `podman compose up -d
+						code: `podman-compose up -d
 # or: docker compose up -d`
 					},
 					{
 						label: 'Check service health',
-						code: `podman compose ps`
+						code: `podman-compose ps`
+					},
+					{
+						label: 'Bootstrap the first admin account',
+						code: `cd backend
+uv run python scripts/bootstrap.py --email admin@company.com --username admin
+# Output includes an activation link — open it, set a password, log in.`
 					},
 					{
 						label: 'View live logs',
-						code: `podman compose logs -f
+						code: `podman-compose logs -f
 # Filter to a single service:
-podman compose logs -f backend`
+podman-compose logs -f backend`
 					},
 					{
 						label: 'Stop the stack',
-						code: `podman compose down
+						code: `podman-compose down
 # Stop and remove all data volumes (destructive):
-podman compose down -v`
+podman-compose down -v`
+					}
+				],
+				callouts: [
+					{
+						type: 'warning',
+						text: 'No admin user is auto-created. After the stack is healthy you must run scripts/bootstrap.py once — otherwise no one can log in.'
+					},
+					{
+						type: 'note',
+						text: 'metadata.create_all only creates MISSING tables. Upgrading an existing install? Run the relevant scripts/migrate.py migrations manually — see Production Deployment.'
 					}
 				],
 				technicalNotes: [
-					'Podman rootless mode is fully supported — no root privileges required.',
-					'On SELinux-enforcing hosts (RHEL, Fedora), append :Z to bind-mount volume paths if you encounter permission errors.',
-					'The backend runs Alembic migrations on startup — do not interrupt the first-start sequence.',
-					'SNMP trap receiver requires UDP port 162 to be reachable from your devices. Open it on the host firewall: firewall-cmd --add-port=162/udp --permanent.',
-					'To update Crux: git pull, then podman compose up -d --build to rebuild images with the latest code.'
-				]
+					'Podman rootless mode is supported.',
+					'The SNMP trap receiver needs UDP 162 reachable from devices: firewall-cmd --add-port=162/udp --permanent.',
+					'Frontend is bound to 127.0.0.1:3000 by default — front it with a reverse proxy (Caddy) for external access.',
+					'To update: git pull, then podman-compose up -d --build (or re-pull the GHCR images).',
+					'Named volumes pgdata, valkeydata, and firmwaredata persist across restarts — `down -v` deletes them.'
+				],
+				related: ['configuration', 'production-deployment', 'architecture']
 			},
 			{
 				slug: 'configuration',
@@ -141,44 +215,68 @@ podman compose down -v`
 				icon: 'Settings',
 				appRoute: '/settings',
 				commandsLabel: 'Example .env Values',
-				description: 'All environment variables — secrets, AI provider, SNMP defaults, and SMTP.',
+				description: 'All environment variables — secrets, AI provider, news, SMTP, and Telegram.',
 				overview:
-					'Crux is configured entirely via environment variables in a .env file. The .env.example file in the repository documents every variable with its purpose and a safe default. This guide covers the variables you must set before first start and the optional variables for AI provider selection, SMTP (user invitations), and SNMP defaults.',
+					'Crux is configured entirely via environment variables in a .env file. The env.example in the repo documents every variable with a safe default. This guide covers the secrets you must set before first start (ENCRYPTION_KEY, JWT_SECRET_KEY, POSTGRES_PASSWORD) and the optional integrations: AI provider, networking news feeds, inbound/outbound webhooks, SMTP for user invites, and Telegram alerts.',
 				capabilities: [
 					'ENCRYPTION_KEY — AES-256 Fernet key for the credential vault; generate once, never change',
-					'SECRET_KEY — HMAC key for signing JWT access and refresh tokens',
+					'JWT_SECRET_KEY — signs JWT access and refresh tokens',
 					'LLM_BASE_URL / LLM_API_KEY / LLM_MODEL — AI provider; any OpenAI-compatible endpoint',
-					'POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB — PostgreSQL connection credentials',
-					'SMTP_HOST / SMTP_USERNAME / SMTP_PASSWORD — outbound email for user invitation links',
-					'FIRST_ADMIN_EMAIL / FIRST_ADMIN_PASSWORD — initial admin account created on first start only',
-					'SNMP_COMMUNITY / SNMP_VERSION / SNMP_POLLING_INTERVAL — platform-wide SNMP defaults'
+					'POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB — PostgreSQL credentials',
+					'WEBHOOK_SECRET — shared secret for inbound webhook (AI incident logs)',
+					'CURRENTS_API_KEY / GNEWS_API_KEY — networking news sources (NVD needs none)',
+					'SMTP_* and TELEGRAM_* — optional user-invite email and alert delivery'
+				],
+				tables: [
+					{
+						title: 'Required before first start',
+						headers: ['Variable', 'Purpose'],
+						rows: [
+							['ENCRYPTION_KEY', 'Fernet (AES-256) key for the credential vault'],
+							['JWT_SECRET_KEY', 'HMAC key signing JWT access + refresh tokens'],
+							['POSTGRES_PASSWORD', 'PostgreSQL password (also POSTGRES_USER / POSTGRES_DB)']
+						]
+					},
+					{
+						title: 'Optional integrations',
+						headers: ['Variable', 'Enables'],
+						rows: [
+							['LLM_BASE_URL / LLM_API_KEY / LLM_MODEL', 'AI agent, diagnostics, incidents'],
+							['WEBHOOK_SECRET', 'Inbound webhook for AI incident logs'],
+							['CURRENTS_API_KEY / GNEWS_API_KEY', 'Networking news feed (extra sources)'],
+							['SMTP_HOST / SMTP_USERNAME / SMTP_PASSWORD', 'User invitation emails'],
+							['TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID', 'Telegram alert delivery'],
+							['FIRMWARE_STORAGE_PATH', 'Where uploaded firmware images are stored'],
+							['CF_API_TOKEN', 'Caddy DNS challenge for automatic TLS']
+						]
+					}
 				],
 				howItWorks: [
-					'Sensitive values (ENCRYPTION_KEY, SECRET_KEY, database passwords) are read at container startup and are never exposed via the API.',
-					'LLM configuration is read at inference time — you can also change the AI provider at runtime via /settings in the UI without restarting.',
-					'SNMP defaults from .env are used as the platform-wide starting values and can be overridden at /settings.',
-					'SMTP configuration enables the invitation email feature. If SMTP is not configured, invitation links are still generated and displayed in the UI — they just are not emailed automatically.'
+					'Secrets (ENCRYPTION_KEY, JWT_SECRET_KEY, database password) are read at container startup and never exposed via the API.',
+					'If ENCRYPTION_KEY is empty, Crux generates an EPHEMERAL key at startup — all stored secrets become unreadable on the next restart. Always set it.',
+					'LLM configuration is read at inference time — you can also change the AI provider at runtime via /settings without restarting.',
+					'SMTP enables invite emails; without it, invitation links are still generated and shown in the UI, just not emailed.',
+					'Missing news API keys degrade gracefully — NVD (key-free) always returns.'
 				],
 				steps: [
-					'Generate ENCRYPTION_KEY using the Python command below. Store it securely — changing it later requires re-encrypting all vault entries.',
-					'Generate SECRET_KEY using the second command below.',
-					'Choose an AI provider and set LLM_BASE_URL, LLM_API_KEY, and LLM_MODEL. See the examples for Groq, Ollama, and DeepSeek.',
-					'Set POSTGRES_PASSWORD to a strong random value.',
-					'Set FIRST_ADMIN_EMAIL and FIRST_ADMIN_PASSWORD — used only on the very first start when no users exist.',
-					'Optionally configure SMTP_HOST, SMTP_USERNAME, and SMTP_PASSWORD for invitation emails.',
-					'Save .env and do not commit it to source control — add it to .gitignore.'
+					'Generate ENCRYPTION_KEY (Fernet) and paste it into .env — store it securely; changing it later orphans all vault entries.',
+					'Generate JWT_SECRET_KEY and set a strong POSTGRES_PASSWORD.',
+					'Choose an AI provider and set LLM_BASE_URL / LLM_API_KEY / LLM_MODEL (Groq, Ollama, or DeepSeek).',
+					'Set WEBHOOK_SECRET if you will ingest device syslog into AI incident logs.',
+					'Optionally add CURRENTS_API_KEY / GNEWS_API_KEY, SMTP_*, and TELEGRAM_* values.',
+					'Save .env — it is gitignored; never commit it.'
 				],
 				commands: [
 					{
 						label: 'Generate ENCRYPTION_KEY (required)',
-						code: `python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
+						code: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
 					},
 					{
-						label: 'Generate SECRET_KEY (required)',
-						code: `python3 -c "import secrets; print(secrets.token_hex(32))"`
+						label: 'Generate JWT_SECRET_KEY and WEBHOOK_SECRET (required / optional)',
+						code: `python -c "import secrets; print(secrets.token_hex(32))"`
 					},
 					{
-						label: 'AI provider: Groq',
+						label: 'AI provider: Groq (default)',
 						code: `LLM_BASE_URL=https://api.groq.com/openai/v1
 LLM_API_KEY=gsk_your_groq_api_key
 LLM_MODEL=llama-3.3-70b-versatile`
@@ -190,27 +288,429 @@ LLM_API_KEY=ollama
 LLM_MODEL=llama3.2`
 					},
 					{
-						label: 'AI provider: DeepSeek',
-						code: `LLM_BASE_URL=https://api.deepseek.com/v1
-LLM_API_KEY=sk_your_deepseek_key
-LLM_MODEL=deepseek-chat`
+						label: 'Networking news sources (optional)',
+						code: `CURRENTS_API_KEY=   # https://currentsapi.services/en/register
+GNEWS_API_KEY=      # https://gnews.io/register
+# NVD (CVEs) requires no key`
 					},
 					{
-						label: 'SMTP (Gmail app password example)',
-						code: `SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=your@gmail.com
-SMTP_PASSWORD=your_app_password
-SMTP_FROM=your@gmail.com`
+						label: 'Telegram alerts (optional)',
+						code: `TELEGRAM_BOT_TOKEN=   # create via @BotFather
+TELEGRAM_CHAT_ID=     # get via @userinfobot
+# TELEGRAM_EVENTS is a JSON array of events to deliver`
+					}
+				],
+				callouts: [
+					{
+						type: 'warning',
+						text: 'If ENCRYPTION_KEY is left empty, Crux generates an ephemeral key on each start and every stored credential becomes unreadable after a restart. Set a permanent key before adding any credentials.'
 					}
 				],
 				technicalNotes: [
-					'ENCRYPTION_KEY must be a valid Fernet key (32 url-safe base64-encoded bytes). Generate it with the Python command above — do not craft it manually.',
-					'Changing ENCRYPTION_KEY after data has been stored requires re-encrypting all credential vault entries. Back it up; there is no automatic migration.',
-					'Do not commit .env to source control. For production, use a secrets manager (Vault, Infisical, or environment injection via systemd).',
-					'JWT access tokens expire after 30 minutes; refresh tokens after 7 days. Changing SECRET_KEY invalidates all active sessions immediately.',
-					'FIRST_ADMIN_EMAIL / FIRST_ADMIN_PASSWORD are only used on the first start when no users exist — they have no effect on subsequent starts.'
-				]
+					'ENCRYPTION_KEY must be a valid Fernet key (32 url-safe base64 bytes) — generate it, do not hand-craft it.',
+					'Changing ENCRYPTION_KEY after data is stored orphans every vault entry; there is no automatic re-encryption.',
+					'JWT access tokens default to 30 minutes (JWT_ACCESS_EXPIRE_MINUTES), refresh tokens to 7 days (JWT_REFRESH_EXPIRE_DAYS).',
+					'DATABASE_URL and the Celery/Valkey URLs are assembled in compose.yaml — you set the Postgres credentials, not the full URL.',
+					'.env is gitignored. For production, inject secrets via your orchestrator or a secrets manager.'
+				],
+				related: ['installation', 'production-deployment', 'security-model']
+			}
+		]
+	},
+	{
+		key: 'concepts',
+		label: 'Concepts & Guides',
+		modules: [
+			{
+				slug: 'architecture',
+				label: 'Architecture',
+				icon: 'Boxes',
+				description:
+					'How the seven Crux services fit together — frontend, backend, workers, scheduler, trap receiver, database, and cache.',
+				overview:
+					'Crux is a containerized application of seven cooperating services on a single internal network. The SvelteKit frontend talks to a FastAPI backend over REST. Long-running work is offloaded to Celery workers, scheduled by Celery beat, with a standalone SNMP trap receiver feeding events in. PostgreSQL is the system of record and Valkey is the message broker, result backend, and cache.',
+				capabilities: [
+					'Frontend (SvelteKit) — the UI, served on host port 3000',
+					'Backend (FastAPI) — REST API, auth, RBAC, and database access on port 8000',
+					'Worker (Celery) — executes jobs, SNMP polls, and AI analysis tasks',
+					'Beat (Celery) — dispatches cron-scheduled jobs and backups',
+					'Trap receiver — listens on UDP 162 and feeds SNMP traps into the AI pipeline',
+					'PostgreSQL 17 — system of record; Valkey 9 — broker, result backend, and cache'
+				],
+				diagram: {
+					title: 'Service topology',
+					ascii: `         browser
+            │  :3000
+       ┌────▼─────┐        REST :8000      ┌──────────┐
+       │ frontend │ ─────────────────────▶ │ backend  │
+       └──────────┘                        └────┬─────┘
+                                                │
+       ┌──────────┐   ┌──────────┐   ┌──────────▼─────┐
+       │  worker  │   │   beat   │   │ trap-receiver  │  :162/udp
+       └────┬─────┘   └────┬─────┘   └────────┬───────┘
+            └──────────────┼──────────────────┘
+                  ┌────────▼────────┐   ┌──────────┐
+                  │  PostgreSQL 17  │   │ Valkey 9 │
+                  └─────────────────┘   └──────────┘`
+				},
+				tables: [
+					{
+						title: 'Service responsibilities',
+						headers: ['Service', 'Responsibility'],
+						rows: [
+							['frontend', 'SvelteKit UI (host port 3000)'],
+							['backend', 'FastAPI REST API, auth, RBAC, DB access (port 8000)'],
+							['worker', 'Celery — job execution, SNMP polling, AI analysis'],
+							['beat', 'Celery — cron-scheduled jobs and backups'],
+							['trap-receiver', 'SNMP trap listener on UDP 162 → AI incidents'],
+							['postgres', 'PostgreSQL 17 — system of record'],
+							['valkey', 'Valkey 9 — Celery broker/result backend + cache']
+						]
+					}
+				],
+				howItWorks: [
+					'The browser loads the SvelteKit frontend, which calls the FastAPI backend over REST.',
+					'The backend enforces authentication and RBAC, then reads/writes PostgreSQL.',
+					'Work that should not block a request — job execution, SNMP polling, AI analysis — is queued to Valkey and run by Celery workers.',
+					'Celery beat evaluates schedules and dispatches recurring jobs and backups.',
+					'The trap receiver listens on UDP 162; incoming traps are parsed and handed to a Celery task that runs LLM analysis and writes an incident record.'
+				],
+				steps: [
+					'Read this page to map each container to its job.',
+					'See Installation for how compose.yaml wires these services together.',
+					'See Security Model for how auth, the vault, and RBAC sit across the backend.',
+					'See Job Lifecycle for how work flows from the API through the worker.'
+				],
+				technicalNotes: [
+					'All services share an internal bridge network; only frontend (3000), backend (8000), and trap-receiver (162/udp) publish host ports.',
+					'Valkey holds the Celery broker (db 1), result backend (db 2), and the JWT token blocklist.',
+					'PostgreSQL tables are auto-created on first start; schema changes use manual migrations.',
+					'Backend, worker, beat, and trap-receiver all run the same image with different entry commands.'
+				],
+				related: ['installation', 'job-lifecycle', 'security-model']
+			},
+			{
+				slug: 'security-model',
+				label: 'Security Model',
+				icon: 'ShieldCheck',
+				description:
+					'How Crux protects secrets and gates access — AES-256 credential vault, policy-based RBAC, JWT sessions, and an immutable audit log.',
+				overview:
+					'Security in Crux rests on four pillars: an AES-256 (Fernet) credential vault that encrypts every secret at rest, a policy-based RBAC engine where deny beats allow, short-lived JWT sessions backed by a Valkey blocklist, and an append-only audit log that records every privileged action. Secrets are decrypted only inside the execution layer and never returned by the API.',
+				capabilities: [
+					'Credential vault — SSH passwords, keys, SNMP communities, and tokens encrypted with Fernet (AES-256)',
+					'Secrets never leave the server — decrypted only in the execution layer, never returned by the API',
+					'Policy-based RBAC — eight built-in roles plus custom roles, evaluated as (action, resource, effect)',
+					'Deny beats allow — any matching deny policy rejects the request',
+					'JWT sessions — 30-minute access tokens, 7-day refresh tokens, instant revocation via Valkey blocklist',
+					'Immutable audit log — every privileged action recorded with actor, IP, and timestamp'
+				],
+				tables: [
+					{
+						title: 'The four pillars',
+						headers: ['Pillar', 'Mechanism'],
+						rows: [
+							['Secret storage', 'Fernet (AES-256-CBC + HMAC-SHA256) via ENCRYPTION_KEY'],
+							['Access control', 'Policy RBAC — (action, resource, effect), deny > allow'],
+							['Sessions', 'JWT access + refresh, Valkey token blocklist on revoke'],
+							['Accountability', 'Append-only audit log — no delete/update endpoint']
+						]
+					}
+				],
+				howItWorks: [
+					'When a credential is saved, the secret is encrypted with a Fernet key derived from ENCRYPTION_KEY before it touches the database.',
+					'When a job needs the secret, the execution layer decrypts it in-memory, uses it for the connection, then discards it — it is never logged or returned by the API.',
+					'On each request the JWT is decoded, the user’s role resolved, and the combined policies evaluated; any matching deny rule blocks the request.',
+					'Revoking a session or deactivating a user adds the token to a Valkey blocklist so subsequent requests fail immediately.',
+					'Every sensitive operation writes an audit record before the response is returned.'
+				],
+				steps: [
+					'Set a permanent ENCRYPTION_KEY before adding any credentials (see Configuration).',
+					'Assign least-privilege roles to users from the Roles module.',
+					'Use custom roles with explicit deny rules to fence off sensitive actions like job approval.',
+					'Review the audit log periodically — denied actions are logged too.'
+				],
+				callouts: [
+					{
+						type: 'warning',
+						text: 'ENCRYPTION_KEY is the root of the vault. If it is lost or changed, every stored secret becomes unrecoverable. Back it up securely and never rotate it without re-encrypting.'
+					}
+				],
+				technicalNotes: [
+					'Fernet = AES-256-CBC for confidentiality + HMAC-SHA256 for integrity.',
+					'RBAC policies are (action, resource, effect) tuples; deny always wins over allow.',
+					'JWT access tokens default to 30 minutes, refresh tokens to 7 days.',
+					'The audit log has no delete or update endpoint — it is append-only by design.'
+				],
+				related: ['credentials', 'roles', 'audit-logs', 'configuration']
+			},
+			{
+				slug: 'job-lifecycle',
+				label: 'Job Lifecycle',
+				icon: 'GitBranch',
+				description:
+					'How an automation task flows from creation through approval to execution — the state machine behind every device mutation.',
+				overview:
+					'Every mutation against a device in Crux is a job, and every job moves through a defined state machine. This guide explains each state, which job types require approval, and how the four-eyes principle keeps production changes safe. It is the conceptual companion to the Jobs module.',
+				capabilities: [
+					'Eight states from draft to a terminal succeeded, failed, or rejected',
+					'Approval gate for sensitive job types — submitter cannot self-approve',
+					'Autonomous types (backup, health_check) skip approval when whitelisted',
+					'Per-device output capture for every execution',
+					'Every state transition timestamped and auditable'
+				],
+				diagram: {
+					title: 'State machine',
+					ascii: `draft → queued → pending_approval → approved → running → succeeded
+                                ↘ rejected            ↘ failed`
+				},
+				tables: [
+					{
+						title: 'States',
+						headers: ['State', 'Meaning'],
+						rows: [
+							['draft', 'Created, not yet submitted'],
+							['queued', 'Awaiting dispatcher pickup'],
+							['pending_approval', 'Needs human sign-off'],
+							['approved', 'Cleared for execution'],
+							['running', 'Worker is executing'],
+							['succeeded / failed', 'Terminal — finished cleanly or errored'],
+							['rejected', 'Approver denied']
+						]
+					},
+					{
+						title: 'Approval by type',
+						headers: ['Job type', 'Approval'],
+						rows: [
+							['config_push', 'Required'],
+							['run_command', 'Required'],
+							['firmware_upgrade', 'Required'],
+							['backup', 'Auto (if whitelisted)'],
+							['health_check', 'Auto (if whitelisted)']
+						]
+					}
+				],
+				howItWorks: [
+					'A submitted job enters queued, or pending_approval for sensitive types.',
+					'A second engineer approves it — the four-eyes principle blocks self-approval.',
+					'A Celery worker dispatches the approved job and connects to each target device.',
+					'Output and exit code are captured per device and the job reaches a terminal state.',
+					'Every transition is timestamped and the approve/reject action is audited.'
+				],
+				steps: [
+					'Create a job from the Jobs module or a template.',
+					'For sensitive types, route it to an approver who is not the submitter.',
+					'Watch the per-device output stream as the worker executes.',
+					'Whitelist safe types in AUTONOMOUS_JOB_TYPES to skip the gate.'
+				],
+				technicalNotes: [
+					'Auto-approved job types are controlled by the AUTONOMOUS_JOB_TYPES env var.',
+					'Execution uses Netmiko (SSH) or NETCONF/RESTCONF depending on the device.',
+					'A job may target many devices; each gets its own captured output and exit code.'
+				],
+				related: ['jobs', 'templates', 'audit-logs']
+			},
+			{
+				slug: 'production-deployment',
+				label: 'Production Deployment',
+				icon: 'Server',
+				commandsLabel: 'Commands',
+				description:
+					'Hardening Crux for real use — reverse proxy with automatic TLS, CORS, firewall, and database migrations.',
+				overview:
+					'A bare compose up is fine for evaluation, but production needs TLS, a trusted origin, and a migration discipline. Crux fronts the stack with Caddy for automatic HTTPS (via a Cloudflare DNS challenge), restricts CORS to your real domain, and applies schema changes through idempotent migration scripts rather than relying on table auto-creation.',
+				capabilities: [
+					'Caddy reverse proxy with automatic TLS via Cloudflare DNS challenge (CF_API_TOKEN)',
+					'CORS locked to your real frontend origin (APP_CORS_ORIGINS)',
+					'Frontend bound to 127.0.0.1 — only the proxy is exposed publicly',
+					'Idempotent SQL migrations via scripts/migrate.py for existing installs',
+					'Firewall rule for the SNMP trap receiver (UDP 162)'
+				],
+				prerequisites: [
+					'A domain you control, with DNS managed by Cloudflare for the automatic TLS challenge.',
+					'A Cloudflare API token scoped to edit the zone DNS (CF_API_TOKEN).',
+					'The stack already running per the Installation guide.'
+				],
+				howItWorks: [
+					'Caddy terminates TLS and reverse-proxies to the frontend and backend containers.',
+					'It obtains and renews certificates automatically using a Cloudflare DNS-01 challenge authenticated by CF_API_TOKEN.',
+					'APP_CORS_ORIGINS restricts which browser origins the backend will accept — set it to your real domain.',
+					'metadata.create_all only adds missing tables; new columns on existing tables require running the matching scripts/migrate.py SQL files.',
+					'Migrations are idempotent (IF NOT EXISTS) and support a --dry-run preview.'
+				],
+				steps: [
+					'Point your domain’s DNS at the host and set CF_API_TOKEN in .env.',
+					'Set APP_CORS_ORIGINS to your real frontend URL.',
+					'Front the stack with Caddy (see the repo Caddyfile) for automatic HTTPS.',
+					'Open UDP 162 on the host firewall for the trap receiver.',
+					'When upgrading an existing install, run the relevant migrations with a dry-run first.'
+				],
+				commands: [
+					{
+						label: 'Preview and apply a schema migration',
+						code: `cd backend
+# Dry-run first to preview the statements
+uv run python scripts/migrate.py scripts/<file>.sql --dry-run
+# Apply (idempotent — safe to re-run)
+uv run python scripts/migrate.py scripts/<file>.sql`
+					},
+					{
+						label: 'Open the SNMP trap port on the host firewall',
+						code: `firewall-cmd --add-port=162/udp --permanent
+firewall-cmd --reload`
+					},
+					{
+						label: 'CORS + TLS env values',
+						code: `APP_CORS_ORIGINS=["https://login.crux.watch"]
+FRONTEND_BASE_URL=https://login.crux.watch
+CF_API_TOKEN=   # Cloudflare → API Tokens → Edit zone DNS`
+					}
+				],
+				callouts: [
+					{
+						type: 'warning',
+						text: 'metadata.create_all does NOT alter existing tables. On an upgrade, a missing-column error means a migration has not been applied — match the column to a scripts/migrate.py file and run it.'
+					}
+				],
+				technicalNotes: [
+					'Migration scripts are idempotent (ADD COLUMN IF NOT EXISTS / CREATE INDEX IF NOT EXISTS).',
+					'The frontend container binds to 127.0.0.1:3000 — public access should go through the reverse proxy only.',
+					'Persistent volumes pgdata, valkeydata, firmwaredata survive restarts; back them up.'
+				],
+				related: ['installation', 'configuration', 'troubleshooting']
+			},
+			{
+				slug: 'troubleshooting',
+				label: 'Troubleshooting',
+				icon: 'Wrench',
+				description:
+					'Common setup problems and their fixes — most issues are device-side config or a missing env var, not a platform bug.',
+				overview:
+					'When something in Crux "just doesn’t work," the cause is almost always one of three things: a missing or empty env var, a device-side service or firewall blocking traffic, or a stale browser cache. This guide collects the most frequent symptoms across SNMP, credentials, auth, webhooks, Celery, and the console with their root causes and fixes.',
+				capabilities: [
+					'SNMP timeouts — service disabled, community mismatch, ACL, or UDP 161 blocked',
+					'Credentials disappearing after restart — empty ENCRYPTION_KEY',
+					'Auth 401s — wrong token, expired token, or malformed Authorization header',
+					'Inbound webhook 401 — empty WEBHOOK_SECRET',
+					'Jobs stuck in queued — Celery worker not running',
+					'Console keystrokes not appearing — terminal focus or zero-size xterm'
+				],
+				troubleshooting: [
+					{
+						problem: 'No SNMP response / blank metrics.',
+						cause:
+							'SNMP disabled on the device, the community does not match the credential username, a source-IP ACL is blocking the backend, or UDP 161 is unreachable.',
+						fix: 'Enable SNMP on the device, align the community with the credential’s username field, widen the SNMP ACL to allow the backend host, and confirm snmpget works from the backend.'
+					},
+					{
+						problem: 'Credentials disappear after a restart.',
+						cause:
+							'ENCRYPTION_KEY is empty, so Crux generated an ephemeral key that changes each start.',
+						fix: 'Generate a permanent Fernet key, set ENCRYPTION_KEY in .env, restart, and recreate the lost credentials.'
+					},
+					{
+						problem: '"Invalid or expired token" calling the API.',
+						cause:
+							'Using the refresh_token instead of access_token, an expired token, or a malformed header.',
+						fix: 'Send the access_token as exactly "Authorization: Bearer <token>" and re-login if it expired (30-minute default).'
+					},
+					{
+						problem: '401 on the inbound webhook (POST /webhooks/logs).',
+						cause: 'WEBHOOK_SECRET is empty, so the endpoint rejects everything.',
+						fix: 'Set WEBHOOK_SECRET in .env, restart, and send the same value as the X-Webhook-Secret header.'
+					},
+					{
+						problem: 'Jobs stay in queued forever.',
+						cause: 'The Celery worker is not running.',
+						fix: 'Start the worker container (it is part of compose); for dev, run make worker, and make beat for scheduled backups.'
+					},
+					{
+						problem: 'Console shows a terminal but typing does nothing.',
+						cause:
+							'The terminal is not focused, the xterm rendered with zero size, or the device mode is not echoing.',
+						fix: 'Click inside the terminal area; the current version delays fit() via requestAnimationFrame to avoid the zero-size case.'
+					}
+				],
+				howItWorks: [
+					'Read the backend terminal logs first — Python tracebacks land there.',
+					'Check the browser Network tab for the actual URL, status, and response.',
+					'Verify .env — missing or empty secrets are the single most common cause.',
+					'Check the device side — Crux can only work with what the device allows.'
+				],
+				steps: [
+					'Reproduce the issue and capture the backend log line and the failing request.',
+					'Match the symptom to an entry above and apply the fix.',
+					'If it persists, confirm the relevant env var is set and the device service is enabled.',
+					'Only after these checks should you suspect a Crux code bug.'
+				],
+				faq: [
+					{
+						q: 'My code changes don’t appear in the browser.',
+						a: 'Vite or the browser is serving stale JS. Hard refresh (Ctrl+Shift+R), try an incognito window, or clear the Vite cache (rm -rf .svelte-kit node_modules/.vite) and restart.'
+					}
+				],
+				technicalNotes: [
+					'Most perceived bugs are a missing env var, a device firewall/ACL, a disabled device service, or a stale browser cache.',
+					'metadata.create_all only creates missing tables — a missing-column error means an unapplied migration.',
+					'The trap receiver needs UDP 162 reachable; SNMP polling needs UDP 161 reachable from the backend.'
+				],
+				related: ['installation', 'configuration', 'production-deployment']
+			},
+			{
+				slug: 'glossary',
+				label: 'Glossary',
+				icon: 'BookA',
+				description: 'Key terms used across Crux and its documentation.',
+				overview:
+					'A quick reference for the recurring terms, technologies, and acronyms used throughout Crux and these docs — from Fernet and Celery to MoP and LLDP.',
+				capabilities: [
+					'Platform terms — job, template, vault, audit log, incident',
+					'Technologies — Fernet, Celery, Valkey, Netmiko, SNMP, LLDP',
+					'Acronyms — RBAC, IPAM, MoP, SSE, CVE'
+				],
+				tables: [
+					{
+						title: 'Terms',
+						headers: ['Term', 'Meaning'],
+						rows: [
+							[
+								'SNMP',
+								'Simple Network Management Protocol — polls device metrics and receives traps'
+							],
+							['SNMP trap', 'An unsolicited event a device sends to Crux (e.g. interface down)'],
+							[
+								'Fernet',
+								'Symmetric encryption (AES-256-CBC + HMAC-SHA256) used by the credential vault'
+							],
+							[
+								'Celery',
+								'Distributed task queue running background jobs; beat schedules recurring ones'
+							],
+							[
+								'Valkey',
+								'Redis-compatible store used as the Celery broker, result backend, and cache'
+							],
+							['Netmiko', 'Python library for multi-vendor SSH device automation'],
+							['LLDP', 'Link Layer Discovery Protocol — neighbor data used to build topology'],
+							['RBAC', 'Role-Based Access Control — permissions resolved from a user’s role'],
+							['IPAM', 'IP Address Management — subnet and address tracking'],
+							['MoP', 'Method of Procedure — a structured network change document'],
+							['SSE', 'Server-Sent Events — server pushes streamed tokens to the browser'],
+							['CVE', 'Common Vulnerabilities and Exposures — a catalogued security flaw']
+						]
+					}
+				],
+				howItWorks: [
+					'Terms link back to the modules that use them — follow the related links to see each in context.'
+				],
+				steps: [
+					'Use this page as a reference while reading the module docs.',
+					'Follow related links to the module where each concept is applied.'
+				],
+				technicalNotes: [
+					'This glossary covers terms specific to Crux usage; vendor CLI syntax is documented per module.'
+				],
+				related: ['architecture', 'security-model', 'job-lifecycle']
 			}
 		]
 	},
@@ -223,6 +723,27 @@ SMTP_FROM=your@gmail.com`
 				label: 'Devices',
 				icon: 'Server',
 				appRoute: '/devices',
+				apiBase: '/api/v1/devices',
+				access: 'Admin, Network Operator, Network Engineer, NOC Operator (view)',
+				troubleshooting: [
+					{
+						problem: 'Probe failed: auth error.',
+						cause: 'The linked credential username or password is wrong.',
+						fix: 'Open the credential and verify the username/password; test it with Live Test before re-probing.'
+					},
+					{
+						problem: 'Probe failed: timeout.',
+						cause:
+							'The management IP is unreachable, the port is closed, or a firewall is blocking it.',
+						fix: 'Confirm the IP and port are reachable from the backend host and that no ACL blocks the connection.'
+					},
+					{
+						problem: 'Wrong OS detected.',
+						cause: 'Auto-detection is not always right for every platform.',
+						fix: 'Set the platform field manually on the device record.'
+					}
+				],
+				related: ['credentials', 'inventory', 'jobs', 'monitoring', 'logs'],
 				description:
 					'Central registry of all managed network devices with multi-protocol support and live SSH console.',
 				overview:
@@ -273,10 +794,111 @@ SMTP_FROM=your@gmail.com`
 				]
 			},
 			{
+				slug: 'inventory',
+				label: 'Inventory',
+				icon: 'Layers',
+				appRoute: '/inventory',
+				apiBase: '/api/v1/devices',
+				access: 'Admin, Network Operator, Network Engineer, NOC Operator, Read-Only Viewer',
+				description:
+					'Bulk catalog view of all registered devices with filtering, grouping, and YAML/CSV import-export.',
+				overview:
+					'Inventory is a high-level overview across the whole device fleet. It differs from Devices in that it emphasizes operations on many devices at once — filtering by vendor, platform, or location tags, and bulk import/export. Use it to onboard a new site with many devices in one paste, or to export the entire catalog for backup or migration.',
+				capabilities: [
+					'Sortable list of every registered device, with grouped and location-aware views',
+					'Filter by vendor, platform, protocol, or tags',
+					'Search by hostname or IP substring',
+					'Bulk add via YAML or CSV import',
+					'Export the catalog as YAML or CSV for backup or migration',
+					'Click through to any individual device detail page'
+				],
+				howItWorks: [
+					'Inventory reads the same device records as the Devices module but presents them as a fleet-wide catalog.',
+					'Views can be switched between a flat list, grouped by vendor or platform, or location-aware when location tags are set.',
+					'On import, Crux parses the YAML/CSV and creates a device record for each entry.',
+					'Credentials are NOT imported through bulk add — they are added separately per device or via an API key script.'
+				],
+				tables: [
+					{
+						title: 'Views',
+						headers: ['View', 'Description'],
+						rows: [
+							['List', 'Sortable table of all devices'],
+							['Grouped', 'Organized by vendor or platform'],
+							['Location-aware', 'Grouped by location tag, when tags are set']
+						]
+					}
+				],
+				steps: [
+					'Navigate to /inventory to see the full device catalog.',
+					'Use the filter and search controls to narrow by vendor, platform, or hostname.',
+					'To bulk onboard, click Import and paste or upload a YAML/CSV device list.',
+					'Add credentials separately per device — bulk import does not include secrets.',
+					'Export the catalog to YAML/CSV at any time for backup or migration.'
+				],
+				commands: [
+					{
+						label: 'YAML import format',
+						code: `devices:
+  - hostname: CORE-01
+    ip_address: 10.0.0.1
+    vendor: cisco
+    platform: ios
+    protocol: ssh
+    port: 22`
+					}
+				],
+				commandsLabel: 'Import Format',
+				callouts: [
+					{
+						type: 'note',
+						text: 'Credentials are never imported via bulk add — add them per device in the vault, or script them through an API key. This is a deliberate safety default.'
+					}
+				],
+				technicalNotes: [
+					'Inventory and Devices share the same underlying device records — changes in one are reflected in the other.',
+					'Import accepts YAML or CSV; export produces the same formats for round-trip migration.',
+					'Bulk import creates device records only — credential material is excluded by design.'
+				],
+				faq: [
+					{
+						q: 'How is Inventory different from Devices?',
+						a: 'Devices is for managing a single endpoint in depth (console, probe, detail). Inventory is the fleet-wide catalog optimized for filtering, grouping, and bulk import/export across many devices.'
+					}
+				],
+				related: ['devices', 'credentials']
+			},
+			{
 				slug: 'credentials',
 				label: 'Credentials',
 				icon: 'KeyRound',
 				appRoute: '/credentials',
+				apiBase: '/api/v1/devices/{id}/credentials',
+				access: 'Admin, Network Engineer',
+				callouts: [
+					{
+						type: 'warning',
+						text: 'If ENCRYPTION_KEY is unset, Crux generates an ephemeral key at startup and every stored credential becomes unreadable on the next restart. Always set a permanent key in production.'
+					},
+					{
+						type: 'note',
+						text: "The username field doubles as the SNMP community string — set it to the device's configured community (e.g. crux-readonly) for Monitoring to poll it."
+					}
+				],
+				tables: [
+					{
+						title: 'Credential fields',
+						headers: ['Field', 'Purpose'],
+						rows: [
+							['username', 'SSH/NETCONF user, or SNMP community when used via SNMP'],
+							['password', 'Primary auth secret (encrypted)'],
+							['enable_secret', 'Cisco enable-mode password (encrypted, optional)'],
+							['ssh_key', 'Private key for key-based auth (encrypted, optional)'],
+							['is_default', 'Use this credential when multiple exist']
+						]
+					}
+				],
+				related: ['devices', 'settings', 'audit-logs', 'security-model'],
 				description:
 					'AES-256 encrypted vault for SSH passwords, SSH private keys, SNMP community strings, and API tokens.',
 				overview:
@@ -328,6 +950,32 @@ SMTP_FROM=your@gmail.com`
 				label: 'IPAM',
 				icon: 'MapPin',
 				appRoute: '/ipam',
+				apiBase: '/api/v1/ipam/subnets, /api/v1/ipam/addresses',
+				access: 'Admin, Network Engineer',
+				tables: [
+					{
+						title: 'Subnet fields',
+						headers: ['Field', 'Purpose'],
+						rows: [
+							['cidr', 'CIDR notation (e.g. 10.0.0.0/24)'],
+							['vlan_id', 'Optional VLAN number'],
+							['site', 'Location tag (DC-A, BRANCH-3, etc.)'],
+							['role', 'Purpose tag (mgmt, wan, guest-wifi)']
+						]
+					},
+					{
+						title: 'Address fields',
+						headers: ['Field', 'Purpose'],
+						rows: [
+							['ip_address', 'Single IP in dotted notation'],
+							['subnet_id', 'Parent subnet'],
+							['hostname', 'Hostname of the assigned device/host'],
+							['status', 'active, reserved, or free'],
+							['device_id', 'Link to a managed device (optional)']
+						]
+					}
+				],
+				related: ['devices', 'inventory'],
 				description:
 					'IP Address Management — subnet allocation, VLAN tracking, and IP conflict detection.',
 				overview:
@@ -383,6 +1031,15 @@ SMTP_FROM=your@gmail.com`
 				label: 'Firmware',
 				icon: 'HardDrive',
 				appRoute: '/firmware',
+				apiBase: '/api/v1/firmware',
+				access: 'Admin, Network Engineer',
+				callouts: [
+					{
+						type: 'note',
+						text: 'Only image metadata (filename, vendor, version, checksum, size) lives in the database — the binary itself is stored on disk at FIRMWARE_STORAGE_PATH (default /data/firmware).'
+					}
+				],
+				related: ['jobs', 'mop-generator', 'devices'],
 				description: 'Centralized firmware image repository with SHA-256 integrity verification.',
 				overview:
 					'Firmware is a centralized image repository for storing, versioning, and distributing firmware files to your network devices. Every uploaded file is verified against its SHA-256 checksum server-side at upload time, ensuring integrity before the image is stored. Distribution to devices is handled through automation jobs.',
@@ -440,10 +1097,62 @@ SMTP_FROM=your@gmail.com`
 		label: 'Monitoring',
 		modules: [
 			{
+				slug: 'dashboard',
+				label: 'Dashboard',
+				icon: 'LayoutDashboard',
+				appRoute: '/dashboard',
+				apiBase: '/api/v1/dashboard',
+				access: 'All authenticated roles',
+				description:
+					'Main platform overview — fleet health, active incidents, jobs-per-day charts, and recent activity at a glance.',
+				overview:
+					'The Dashboard is the landing view after login. It summarizes the state of the whole platform in one screen: a device health gauge, active incident count, a jobs-per-day chart, and a list of recent jobs with their status. It auto-refreshes so the picture stays current without manual reloads.',
+				capabilities: [
+					'Device health gauge — proportion of the fleet currently reachable',
+					'Active incident count from the AI Incidents pipeline',
+					'Jobs-per-day chart rendered as line, bar, area, sparkline, or donut',
+					'Recent job list with live status indicators',
+					'Auto-refresh every 30 seconds — no manual reload needed'
+				],
+				howItWorks: [
+					'On load, the dashboard fetches aggregate counts and recent records from the backend.',
+					'Charts are computed from job and incident history over a rolling window.',
+					'A timer re-fetches the summary data every 30 seconds and re-renders the widgets.',
+					'Each widget links through to its full module — jobs, incidents, or monitoring.'
+				],
+				steps: [
+					'Log in — the Dashboard is the default landing page.',
+					'Scan the health gauge and incident count for anything needing attention.',
+					'Use the jobs-per-day chart to spot automation spikes or failures.',
+					'Click any recent job to open its detail view.'
+				],
+				technicalNotes: [
+					'All widgets auto-refresh on a 30-second interval.',
+					'Chart data is aggregated server-side; the frontend only renders the returned series.',
+					'The dashboard is read-only — it surfaces data from other modules but does not mutate anything.'
+				],
+				related: ['monitoring', 'jobs', 'ai-incidents'],
+				faq: [
+					{
+						q: 'How often does the Dashboard update?',
+						a: 'Every 30 seconds. A background timer re-fetches the summary data and re-renders the widgets without a full page reload.'
+					}
+				]
+			},
+			{
 				slug: 'monitoring',
 				label: 'SNMP Monitoring',
 				icon: 'Activity',
 				appRoute: '/monitoring',
+				apiBase: '/api/v1/snmp',
+				access: 'Admin, Network Engineer, NOC Operator, Read-Only Viewer',
+				callouts: [
+					{
+						type: 'note',
+						text: 'Monitoring refreshes every 60s from the browser, only while a device is selected and the tab is open. Click Poll Now for an on-demand refresh — there is no server-side periodic poll.'
+					}
+				],
+				related: ['topology', 'ai-incidents', 'devices', 'dashboard'],
 				description:
 					'Real-time SNMP dashboard with per-device charts, interface stats, and live WebSocket updates.',
 				overview:
@@ -504,6 +1213,15 @@ SMTP_FROM=your@gmail.com`
 				label: 'Topology',
 				icon: 'Network',
 				appRoute: '/topology',
+				apiBase: '/api/v1/topology',
+				access: 'All authenticated roles (view)',
+				callouts: [
+					{
+						type: 'note',
+						text: 'Topology only shows links between MANAGED devices, and only where LLDP/CDP is enabled. Unknown neighbors (printers, random hosts) are invisible, and Layer-3 IP adjacencies are not drawn.'
+					}
+				],
+				related: ['devices', 'monitoring', 'visual-editor'],
 				description:
 					'Live network topology map built from LLDP/CDP discovery with link-status overlays.',
 				overview:
@@ -554,6 +1272,81 @@ SMTP_FROM=your@gmail.com`
 					'The canvas is built with @xyflow/svelte (SvelteFlow) — node positions can be rearranged and are preserved in the session.',
 					'Devices not reachable during discovery will not appear as neighbors, even if physical links exist.'
 				]
+			},
+			{
+				slug: 'logs',
+				label: 'Device Logs',
+				icon: 'ScrollText',
+				appRoute: '/logs',
+				apiBase: 'GET /api/v1/devices/{id}/logs',
+				access: 'Admin, Network Engineer, NOC Operator, Security Auditor',
+				description:
+					'Live SSH fetch of on-device logs — per-vendor command executed on demand and streamed to the UI.',
+				overview:
+					"Device Logs lets you view what a device itself has logged — syslog buffers, authentication events, interface flaps — without SSHing in manually. Crux runs the right per-vendor log command based on the device's platform field, fetches the output live over SSH, and renders it in a terminal-style pane with line numbers and search.",
+				capabilities: [
+					"Fetch on-device logs live over SSH using the device's stored credential",
+					'Automatic per-vendor command selection based on the platform field',
+					'Terminal-style rendering with line numbers',
+					'Client-side search to filter visible lines',
+					'Pull model — you trigger each fetch on demand'
+				],
+				prerequisites: [
+					'The device must be registered with a linked credential that can reach it over SSH.'
+				],
+				tables: [
+					{
+						title: 'Vendor-specific commands',
+						headers: ['Vendor', 'Command'],
+						rows: [
+							['Cisco IOS / IOS-XE', 'show logging'],
+							['Cisco NX-OS', 'show logging'],
+							['MikroTik RouterOS', '/log print'],
+							['Juniper Junos', 'show log messages'],
+							['Arista EOS', 'show logging']
+						]
+					},
+					{
+						title: 'Device Logs vs AI Incident Logs',
+						headers: ['Device Logs', 'AI Incident Logs'],
+						rows: [
+							['Pull model — you trigger a fetch', 'Push model — device posts to webhook'],
+							['On-demand only', 'Real-time stream'],
+							['No analysis — raw text', 'LLM-analyzed, classified, stored'],
+							['Use for troubleshooting', 'Use for continuous monitoring']
+						]
+					}
+				],
+				howItWorks: [
+					'You select a device and click Fetch.',
+					"Crux picks the correct log command from the device's platform field.",
+					'It SSHes to the device using the stored credential and runs the command.',
+					'The raw output streams back and renders in a terminal-style pane.'
+				],
+				steps: [
+					'Go to /logs and select a device from the list.',
+					'Click Fetch — Crux SSHes in and runs the vendor log command.',
+					'Read the output in the terminal pane; use the search box to filter lines.',
+					'Paste interesting lines into the AI Agent for analysis if needed.'
+				],
+				callouts: [
+					{
+						type: 'warning',
+						text: 'Fetched logs are NOT cached — every click hits the device live. Avoid excessive fetches on devices with slow CPUs.'
+					}
+				],
+				technicalNotes: [
+					'The log command is selected automatically from the device platform field.',
+					'No caching — each fetch is a live SSH session.',
+					'Distinct from AI Incident Logs, which are event-driven and LLM-analyzed.'
+				],
+				faq: [
+					{
+						q: 'Why is fetching slow on some devices?',
+						a: 'Logs are pulled live over SSH with no caching. On devices with slow CPUs or large log buffers the fetch takes longer — it is not a Crux delay.'
+					}
+				],
+				related: ['ai-incidents', 'ai-agent', 'devices']
 			}
 		]
 	},
@@ -562,10 +1355,91 @@ SMTP_FROM=your@gmail.com`
 		label: 'AI',
 		modules: [
 			{
+				slug: 'ai-agent',
+				label: 'AI Agent',
+				icon: 'BrainCircuit',
+				appRoute: '/ai-agent',
+				apiBase: '/api/v1/ai/chat, /api/v1/ai/analyze',
+				access: 'Admin, AI Analyst, Network Engineer',
+				description:
+					'On-demand log analysis and conversational assistant — paste device output, ask questions, get AI summaries and suggested fixes.',
+				overview:
+					'AI Agent speeds up incident triage. Instead of parsing 2000 lines of syslog manually, you let an LLM surface what looks abnormal, the probable root cause, the commands to run next, and suggested remediation. It works in two modes — free-form Chat with session memory, and one-shot Analyze that returns structured JSON.',
+				capabilities: [
+					'Chat mode — free-form conversation with memory of the current session',
+					'Analyze mode — paste a log block, get structured JSON (summary, severity, anomaly flag, actions)',
+					'Token-by-token streaming via Server-Sent Events so long answers feel fast',
+					'Seeded with a network-aware system prompt (Cisco, MikroTik, Juniper, Arista)',
+					'Privacy default — device inventory is not auto-injected; you pass data explicitly',
+					'Works with any OpenAI-compatible provider via LLM_BASE_URL / LLM_API_KEY / LLM_MODEL'
+				],
+				tables: [
+					{
+						title: 'Two modes',
+						headers: ['Mode', 'Use it for'],
+						rows: [
+							['Chat', 'Free-form Q&A with session memory — "Why is BGP flapping here?"'],
+							['Analyze', 'One-shot structured analysis of a pasted log block, returned as JSON']
+						]
+					}
+				],
+				howItWorks: [
+					'In Chat mode you converse with the LLM; it remembers the current session context.',
+					'In Analyze mode you paste a log block and the LLM returns structured JSON: summary, severity, is_anomaly, and recommended_actions.',
+					'Responses stream token-by-token via SSE so the UI renders progressively.',
+					'The agent is seeded with a system prompt describing the platform and common vendors, and is told to cite specific log lines.',
+					'Your real device inventory is NOT auto-injected — a privacy default. Pass device data explicitly in chat if you want it referenced.'
+				],
+				steps: [
+					'Navigate to /ai-agent.',
+					'For triage, switch to Analyze mode and paste a log block — read the structured result.',
+					'For exploration, use Chat mode and ask follow-up questions about the output.',
+					'Copy any suggested commands into a Job to act on the recommendation.'
+				],
+				commands: [
+					{
+						label: 'Analyze mode — structured JSON response',
+						code: `{
+  "summary": "...",
+  "severity": "warning|high|critical",
+  "is_anomaly": true,
+  "recommended_actions": ["...", "..."]
+}`
+					}
+				],
+				commandsLabel: 'Response Shape',
+				callouts: [
+					{
+						type: 'note',
+						text: 'The agent does not automatically see your device inventory — this is a privacy default. If you want a specific device referenced, paste its data into the chat explicitly.'
+					}
+				],
+				technicalNotes: [
+					'Endpoints: /api/v1/ai/chat (conversational) and /api/v1/ai/analyze (one-shot).',
+					'Streaming uses Server-Sent Events — tokens render as they arrive.',
+					'Provider is configured via LLM_BASE_URL / LLM_API_KEY / LLM_MODEL — any OpenAI-compatible API.',
+					'For fully local inference, point LLM_BASE_URL at an Ollama instance.'
+				],
+				faq: [
+					{
+						q: 'Does the AI Agent see my devices automatically?',
+						a: 'No. Device inventory is not injected into the prompt by default for privacy. Paste the relevant device data into the chat if you want it considered.'
+					},
+					{
+						q: 'How is this different from AI Diagnostics?',
+						a: 'AI Agent is conversational and works on text you paste. AI Diagnostics is device-targeted — it collects live SNMP and syslog for a specific device automatically.'
+					}
+				],
+				related: ['ai-incidents', 'mop-generator', 'logs']
+			},
+			{
 				slug: 'ai-diagnostics',
 				label: 'AI Diagnostics',
 				icon: 'Bot',
 				appRoute: '/ai-diagnostics',
+				apiBase: '/api/v1/ai',
+				access: 'Admin, AI Analyst, Network Engineer',
+				related: ['ai-incidents', 'ai-agent', 'monitoring'],
 				description:
 					'On-demand fault analysis — trigger a diagnostic and receive root cause and remediation steps streamed in real time.',
 				overview:
@@ -630,6 +1504,15 @@ SMTP_FROM=your@gmail.com`
 				label: 'AI Incidents',
 				icon: 'ShieldAlert',
 				appRoute: '/ai-incidents',
+				apiBase: '/api/v1/webhooks/logs',
+				access: 'Admin, AI Analyst, Security Auditor',
+				callouts: [
+					{
+						type: 'note',
+						text: 'Inbound webhook auth uses the WEBHOOK_SECRET shared secret sent as the X-Webhook-Secret header. When an incident is high/critical AND an anomaly, all admins get an in-app notification.'
+					}
+				],
+				related: ['ai-agent', 'notifications', 'audit-logs', 'logs'],
 				description:
 					'Automated incident log — every SNMP trap analyzed by AI, with approval workflow and feedback loop.',
 				overview:
@@ -689,6 +1572,9 @@ SMTP_FROM=your@gmail.com`
 				label: 'MoP Generator',
 				icon: 'FileText',
 				appRoute: '/mop-generator',
+				apiBase: '/api/v1/ai/generate-mop (SSE stream)',
+				access: 'Admin, Network Engineer, AI Analyst',
+				related: ['mop-history', 'ai-agent', 'jobs'],
 				description:
 					'AI-generated Method of Procedure documents for network change management, exportable as .docx.',
 				overview:
@@ -760,6 +1646,9 @@ SMTP_FROM=your@gmail.com`
 				label: 'MoP History',
 				icon: 'ClipboardList',
 				appRoute: '/mop-history',
+				apiBase: '/api/v1/ai/mop-documents',
+				access: 'Admin, Network Engineer, AI Analyst',
+				related: ['mop-generator', 'audit-logs'],
 				description:
 					'Archive of all generated MoP documents with full content retrieval and re-export.',
 				overview:
@@ -802,64 +1691,199 @@ SMTP_FROM=your@gmail.com`
 				label: 'Jobs',
 				icon: 'Zap',
 				appRoute: '/jobs',
+				apiBase: '/api/v1/jobs',
+				access: 'Admin (all), Network Engineer (create/approve), Network Operator (view)',
 				description:
-					'Background job execution engine with human approval workflow, full output capture, and audit trail.',
+					'Async job execution engine — queue, approve, dispatch, and track any automation task that runs against network devices.',
 				overview:
-					'Jobs is the core execution engine for all automation tasks in Crux. Every operation that touches a device — pushing configuration, running commands, taking backups — is modeled as a job. By default, jobs require human approval before execution, creating an auditable gate for all changes. Every approval, rejection, and execution output is captured and immutably logged.',
+					'Jobs is the core execution engine for all automation in Crux. Every mutation against a production device — config push, command run, backup, or firmware upgrade — goes through the job system so it gets queued instead of blocking the UI, approved by a second engineer when policy requires, logged with full output for audit, and retried or rolled back on failure.',
 				capabilities: [
-					'Create and run background jobs against any managed device',
-					'Approval workflow: awaiting_approval → approved → running → success/failed',
-					'Full output capture — stdout and stderr stored for every job execution',
-					'Seven job statuses: awaiting_approval, approved, running, success, failed, rejected, cancelled',
-					'Whitelist autonomous job types (backup, health_check) to bypass approval',
+					'Queue any automation task against one or many devices instead of blocking the UI',
+					'Approval workflow with four-eyes principle — the submitter cannot approve their own job',
+					'Full output capture — stdout, stderr, and exit code stored per target device',
+					'Eight lifecycle states from draft to succeeded/failed/rejected, all timestamped',
+					'Autonomous job types (backup, health_check) skip approval when whitelisted',
 					'Every approval and rejection recorded in the immutable audit log'
 				],
+				prerequisites: [
+					'At least one device registered in Devices with a linked credential.',
+					'A credential in the vault that can reach the target device over SSH.',
+					'For approval-gated types: a second user with the Network Engineer or Admin role.'
+				],
+				callouts: [
+					{
+						type: 'warning',
+						text: 'Four-eyes principle is enforced: the engineer who submits a job cannot approve it. A second engineer or admin must sign off on sensitive job types.'
+					},
+					{
+						type: 'tip',
+						text: 'Add a job type to the AUTONOMOUS_JOB_TYPES env var to let it bypass approval — backup and health_check are auto-approved by default.'
+					}
+				],
 				howItWorks: [
-					'A job is created with a type (push_config, run_command, run_backup), a target device, and a payload (commands or template parameters).',
-					'On creation, the job enters awaiting_approval status and appears in the approval queue.',
-					'An authorized approver reviews the job and approves or rejects it. Approval dispatches the job to the Celery worker queue.',
-					'The worker connects to the device using the linked credential, executes the operation, and captures the full output.',
-					'The job transitions through statuses: approved → running → success or failed. All transitions are timestamped.'
+					'A job is created with a type (config_push, run_command, backup, etc.), a set of target devices, and parameters (a config snippet, command string, or template values).',
+					'On submit the job enters queued, or pending_approval if its type requires sign-off.',
+					'An authorized engineer reviews the params and target devices, then approves or rejects. The submitter cannot approve their own job.',
+					'A Celery worker picks up approved jobs. For each device it loads credentials, connects via Netmiko (SSH) or a NETCONF/RESTCONF client, executes, and captures stdout/stderr.',
+					'The job record is updated with per-device output and the final state — all transitions are timestamped.'
+				],
+				diagram: {
+					title: 'Lifecycle',
+					ascii: `draft → queued → pending_approval → approved → running → succeeded
+                                ↘ rejected            ↘ failed`
+				},
+				tables: [
+					{
+						title: 'Job states',
+						headers: ['State', 'Meaning'],
+						rows: [
+							['draft', 'Created, not yet submitted'],
+							['queued', 'Awaiting dispatcher pickup'],
+							['pending_approval', 'Needs human sign-off (sensitive job types)'],
+							['approved', 'Cleared for execution'],
+							['running', 'Worker is actively executing'],
+							['succeeded', 'Finished cleanly'],
+							['failed', 'Error occurred — output log has detail'],
+							['rejected', 'Approver denied']
+						]
+					},
+					{
+						title: 'Job types',
+						headers: ['Type', 'Purpose', 'Auto-approve?'],
+						rows: [
+							['config_push', 'Send a config snippet to one or more devices', 'No'],
+							['run_command', 'Execute a vendor command, capture output', 'No'],
+							['backup', 'Fetch running-config over SSH, store as text', 'Yes'],
+							['health_check', 'SSH reachability + basic commands', 'Yes'],
+							['firmware_upgrade', 'SCP image + install + reload', 'No']
+						]
+					}
 				],
 				steps: [
 					'Navigate to /jobs and click New Job.',
-					'Select the job type (run_command) and the target MikroTik device.',
-					'Fill in the payload — enter the MikroTik CLI commands to execute.',
-					'Submit — the job enters awaiting_approval.',
-					'An authorized user approves the job. Monitor the live execution output in the job detail view.'
+					'Select a job template or write an inline script, then choose the target device(s).',
+					'Set the parameters — config snippet, command string, or template values.',
+					'Submit. The job enters queued, or pending_approval for sensitive types.',
+					'A second engineer approves it; watch the per-device output stream in the job detail view.'
 				],
 				commands: [
 					{
-						label: 'Example: Push Interface Configuration (run_command payload)',
+						label: 'Example: Run Command payload (MikroTik)',
 						code: `/interface ethernet set ether1 speed=1Gbps-full-duplex auto-negotiation=no comment="Uplink to core"
 /interface print where name=ether1`
 					},
 					{
-						label: 'Example: Add Static Route (run_command payload)',
-						code: `/ip route add dst-address=0.0.0.0/0 gateway=203.0.113.1 comment="Default route" distance=1
-/ip route print where dst-address=0.0.0.0/0`
-					},
-					{
-						label: 'Example: Firewall Rule Deployment (push_config payload)',
+						label: 'Example: Config Push payload (firewall)',
 						code: `/ip firewall filter add chain=input protocol=tcp dst-port=22 src-address=10.0.0.0/8 action=accept comment="Allow SSH from internal"
 /ip firewall filter add chain=input protocol=tcp dst-port=22 action=drop comment="Block all other SSH"
 /ip firewall filter print`
 					}
 				],
 				technicalNotes: [
-					'Job statuses: awaiting_approval, approved, running, success, failed, rejected, cancelled.',
-					'Autonomous types that bypass approval: backup, health_check.',
-					'Approval-required types: push_config, run_command.',
-					'Celery worker concurrency defaults to 2 — increase for higher throughput on more capable hardware.',
-					'Every approval and rejection action is recorded in the audit_logs table with actor identity, timestamp, and job reference.',
-					'Job output (stdout + stderr) is stored in the jobs table — manage table size with periodic archiving.'
-				]
+					'Lifecycle states: draft, queued, pending_approval, approved, running, succeeded, failed, rejected.',
+					'Job types: config_push, run_command, backup, health_check, firmware_upgrade.',
+					'Auto-approved types are configured via the AUTONOMOUS_JOB_TYPES environment variable.',
+					'Execution is handled by Celery workers connecting over Netmiko (SSH) or NETCONF/RESTCONF.',
+					'Every approval and rejection is written to the audit log with actor, timestamp, and job reference.',
+					'Each job row exposes a timeline of state transitions, per-device output, and approval history.'
+				],
+				troubleshooting: [
+					{
+						problem: 'Job stuck in pending_approval.',
+						cause:
+							'The job type requires sign-off and no second engineer has approved it, or the only available approver is the submitter.',
+						fix: 'Have a different user with the Network Engineer or Admin role approve it — the submitter cannot approve their own job.'
+					},
+					{
+						problem: 'Job fails immediately with a connection error.',
+						cause: 'The linked credential is wrong, or the device is unreachable over SSH.',
+						fix: 'Open the device and run a connectivity probe; verify the credential with Live Test in the vault before re-running.'
+					}
+				],
+				faq: [
+					{
+						q: 'Why must a second engineer approve my job?',
+						a: 'Sensitive job types follow the four-eyes principle — a second reviewer reduces the risk of an accidental change to production. Whitelist a type in AUTONOMOUS_JOB_TYPES if it is safe to auto-approve.'
+					},
+					{
+						q: 'Can one job target many devices at once?',
+						a: 'Yes. A job can have multiple target devices; the worker executes against each one and stores per-device output and exit codes.'
+					}
+				],
+				related: ['templates', 'visual-editor', 'audit-logs', 'notifications', 'integrations']
+			},
+			{
+				slug: 'visual-editor',
+				label: 'Visual Editor',
+				icon: 'Workflow',
+				appRoute: '/visual-editor',
+				access: 'Admin, Network Engineer',
+				description:
+					'Node-based canvas for building job templates visually — drag devices, actions, and flow blocks onto a graph that compiles to executable YAML.',
+				overview:
+					'Some templates are easier to reason about as diagrams than as nested YAML. The Visual Editor renders every step as a node on a SvelteFlow canvas, with typed connectors showing data flow between steps. The graph serializes to the same YAML format as hand-written templates, so you can round-trip: build visually, export YAML, edit, and re-import.',
+				capabilities: [
+					'Drag-and-drop node palette: device, command, config block, condition, wait, notify',
+					'Typed connectors show data flow between steps',
+					'Click any node to edit its fields in a properties panel',
+					'Pan, zoom, duplicate (Ctrl+D), and delete nodes on an interactive canvas',
+					'Serialize the graph to template YAML — round-trips with hand-written templates'
+				],
+				tables: [
+					{
+						title: 'Node types',
+						headers: ['Node', 'Purpose'],
+						rows: [
+							['Device', 'A target device selector (by tag, vendor, or explicit list)'],
+							['Command', 'Execute a CLI command, capture output'],
+							['Config block', 'Multi-line configuration snippet'],
+							['Condition', 'Branch based on previous output (regex match, exit code)'],
+							['Wait', 'Delay between steps'],
+							['Notify', 'Emit a notification or fire a webhook']
+						]
+					}
+				],
+				howItWorks: [
+					'You start a new diagram on a blank canvas and drag nodes from the palette.',
+					'Edges drawn between output and input ports define the flow of execution.',
+					'Clicking a node opens a properties panel to configure its fields.',
+					'Downloading serializes the canvas to template YAML.',
+					'Saving imports the YAML into the Templates library for use by Jobs.'
+				],
+				steps: [
+					'Open /visual-editor and create a new diagram.',
+					'Drag nodes from the palette and connect their ports to define the flow.',
+					'Click each node to configure its properties.',
+					'Download to export YAML, or Save to import it into Templates.',
+					'Run the resulting template from the Jobs module.'
+				],
+				callouts: [
+					{
+						type: 'tip',
+						text: 'The graph exports to the same YAML as hand-written templates — build visually, export, tweak the YAML by hand, then re-import. Full round-trip.'
+					}
+				],
+				technicalNotes: [
+					'The canvas is built with SvelteFlow (@xyflow/svelte).',
+					'Edges are animated/dashed to indicate data-flow direction.',
+					'Export format is identical to hand-authored template YAML, enabling round-trip editing.'
+				],
+				related: ['templates', 'jobs']
 			},
 			{
 				slug: 'templates',
 				label: 'Templates',
 				icon: 'FileCode2',
 				appRoute: '/templates',
+				apiBase: '/api/v1/templates',
+				access: 'Admin, Network Engineer',
+				callouts: [
+					{
+						type: 'note',
+						text: 'Template YAML is sandboxed — commands can be parameterized, but no arbitrary Python execution is allowed. Every edit creates a new revision and is recorded in the audit log.'
+					}
+				],
+				related: ['jobs', 'visual-editor', 'audit-logs'],
 				description:
 					'Vendor-specific job template library — run common operations without writing raw CLI commands.',
 				overview:
@@ -923,6 +1947,9 @@ SMTP_FROM=your@gmail.com`
 				label: 'Schedules',
 				icon: 'CalendarClock',
 				appRoute: '/schedules',
+				apiBase: '/api/v1/devices/{id}/backup-schedules',
+				access: 'Admin, Network Engineer, Backup Administrator',
+				related: ['backups', 'jobs'],
 				description:
 					'Cron-based job scheduling with human-readable descriptions, next-run preview, and enable/disable toggle.',
 				overview:
@@ -980,6 +2007,15 @@ SMTP_FROM=your@gmail.com`
 				label: 'Backups',
 				icon: 'Archive',
 				appRoute: '/backups',
+				apiBase: '/api/v1/devices/{id}/backups',
+				access: 'Admin, Network Engineer, Backup Administrator',
+				callouts: [
+					{
+						type: 'note',
+						text: 'Restore is a guided manual step — downloading a backup and applying it via a config_push job. There is no one-click automatic restore yet.'
+					}
+				],
+				related: ['schedules', 'jobs', 'integrations'],
 				description:
 					'Scheduled configuration snapshots with line-by-line diff comparison and rollback support.',
 				overview:
@@ -1045,6 +2081,15 @@ SMTP_FROM=your@gmail.com`
 				label: 'Users',
 				icon: 'Users',
 				appRoute: '/users',
+				apiBase: '/api/v1/users',
+				access: 'Admin only',
+				callouts: [
+					{
+						type: 'note',
+						text: 'Invitation tokens are single-use and expire after 24h. The very first admin is not invited — create it once with scripts/bootstrap.py (see Installation). Prefer deactivate over delete to preserve the audit trail.'
+					}
+				],
+				related: ['roles', 'api-keys', 'audit-logs', 'settings'],
 				description:
 					'Invite-only user account management with role assignment and optional TOTP MFA.',
 				overview:
@@ -1083,6 +2128,31 @@ SMTP_FROM=your@gmail.com`
 				label: 'Roles & Policies',
 				icon: 'ShieldCheck',
 				appRoute: '/roles',
+				apiBase: '/api/v1/roles',
+				access: 'Admin only',
+				tables: [
+					{
+						title: 'Built-in roles',
+						headers: ['Role', 'Typical permissions'],
+						rows: [
+							['Admin', 'Full platform access, all resources'],
+							['Network Operator', 'Submit jobs, view backups, run approvals'],
+							['Network Engineer', 'Edit templates, create credentials, manage devices'],
+							['NOC Operator', 'View monitoring, logs, alerts'],
+							['Security Auditor', 'Read audit logs, incident logs, user activity'],
+							['Backup Administrator', 'Manage backup schedules and restore'],
+							['AI Analyst', 'Use AI Agent, MoP Generator, view incident logs'],
+							['Read-Only Viewer', 'Read everything, modify nothing']
+						]
+					}
+				],
+				callouts: [
+					{
+						type: 'tip',
+						text: 'Deny beats allow. Build a least-privilege custom role — e.g. "Junior Engineer" allowing read + create on jobs but denying approve, so they can submit work but not self-approve.'
+					}
+				],
+				related: ['users', 'audit-logs', 'security-model'],
 				description:
 					'Policy-based RBAC with eight built-in roles and support for custom roles with fine-grained access control.',
 				overview:
@@ -1121,6 +2191,21 @@ SMTP_FROM=your@gmail.com`
 				label: 'Notifications',
 				icon: 'Bell',
 				appRoute: '/notifications',
+				apiBase: '/api/v1/notifications',
+				access: 'All authenticated roles (each user sees their own)',
+				tables: [
+					{
+						title: 'Notifications vs Integrations',
+						headers: ['In-app notifications', 'Integrations webhooks'],
+						rows: [
+							['Visible in the Crux UI', 'Sent to external systems'],
+							['Per-user delivery', 'Global per subscription'],
+							['No config needed', 'Must be set up by an admin'],
+							['For humans logged in', 'For machines / chat channels']
+						]
+					}
+				],
+				related: ['integrations', 'jobs', 'ai-incidents'],
 				description:
 					'In-app notification center for job completions, SNMP alerts, backup results, and AI incident events.',
 				overview:
@@ -1163,6 +2248,15 @@ SMTP_FROM=your@gmail.com`
 				label: 'Global Settings',
 				icon: 'Sliders',
 				appRoute: '/settings',
+				apiBase: '/api/v1/settings (read-only)',
+				access: 'Admin',
+				callouts: [
+					{
+						type: 'note',
+						text: 'Settings is mostly a read-only mirror of environment variables — secret values are never returned. To change config, edit .env and restart the backend; hot-reload is intentionally not supported.'
+					}
+				],
+				related: ['configuration', 'security-model'],
 				description:
 					'Platform-wide configuration for SNMP polling, AI provider, and system-level defaults.',
 				overview:
@@ -1212,6 +2306,15 @@ snmpget -v2c -c crux-snmp <mikrotik-ip> 1.3.6.1.2.1.1.1.0`
 				label: 'Audit Logs',
 				icon: 'ScrollText',
 				appRoute: '/audit-logs',
+				apiBase: '/api/v1/audit-logs',
+				access: 'Admin, Security Auditor',
+				callouts: [
+					{
+						type: 'warning',
+						text: 'Audit rows are insert-only — there is no UPDATE or DELETE endpoint, so even admins cannot tamper with the record from the UI. Each entry stores before/after JSON snapshots, actor, and source IP.'
+					}
+				],
+				related: ['users', 'roles', 'api-keys', 'security-model'],
 				description:
 					'Immutable, append-only audit trail of all sensitive operations across the platform.',
 				overview:
@@ -1249,6 +2352,35 @@ snmpget -v2c -c crux-snmp <mikrotik-ip> 1.3.6.1.2.1.1.1.0`
 				label: 'Integrations',
 				icon: 'Plug',
 				appRoute: '/integrations',
+				apiBase: '/api/v1/integrations',
+				access: 'Admin only',
+				tables: [
+					{
+						title: 'Delivery headers',
+						headers: ['Header', 'Value'],
+						rows: [
+							['Content-Type', 'application/json'],
+							['X-Crux-Event', '<event name>'],
+							['X-Crux-Signature', 'sha256=<hmac> (when a secret is set)']
+						]
+					},
+					{
+						title: 'Integrations vs Notifications',
+						headers: ['Integrations', 'Notifications'],
+						rows: [
+							['Outbound HTTP', 'In-app UI feed'],
+							['For external systems', 'For humans in the Crux UI'],
+							['Admin-configured', 'Auto-generated per event']
+						]
+					}
+				],
+				callouts: [
+					{
+						type: 'warning',
+						text: 'Delivery is fire-and-forget with a 5-second timeout and NO retry. If the receiver is down, that event is lost — build retry logic on your side if you need guaranteed delivery.'
+					}
+				],
+				related: ['jobs', 'backups', 'notifications', 'audit-logs'],
 				description:
 					'Outbound webhooks and Telegram bot for delivering real-time events to external systems.',
 				overview:
@@ -1303,10 +2435,107 @@ snmpget -v2c -c crux-snmp <mikrotik-ip> 1.3.6.1.2.1.1.1.0`
 		label: 'Developer',
 		modules: [
 			{
+				slug: 'news',
+				label: 'Networking News',
+				icon: 'Rss',
+				appRoute: '/news',
+				apiBase: 'GET /api/v1/news',
+				access: 'All authenticated roles',
+				description:
+					'Networking news and CVE feed — aggregates headlines from external sources so you stay current without leaving the platform.',
+				overview:
+					'News surfaces three things network engineers should track: critical CVEs affecting gear they operate, vendor security advisories, and major outages or protocol changes. Crux fans out to NVD, CurrentsAPI, and GNews in parallel, merges the results, and presents a single feed sorted newest-first. Missing API keys degrade gracefully — the remaining sources still return.',
+				capabilities: [
+					'Aggregated feed from NVD (CVEs), CurrentsAPI (tech news), and GNews (keyword-filtered)',
+					'Sorted by publish date, newest first',
+					'Category badges (e.g. "CVE", "CVSS 9.8 · Critical") for visual skimming',
+					'Click any headline to open the source article in a new tab',
+					'Graceful degradation — a missing API key just drops that one source'
+				],
+				prerequisites: [
+					'NVD requires no key. For the other sources, register free API keys (see commands).'
+				],
+				tables: [
+					{
+						title: 'Sources',
+						headers: ['Source', 'Auth', 'Content'],
+						rows: [
+							['NVD', 'None', 'Latest published CVEs (newest first)'],
+							['CurrentsAPI', 'CURRENTS_API_KEY', 'Technology news (free: 600 req/day)'],
+							[
+								'GNews',
+								'GNEWS_API_KEY',
+								'Keyword-filtered: network, cisco, firewall, CVE (free: 100/day)'
+							]
+						]
+					},
+					{
+						title: 'Feed item shape',
+						headers: ['Field', 'Purpose'],
+						rows: [
+							['title', 'Headline'],
+							['source', 'Domain (e.g. nvd.nist.gov)'],
+							['summary', 'First 200 characters'],
+							['url', 'Link to the full article'],
+							['publishedAt', 'ISO timestamp'],
+							['categories', 'Tags like ["CVE", "CVSS 9.8 · Critical"]']
+						]
+					}
+				],
+				howItWorks: [
+					'The frontend calls GET /api/v1/news.',
+					'The backend fans out to NVD, CurrentsAPI, and GNews in parallel using asyncio.',
+					'Results are merged, sorted by publishedAt descending, and returned.',
+					'There is no caching and no background job — the request is simple and stateless.'
+				],
+				steps: [
+					'Register free API keys at CurrentsAPI and GNews (NVD needs none).',
+					'Add CURRENTS_API_KEY and GNEWS_API_KEY to your .env.',
+					'Open /news to browse the merged feed.',
+					'Skim category badges and click any headline to read the source.'
+				],
+				commands: [
+					{
+						label: 'Add news API keys to .env',
+						code: `CURRENTS_API_KEY=<key>   # https://currentsapi.services/en/register
+GNEWS_API_KEY=<key>      # https://gnews.io/register
+# NVD requires no key`
+					}
+				],
+				commandsLabel: 'Example .env Values',
+				callouts: [
+					{
+						type: 'note',
+						text: 'Missing API keys degrade gracefully — if CURRENTS_API_KEY or GNEWS_API_KEY is absent, those sources are skipped and the remaining ones (including key-free NVD) still return.'
+					}
+				],
+				technicalNotes: [
+					'Backend fans out to all sources in parallel via asyncio, then merges and sorts.',
+					'No caching and no background jobs — each request hits the sources live.',
+					'NVD is always available (no key); Currents and GNews are optional enrichments.'
+				],
+				related: ['ai-incidents']
+			},
+			{
 				slug: 'api-keys',
 				label: 'API Keys',
 				icon: 'KeySquare',
 				appRoute: '/api-keys',
+				apiBase: '/api/v1/api-keys',
+				access: 'Admin, Network Engineer (own keys)',
+				tables: [
+					{
+						title: 'JWT vs API Key',
+						headers: ['JWT', 'API Key'],
+						rows: [
+							['Issued at login', 'Issued manually'],
+							['Short-lived (30m / 7d)', 'Long-lived (until revoked)'],
+							['For browser sessions', 'For scripts / CI / bots'],
+							['User presence required', 'Headless, no interaction']
+						]
+					}
+				],
+				related: ['roles', 'audit-logs', 'api-docs'],
 				description: 'Generate and manage API keys for programmatic access to the Crux API.',
 				overview:
 					"API Keys provides programmatic access to the Crux API for external tools, scripts, and automation pipelines. Each key is scoped to a user and inherits that user's role and permissions. Keys can be revoked at any time and usage is tracked per key. The plaintext key is shown only once at generation — Crux stores only the HMAC hash.",
@@ -1367,6 +2596,9 @@ snmpget -v2c -c crux-snmp <mikrotik-ip> 1.3.6.1.2.1.1.1.0`
 				label: 'API Docs',
 				icon: 'BookOpen',
 				appRoute: '/api-docs',
+				apiBase: '/openapi.json — Swagger at :8000/docs, ReDoc at :8000/redoc',
+				access: 'Public when APP_DEBUG=true, authenticated in production',
+				related: ['api-keys'],
 				description:
 					'Interactive OpenAPI / Swagger documentation for all Crux backend endpoints with live try-it-out.',
 				overview:

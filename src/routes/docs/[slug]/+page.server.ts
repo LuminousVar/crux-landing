@@ -35,5 +35,17 @@ export const load: PageServerLoad = async ({ params }) => {
 	const prevModule = idx > 0 ? allModules[idx - 1] : null;
 	const nextModule = idx < allModules.length - 1 ? allModules[idx + 1] : null;
 
-	return { module, groups: docGroups, highlightedCommands, prevModule, nextModule };
+	// Resolve related slugs → { slug, label, groupLabel } cards (skip orphan slugs).
+	const relatedModules = (module.related ?? [])
+		.map((slug) => allModules.find((m) => m.slug === slug))
+		.filter((m): m is (typeof allModules)[number] => m !== undefined);
+
+	return {
+		module,
+		groups: docGroups,
+		highlightedCommands,
+		prevModule,
+		nextModule,
+		relatedModules
+	};
 };
