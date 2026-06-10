@@ -28,5 +28,12 @@ export const load: PageServerLoad = async ({ params }) => {
 			)
 		: [];
 
-	return { module, groups: docGroups, highlightedCommands };
+	const allModules = docGroups.flatMap((g) =>
+		g.modules.map((m) => ({ slug: m.slug, label: m.label, groupLabel: g.label }))
+	);
+	const idx = allModules.findIndex((m) => m.slug === params.slug);
+	const prevModule = idx > 0 ? allModules[idx - 1] : null;
+	const nextModule = idx < allModules.length - 1 ? allModules[idx + 1] : null;
+
+	return { module, groups: docGroups, highlightedCommands, prevModule, nextModule };
 };

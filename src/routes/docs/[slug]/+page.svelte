@@ -138,6 +138,37 @@
 				>
 				in the Crux application.
 			</p>
+
+			<!-- Prev / Next navigation -->
+			<div class="mt-16 grid grid-cols-2 gap-3">
+				{#if data.prevModule}
+					<a
+						href="/docs/{data.prevModule.slug}"
+						class="group flex flex-col rounded-lg border border-edge bg-surface p-5 transition-colors hover:bg-elevated"
+					>
+						<span class="mb-2 text-xs text-muted/50">← Previous</span>
+						<span class="text-sm font-semibold text-content transition-colors group-hover:text-accent"
+							>{data.prevModule.label}</span
+						>
+						<span class="mt-0.5 text-xs text-muted/50">{data.prevModule.groupLabel}</span>
+					</a>
+				{:else}
+					<div></div>
+				{/if}
+
+				{#if data.nextModule}
+					<a
+						href="/docs/{data.nextModule.slug}"
+						class="group flex flex-col items-end rounded-lg border border-edge bg-surface p-5 text-right transition-colors hover:bg-elevated"
+					>
+						<span class="mb-2 text-xs text-muted/50">Next →</span>
+						<span class="text-sm font-semibold text-content transition-colors group-hover:text-accent"
+							>{data.nextModule.label}</span
+						>
+						<span class="mt-0.5 text-xs text-muted/50">{data.nextModule.groupLabel}</span>
+					</a>
+				{/if}
+			</div>
 		</div>
 	</main>
 </div>
