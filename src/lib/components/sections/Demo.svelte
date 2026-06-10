@@ -85,14 +85,11 @@
 
 				<!-- Trusted strip -->
 				<div class="flex items-center justify-between gap-4 border-t border-edge px-6 py-5">
-					<span class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Works with</span>
+					<span class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Works with</span
+					>
 					<div class="flex items-center gap-5">
 						{#each vendors as vendor (vendor)}
-							<img
-								src="/logos/{vendor}.svg"
-								alt="{vendor} logo"
-								class="h-4 w-auto vendor-logo"
-							/>
+							<img src="/logos/{vendor}.svg" alt="{vendor} logo" class="h-4 w-auto vendor-logo" />
 						{/each}
 					</div>
 				</div>

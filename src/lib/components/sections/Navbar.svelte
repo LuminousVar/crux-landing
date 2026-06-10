@@ -232,7 +232,9 @@
 		width: 0;
 		overflow: hidden;
 		flex-shrink: 0;
-		transition: width 0.25s ease, margin-left 0.25s ease;
+		transition:
+			width 0.25s ease,
+			margin-left 0.25s ease;
 	}
 
 	.moonshot-cta:hover .moonshot-arrow {
@@ -245,7 +247,9 @@
 		flex-shrink: 0;
 		transform: translateX(-10px);
 		opacity: 0;
-		transition: transform 0.25s ease, opacity 0.2s ease;
+		transition:
+			transform 0.25s ease,
+			opacity 0.2s ease;
 	}
 
 	.moonshot-cta:hover .moonshot-arrow svg {

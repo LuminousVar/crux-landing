@@ -80,7 +80,12 @@
 	// Pause carousel when section is off-screen
 	$effect(() => {
 		if (!sectionEl) return;
-		const io = new IntersectionObserver(([e]) => { _visible = e.isIntersecting; }, { rootMargin: '100px' });
+		const io = new IntersectionObserver(
+			([e]) => {
+				_visible = e.isIntersecting;
+			},
+			{ rootMargin: '100px' }
+		);
 		io.observe(sectionEl);
 		return () => io.disconnect();
 	});

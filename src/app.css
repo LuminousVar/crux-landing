@@ -43,14 +43,25 @@
 	}
 }
 
-@keyframes fade-up {
-	from {
-		transform: translateY(24px);
-		opacity: 0;
-	}
-	to {
-		transform: translateY(0);
+/* Scroll-reveal — only active when JS is present (set in app.html, pre-paint). */
+.js .reveal {
+	opacity: 0;
+	transform: translateY(20px);
+	transition:
+		opacity 500ms ease,
+		transform 500ms ease;
+}
+
+.js .reveal.is-visible {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.js .reveal {
 		opacity: 1;
+		transform: none;
+		transition: none;
 	}
 }
 

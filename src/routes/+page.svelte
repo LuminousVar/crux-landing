@@ -9,17 +9,18 @@
 	import NetworkHub from '$lib/components/sections/NetworkHub.svelte';
 	import UseCases from '$lib/components/sections/UseCases.svelte';
 	import VendorStrip from '$lib/components/sections/VendorStrip.svelte';
+	import Reveal from '$lib/components/ui/Reveal.svelte';
 </script>
 
 <main>
 	<Hero />
-	<VendorStrip />
-	<Demo />
-	<Introduction />
-	<FeatureOrbit />
-	<NetworkHub />
-	<UseCases />
-	<AgentFeatures />
-	<Faq />
-	<Footer />
+	<Reveal><VendorStrip /></Reveal>
+	<Reveal><Demo /></Reveal>
+	<Reveal><Introduction /></Reveal>
+	<Reveal><FeatureOrbit /></Reveal>
+	<Reveal><NetworkHub /></Reveal>
+	<Reveal><UseCases /></Reveal>
+	<Reveal><AgentFeatures /></Reveal>
+	<Reveal><Faq /></Reveal>
+	<Reveal><Footer /></Reveal>
 </main>

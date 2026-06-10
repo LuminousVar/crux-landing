@@ -57,10 +57,7 @@ Keep answers concise and technical. If asked about something unrelated to Crux o
 				},
 				body: JSON.stringify({
 					model,
-					messages: [
-						{ role: 'system', content: SYSTEM_PROMPT },
-						...messages.slice(-10)
-					],
+					messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages.slice(-10)],
 					max_tokens: 512,
 					temperature: 0.4
 				})
@@ -68,7 +65,9 @@ Keep answers concise and technical. If asked about something unrelated to Crux o
 
 			if (!res.ok) {
 				const err = await res.json().catch(() => ({}));
-				throw new Error((err as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`);
+				throw new Error(
+					(err as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`
+				);
 			}
 
 			const data = await res.json();
@@ -170,7 +169,10 @@ Keep answers concise and technical. If asked about something unrelated to Crux o
 							{#each SUGGESTIONS as suggestion (suggestion)}
 								<button
 									type="button"
-									onclick={() => { input = suggestion; send(); }}
+									onclick={() => {
+										input = suggestion;
+										send();
+									}}
 									class="rounded border border-edge bg-elevated px-3 py-2 text-left text-xs text-muted
 										transition-colors hover:border-accent/40 hover:text-content"
 								>
@@ -218,9 +220,15 @@ Keep answers concise and technical. If asked about something unrelated to Crux o
 							</div>
 							<div class="rounded-2xl rounded-tl-sm border border-edge bg-elevated px-3 py-2.5">
 								<div class="flex items-center gap-1.5">
-									<span class="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:0ms]"></span>
-									<span class="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:150ms]"></span>
-									<span class="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:300ms]"></span>
+									<span
+										class="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:0ms]"
+									></span>
+									<span
+										class="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:150ms]"
+									></span>
+									<span
+										class="h-1.5 w-1.5 animate-bounce rounded-full bg-muted [animation-delay:300ms]"
+									></span>
 								</div>
 							</div>
 						</div>
