@@ -1,6 +1,8 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/inter';
 
 @theme {
+	--font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 	--color-canvas: #0b0c10;
 	--color-surface: #15171e;
 	--color-elevated: #1e212b;
@@ -75,7 +77,7 @@ html {
 body {
 	background-color: var(--color-canvas);
 	color: var(--color-content);
-	font-family: sans-serif;
+	font-family: var(--font-sans);
 	overflow-x: hidden;
 }
 
