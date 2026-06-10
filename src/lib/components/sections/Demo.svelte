@@ -27,7 +27,7 @@
 			<span class="tick-bl"></span><span class="tick-br"></span>
 
 			<!-- Left: copy -->
-			<div class="flex flex-col justify-center gap-5 p-8 md:p-12">
+			<div class="flex flex-col justify-center gap-5 p-6 sm:p-8 md:p-12">
 				<span
 					class="inline-flex w-fit items-center gap-2 border border-edge px-3 py-1.5 font-mono text-[11px] tracking-wide text-muted"
 				>
@@ -82,10 +82,11 @@
 				</div>
 
 				<!-- Trusted strip -->
-				<div class="flex items-center justify-between gap-4 border-t border-edge px-6 py-5">
-					<span class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Works with</span
-					>
-					<div class="flex items-center gap-5">
+				<div
+					class="flex flex-col gap-3 border-t border-edge px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+				>
+					<span class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Works with</span>
+					<div class="flex flex-wrap items-center gap-4">
 						{#each vendors as vendor (vendor)}
 							<img src="/logos/{vendor}.svg" alt="{vendor} logo" class="h-4 w-auto vendor-logo" />
 						{/each}
