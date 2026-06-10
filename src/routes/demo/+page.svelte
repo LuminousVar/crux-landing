@@ -13,6 +13,7 @@
 	let submitted = $state(false);
 	let submitError = $state('');
 	let alreadySubmitted = $state(false);
+	let honeypot = $state('');
 
 	$effect(() => {
 		alreadySubmitted = !!localStorage.getItem('crux_demo_requested');
@@ -41,17 +42,20 @@
 					company,
 					role,
 					devices,
-					message
+					message,
+					_gotcha: honeypot
 				})
 			});
 			if (res.ok) {
 				submitted = true;
 				localStorage.setItem('crux_demo_requested', '1');
+			} else if (res.status === 429) {
+				submitError = 'Too many requests. Please wait a moment and try again.';
 			} else {
 				submitError = 'Could not send your request. Please try again.';
 			}
 		} catch {
-			submitError = 'Network error. Please try again.';
+			submitError = 'Network error. Check your connection and try again.';
 		} finally {
 			submitting = false;
 		}
@@ -134,6 +138,8 @@
 				</div>
 			{:else}
 				<form class="flex flex-col gap-4" onsubmit={handleSubmit}>
+					<!-- honeypot: hidden from humans, Formspree uses it to filter bots -->
+					<input type="text" name="_gotcha" bind:value={honeypot} class="hidden" tabindex="-1" autocomplete="off" />
 					<div>
 						<label
 							for="name"
