@@ -104,7 +104,7 @@ Keep answers concise and technical. If asked about something unrelated to Crux o
 			type="button"
 			onclick={() => (open = true)}
 			title="Ask about Crux"
-			class="group flex h-12 w-12 items-center justify-center rounded-full border border-accent/40
+			class="group flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-accent/40
 				bg-surface shadow-lg transition-all duration-200 hover:scale-105 hover:border-accent
 				hover:shadow-accent/20"
 		>
@@ -136,7 +136,7 @@ Keep answers concise and technical. If asked about something unrelated to Crux o
 						<button
 							type="button"
 							onclick={clearChat}
-							class="rounded px-2 py-1 text-xs text-muted transition-colors hover:bg-elevated hover:text-content"
+							class="cursor-pointer rounded px-2 py-1 text-xs text-muted transition-colors hover:bg-elevated hover:text-content"
 						>
 							Clear
 						</button>
@@ -144,7 +144,7 @@ Keep answers concise and technical. If asked about something unrelated to Crux o
 					<button
 						type="button"
 						onclick={() => (open = false)}
-						class="rounded p-1 text-muted transition-colors hover:bg-elevated hover:text-content"
+						class="cursor-pointer rounded p-1 text-muted transition-colors hover:bg-elevated hover:text-content"
 					>
 						<X size={15} />
 					</button>
@@ -173,7 +173,7 @@ Keep answers concise and technical. If asked about something unrelated to Crux o
 										input = suggestion;
 										send();
 									}}
-									class="rounded border border-edge bg-elevated px-3 py-2 text-left text-xs text-muted
+									class="cursor-pointer rounded border border-edge bg-elevated px-3 py-2 text-left text-xs text-muted
 										transition-colors hover:border-accent/40 hover:text-content"
 								>
 									{suggestion}
@@ -261,7 +261,7 @@ Keep answers concise and technical. If asked about something unrelated to Crux o
 						type="button"
 						onclick={send}
 						disabled={!input.trim() || loading}
-						class="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full
+						class="mb-0.5 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full
 							bg-elevated text-content transition-all hover:bg-accent-muted
 							disabled:cursor-not-allowed disabled:opacity-40"
 					>

@@ -44,13 +44,11 @@
 
 				<p class="max-w-md text-sm leading-relaxed text-muted">
 					Crux unifies configuration automation, real-time SNMP monitoring, and AI-assisted incident
-					response — deployed entirely on infrastructure you control.
+					response — hosted and managed for you, with no infrastructure to provision or maintain.
 				</p>
 
 				<div class="flex flex-wrap items-center gap-4">
-					<a href="https://crux.watch" target="_blank" rel="noopener noreferrer" class="dfx-btn">
-						Get a Demo
-					</a>
+					<a href="/demo" class="dfx-btn"> Get a Demo </a>
 					<a href="#introduction" class="dfx-ghost">
 						<span class="tick-tl"></span><span class="tick-tr"></span>
 						<span class="tick-bl"></span><span class="tick-br"></span>
