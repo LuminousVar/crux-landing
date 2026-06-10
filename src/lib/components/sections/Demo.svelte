@@ -91,7 +91,7 @@
 							<img
 								src="/logos/{vendor}.svg"
 								alt="{vendor} logo"
-								class="h-4 w-auto opacity-50 grayscale"
+								class="h-4 w-auto vendor-logo"
 							/>
 						{/each}
 					</div>
@@ -216,6 +216,11 @@
 		right: -1px;
 		border-bottom: 1px solid var(--tick);
 		border-right: 1px solid var(--tick);
+	}
+
+	.vendor-logo {
+		filter: brightness(0) invert(1);
+		opacity: 0.7;
 	}
 
 	/* Halftone dot texture on stat cards (static) */
