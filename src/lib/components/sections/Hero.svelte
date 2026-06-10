@@ -42,7 +42,7 @@
 	});
 
 	function makePaths(position: number) {
-		return Array.from({ length: 14 }, (_, i) => ({
+		return Array.from({ length: 18 }, (_, i) => ({
 			id: i,
 			d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${
 				380 - i * 5 * position
@@ -52,7 +52,7 @@
 				684 - i * 5 * position
 			} ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
 			strokeOpacity: 0.08 + i * 0.02,
-			strokeWidth: 0.4 + i * 0.015,
+			strokeWidth: 1.2,
 			duration: 20 + (i % 10),
 			delay: -(i * 0.6)
 		}));
@@ -70,7 +70,7 @@
 	<!-- Animated background paths -->
 	<div
 		class="pointer-events-none absolute inset-0"
-		style="--play: {inView ? 'running' : 'paused'}; transform: translateY(-15%)"
+		style="--play: {inView ? 'running' : 'paused'}; transform: translateY(-45%) scaleY(1.4)"
 		aria-hidden="true"
 	>
 		{#each [pathsPos, pathsNeg] as paths, si (si)}
