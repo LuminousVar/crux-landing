@@ -12,6 +12,11 @@
 	let submitting = $state(false);
 	let submitted = $state(false);
 	let submitError = $state('');
+	let alreadySubmitted = $state(false);
+
+	$effect(() => {
+		alreadySubmitted = !!localStorage.getItem('crux_demo_requested');
+	});
 
 	const benefits = [
 		'A guided walkthrough of automation jobs, SNMP monitoring, and AI incident analysis.',
@@ -41,6 +46,7 @@
 			});
 			if (res.ok) {
 				submitted = true;
+				localStorage.setItem('crux_demo_requested', '1');
 			} else {
 				submitError = 'Could not send your request. Please try again.';
 			}
@@ -103,16 +109,20 @@
 
 		<!-- Right: form -->
 		<div class="rounded-xl border border-edge bg-surface p-6 sm:p-8">
-			{#if submitted}
+			{#if submitted || alreadySubmitted}
 				<div class="flex flex-col items-center gap-4 py-10 text-center">
 					<span
 						class="flex h-12 w-12 items-center justify-center rounded-full border border-success/40 bg-elevated text-success"
 					>
 						<Check size={22} />
 					</span>
-					<h2 class="text-lg font-semibold text-content">Request received</h2>
+					<h2 class="text-lg font-semibold text-content">
+						{alreadySubmitted && !submitted ? 'Already submitted' : 'Request received'}
+					</h2>
 					<p class="max-w-xs text-sm leading-relaxed text-muted">
-						Thanks — we'll reach out at the email you provided to schedule your demo.
+						{alreadySubmitted && !submitted
+							? "You've already sent a demo request from this device. We'll be in touch soon."
+							: "Thanks — we'll reach out at the email you provided to schedule your demo."}
 					</p>
 					<a
 						href="/"

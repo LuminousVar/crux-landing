@@ -68,6 +68,8 @@
 html {
 	scroll-behavior: smooth;
 	scroll-padding-top: 80px;
+	scrollbar-width: thin;
+	scrollbar-color: var(--color-edge) transparent;
 }
 
 body {
@@ -75,4 +77,21 @@ body {
 	color: var(--color-content);
 	font-family: sans-serif;
 	overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+	width: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--color-edge);
+	border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--color-muted);
 }

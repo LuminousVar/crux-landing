@@ -97,11 +97,13 @@
 			<!-- MikroTik Commands -->
 			{#if data.highlightedCommands.length > 0}
 				<p class="mb-1 font-mono text-xs uppercase tracking-widest text-muted/50">
-					MikroTik Commands
+					{module.commandsLabel ?? 'MikroTik Commands'}
 				</p>
-				<p class="mb-6 text-xs text-muted/40">
-					Run these on your MikroTik device to enable this feature.
-				</p>
+				{#if !module.commandsLabel}
+					<p class="mb-6 text-xs text-muted/40">
+						Run these on your MikroTik device to enable this feature.
+					</p>
+				{/if}
 				<div class="mb-12 space-y-4">
 					{#each data.highlightedCommands as cmd (cmd.label)}
 						<CodeBlock label={cmd.label} html={cmd.html} code={cmd.code} />

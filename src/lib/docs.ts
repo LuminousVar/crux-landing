@@ -9,6 +9,7 @@ export interface DocModule {
 	howItWorks: string[];
 	steps: string[];
 	commands?: { label: string; code: string }[];
+	commandsLabel?: string;
 	technicalNotes: string[];
 }
 
@@ -19,6 +20,200 @@ export interface DocGroup {
 }
 
 export const docGroups: DocGroup[] = [
+	{
+		key: 'getting-started',
+		label: 'Getting Started',
+		modules: [
+			{
+				slug: 'introduction',
+				label: 'Introduction',
+				icon: 'BookMarked',
+				appRoute: '/',
+				description: 'What Crux is, the problems it solves, and how its components fit together.',
+				overview:
+					'Crux is an open-source, on-premise network operations platform for network engineers and IT administrators. It unifies configuration automation, real-time SNMP monitoring, and AI-assisted incident analysis into a single self-hosted application. There are no cloud dependencies, no telemetry, and no SaaS tiers — everything runs inside your own infrastructure via a single Podman Compose command.',
+				capabilities: [
+					'Scheduled automation jobs: backup, health-check, config push, and run-command against any managed device',
+					'Real-time SNMP monitoring with per-device charts and automatic trap ingestion',
+					'AI-assisted incident analysis: every SNMP trap is automatically analyzed by an LLM for root-cause and remediation',
+					'AES-256 credential vault: SSH passwords, SSH private keys, SNMP community strings, and API tokens encrypted at rest',
+					'Policy-based RBAC: eight built-in roles, custom roles, and an immutable audit log',
+					'Firmware repository with SHA-256 integrity verification and on-demand distribution',
+					'Network topology discovery via LLDP, IP address management (IPAM), and outbound webhook integrations'
+				],
+				howItWorks: [
+					'The SvelteKit frontend communicates with a FastAPI backend over a REST API. The backend handles authentication, RBAC enforcement, and all database operations.',
+					'Long-running operations (job execution, SNMP polling, AI analysis) are dispatched as Celery tasks and executed by worker containers. Celery Beat handles cron-triggered schedules.',
+					'PostgreSQL stores all application data. Valkey (a Redis fork) serves as the Celery broker and result backend, and as the JWT token blocklist.',
+					'A separate SNMP trap receiver service listens on UDP port 162. Received traps are parsed and handed to a Celery task for AI analysis.',
+					'All secrets are encrypted with AES-256 (Fernet) before being written to the database. The encryption key is set via the ENCRYPTION_KEY environment variable and never stored alongside the data.'
+				],
+				steps: [
+					'Read this Introduction to understand the architecture and component roles.',
+					'Follow the Installation guide to deploy Crux on a Linux host via Podman Compose.',
+					'Complete the Configuration guide to set your encryption key, AI provider, and SNMP defaults.',
+					'Add your first device at /devices and probe connectivity.',
+					'Explore the module documentation for detailed usage of each platform feature.'
+				],
+				technicalNotes: [
+					'Supported deployment: Linux host with Podman Compose ≥ 4.x or Docker Compose v2.',
+					'Minimum requirements: 2 vCPU, 4 GB RAM, 20 GB disk for the full stack including PostgreSQL and Valkey.',
+					'Exposed host ports: 5173 (frontend), 8000 (backend API), 162/udp (SNMP trap receiver).',
+					'No cloud dependencies — all services run in containers on your local network.',
+					'License: MIT. Source code available on GitHub.'
+				]
+			},
+			{
+				slug: 'installation',
+				label: 'Installation',
+				icon: 'Terminal',
+				appRoute: '/',
+				commandsLabel: 'Commands',
+				description: 'Deploy Crux on a Linux host using Podman Compose or Docker Compose.',
+				overview:
+					'Crux ships as a multi-container application defined in a single compose.yaml file. The stack includes the SvelteKit frontend, FastAPI backend, Celery worker, Celery Beat scheduler, SNMP trap receiver, PostgreSQL 18, and Valkey. A single compose up command starts the entire stack. No cloud account, no registry login, and no Kubernetes required.',
+				capabilities: [
+					'Single compose.yaml starts the complete stack: frontend, backend, workers, trap receiver, database, and cache',
+					'Podman Compose and Docker Compose v2 both supported',
+					'PostgreSQL 18 and Valkey included — no external database or cache required',
+					'Environment-driven configuration via .env — no code changes needed to customise',
+					'All containers run as non-root users',
+					'Health checks on all services — compose waits for dependencies to be ready before starting dependents'
+				],
+				howItWorks: [
+					'compose.yaml defines seven services: frontend, backend, celery-worker, celery-beat, snmp-trap-receiver, postgres, and valkey.',
+					'On first start, the backend runs Alembic database migrations automatically before accepting requests.',
+					'The backend creates a default Admin account using FIRST_ADMIN_EMAIL and FIRST_ADMIN_PASSWORD if no users exist.',
+					'All inter-service communication happens over an internal container network — only ports 5173, 8000, and 162/udp are exposed on the host.'
+				],
+				steps: [
+					'Ensure Podman Compose (≥ 4.x) or Docker Compose (v2) is installed on a Linux host.',
+					'Clone the Crux repository.',
+					'Copy the example environment file: cp .env.example .env',
+					'Edit .env — at minimum set ENCRYPTION_KEY, POSTGRES_PASSWORD, and SECRET_KEY. See the Configuration guide for all variables.',
+					'Start the stack: podman compose up -d',
+					'Verify all services are healthy: podman compose ps',
+					'Open http://localhost:5173 and log in with FIRST_ADMIN_EMAIL / FIRST_ADMIN_PASSWORD.'
+				],
+				commands: [
+					{
+						label: 'Clone the repository',
+						code: `git clone https://github.com/LuminousVar/crux
+cd crux`
+					},
+					{
+						label: 'Copy environment file',
+						code: `cp .env.example .env`
+					},
+					{
+						label: 'Start the full stack',
+						code: `podman compose up -d
+# or: docker compose up -d`
+					},
+					{
+						label: 'Check service health',
+						code: `podman compose ps`
+					},
+					{
+						label: 'View live logs',
+						code: `podman compose logs -f
+# Filter to a single service:
+podman compose logs -f backend`
+					},
+					{
+						label: 'Stop the stack',
+						code: `podman compose down
+# Stop and remove all data volumes (destructive):
+podman compose down -v`
+					}
+				],
+				technicalNotes: [
+					'Podman rootless mode is fully supported — no root privileges required.',
+					'On SELinux-enforcing hosts (RHEL, Fedora), append :Z to bind-mount volume paths if you encounter permission errors.',
+					'The backend runs Alembic migrations on startup — do not interrupt the first-start sequence.',
+					'SNMP trap receiver requires UDP port 162 to be reachable from your devices. Open it on the host firewall: firewall-cmd --add-port=162/udp --permanent.',
+					'To update Crux: git pull, then podman compose up -d --build to rebuild images with the latest code.'
+				]
+			},
+			{
+				slug: 'configuration',
+				label: 'Configuration',
+				icon: 'Settings',
+				appRoute: '/settings',
+				commandsLabel: 'Example .env Values',
+				description: 'All environment variables — secrets, AI provider, SNMP defaults, and SMTP.',
+				overview:
+					'Crux is configured entirely via environment variables in a .env file. The .env.example file in the repository documents every variable with its purpose and a safe default. This guide covers the variables you must set before first start and the optional variables for AI provider selection, SMTP (user invitations), and SNMP defaults.',
+				capabilities: [
+					'ENCRYPTION_KEY — AES-256 Fernet key for the credential vault; generate once, never change',
+					'SECRET_KEY — HMAC key for signing JWT access and refresh tokens',
+					'LLM_BASE_URL / LLM_API_KEY / LLM_MODEL — AI provider; any OpenAI-compatible endpoint',
+					'POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB — PostgreSQL connection credentials',
+					'SMTP_HOST / SMTP_USERNAME / SMTP_PASSWORD — outbound email for user invitation links',
+					'FIRST_ADMIN_EMAIL / FIRST_ADMIN_PASSWORD — initial admin account created on first start only',
+					'SNMP_COMMUNITY / SNMP_VERSION / SNMP_POLLING_INTERVAL — platform-wide SNMP defaults'
+				],
+				howItWorks: [
+					'Sensitive values (ENCRYPTION_KEY, SECRET_KEY, database passwords) are read at container startup and are never exposed via the API.',
+					'LLM configuration is read at inference time — you can also change the AI provider at runtime via /settings in the UI without restarting.',
+					'SNMP defaults from .env are used as the platform-wide starting values and can be overridden at /settings.',
+					'SMTP configuration enables the invitation email feature. If SMTP is not configured, invitation links are still generated and displayed in the UI — they just are not emailed automatically.'
+				],
+				steps: [
+					'Generate ENCRYPTION_KEY using the Python command below. Store it securely — changing it later requires re-encrypting all vault entries.',
+					'Generate SECRET_KEY using the second command below.',
+					'Choose an AI provider and set LLM_BASE_URL, LLM_API_KEY, and LLM_MODEL. See the examples for Groq, Ollama, and DeepSeek.',
+					'Set POSTGRES_PASSWORD to a strong random value.',
+					'Set FIRST_ADMIN_EMAIL and FIRST_ADMIN_PASSWORD — used only on the very first start when no users exist.',
+					'Optionally configure SMTP_HOST, SMTP_USERNAME, and SMTP_PASSWORD for invitation emails.',
+					'Save .env and do not commit it to source control — add it to .gitignore.'
+				],
+				commands: [
+					{
+						label: 'Generate ENCRYPTION_KEY (required)',
+						code: `python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
+					},
+					{
+						label: 'Generate SECRET_KEY (required)',
+						code: `python3 -c "import secrets; print(secrets.token_hex(32))"`
+					},
+					{
+						label: 'AI provider: Groq',
+						code: `LLM_BASE_URL=https://api.groq.com/openai/v1
+LLM_API_KEY=gsk_your_groq_api_key
+LLM_MODEL=llama-3.3-70b-versatile`
+					},
+					{
+						label: 'AI provider: Ollama (fully local)',
+						code: `LLM_BASE_URL=http://localhost:11434/v1
+LLM_API_KEY=ollama
+LLM_MODEL=llama3.2`
+					},
+					{
+						label: 'AI provider: DeepSeek',
+						code: `LLM_BASE_URL=https://api.deepseek.com/v1
+LLM_API_KEY=sk_your_deepseek_key
+LLM_MODEL=deepseek-chat`
+					},
+					{
+						label: 'SMTP (Gmail app password example)',
+						code: `SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your@gmail.com
+SMTP_PASSWORD=your_app_password
+SMTP_FROM=your@gmail.com`
+					}
+				],
+				technicalNotes: [
+					'ENCRYPTION_KEY must be a valid Fernet key (32 url-safe base64-encoded bytes). Generate it with the Python command above — do not craft it manually.',
+					'Changing ENCRYPTION_KEY after data has been stored requires re-encrypting all credential vault entries. Back it up; there is no automatic migration.',
+					'Do not commit .env to source control. For production, use a secrets manager (Vault, Infisical, or environment injection via systemd).',
+					'JWT access tokens expire after 30 minutes; refresh tokens after 7 days. Changing SECRET_KEY invalidates all active sessions immediately.',
+					'FIRST_ADMIN_EMAIL / FIRST_ADMIN_PASSWORD are only used on the first start when no users exist — they have no effect on subsequent starts.'
+				]
+			}
+		]
+	},
 	{
 		key: 'resources',
 		label: 'Resources',
