@@ -85,7 +85,8 @@
 				<div
 					class="flex flex-col gap-3 border-t border-edge px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
 				>
-					<span class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Works with</span>
+					<span class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Works with</span
+					>
 					<div class="flex flex-wrap items-center gap-4">
 						{#each vendors as vendor (vendor)}
 							<img src="/logos/{vendor}.svg" alt="{vendor} logo" class="h-4 w-auto vendor-logo" />

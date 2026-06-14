@@ -45,7 +45,7 @@
 	<meta name="description" content="Documentation for all Crux platform modules." />
 </svelte:head>
 
-<main class="mx-auto max-w-6xl px-6 py-16">
+<main class="px-8 py-12">
 	<!-- Header -->
 	<div class="mb-10">
 		<h1 class="mb-2 text-4xl font-bold tracking-tight text-content">Crux Documentation</h1>
@@ -103,7 +103,7 @@
 					>
 				</div>
 
-				<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 					{#each group.modules as module (module.slug)}
 						{@const Icon = (Icons as Record<string, any>)[module.icon]}
 						<a

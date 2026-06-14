@@ -1,4 +1,4 @@
-# Crux — Company Profile
+![alt text](image.png)# Crux — Company Profile
 
 Landing page and documentation site for [Crux](https://github.com/LuminousVar/crux-landing), an open-source, on-premise network operations platform. Built as a fully static site with SvelteKit and Tailwind CSS v4 — dark theme only, no backend, no telemetry.
 

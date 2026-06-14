@@ -139,7 +139,14 @@
 			{:else}
 				<form class="flex flex-col gap-4" onsubmit={handleSubmit}>
 					<!-- honeypot: hidden from humans, Formspree uses it to filter bots -->
-					<input type="text" name="_gotcha" bind:value={honeypot} class="hidden" tabindex="-1" autocomplete="off" />
+					<input
+						type="text"
+						name="_gotcha"
+						bind:value={honeypot}
+						class="hidden"
+						tabindex="-1"
+						autocomplete="off"
+					/>
 					<div>
 						<label
 							for="name"
