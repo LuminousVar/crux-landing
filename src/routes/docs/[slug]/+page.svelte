@@ -1,6 +1,5 @@
 <script lang="ts">
-	/* eslint-disable @typescript-eslint/no-explicit-any */
-	import * as Icons from 'lucide-svelte';
+	import { AlertCircle, Check, ExternalLink } from 'lucide-svelte';
 	import CodeBlock from '$lib/components/ui/code-block.svelte';
 	import Callout from '$lib/components/ui/Callout.svelte';
 	import DocTable from '$lib/components/ui/DocTable.svelte';
@@ -75,7 +74,7 @@
 			<ul class="mb-12 space-y-3">
 				{#each module.prerequisites as pre (pre)}
 					<li class="flex items-start gap-3">
-						<Icons.Check size={15} class="mt-0.5 shrink-0 text-success/70" />
+						<Check size={15} class="mt-0.5 shrink-0 text-success/70" />
 						<span class="text-base leading-relaxed text-content/80">{pre}</span>
 					</li>
 				{/each}
@@ -176,7 +175,7 @@
 				{#each module.troubleshooting as item (item.problem)}
 					<div class="rounded-lg border border-edge bg-surface p-5">
 						<p class="flex items-start gap-2 text-sm font-semibold text-content">
-							<Icons.AlertCircle size={15} class="mt-0.5 shrink-0 text-warning/70" />
+							<AlertCircle size={15} class="mt-0.5 shrink-0 text-warning/70" />
 							{item.problem}
 						</p>
 						<p class="mt-2 pl-[23px] text-sm leading-relaxed text-muted">
@@ -214,7 +213,7 @@
 				Access in the Platform
 			</p>
 			<p class="flex items-center gap-2 text-base text-muted">
-				<Icons.ExternalLink size={13} class="shrink-0 text-muted/40" />
+				<ExternalLink size={13} class="shrink-0 text-muted/40" />
 				Available at
 				<code
 					class="rounded border border-edge bg-elevated px-2 py-0.5 font-mono text-sm text-accent"

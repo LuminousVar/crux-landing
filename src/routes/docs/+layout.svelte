@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { docGroups } from '$lib/docs';
-	import * as Icons from 'lucide-svelte';
+	import { Search, X } from 'lucide-svelte';
 
 	let { children } = $props();
 
@@ -28,7 +28,7 @@
 			<!-- Logo + breadcrumb -->
 			<div class="flex items-center gap-3">
 				<a href="/" aria-label="Crux home" class="flex items-center gap-2">
-					<img src="/crux-logo-nobg.svg" alt="" class="h-10 w-auto" aria-hidden="true" />
+					<img src="/crux-logo.png" alt="" class="h-10 w-auto" aria-hidden="true" />
 					<span class="font-mono text-lg font-bold leading-none text-accent">Crux</span>
 				</a>
 				<span class="text-sm text-muted/30">/</span>
@@ -58,7 +58,7 @@
 			>
 				<!-- Filter -->
 				<div class="relative mb-5">
-					<Icons.Search
+					<Search
 						size={14}
 						class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted/50"
 					/>
@@ -74,7 +74,7 @@
 							aria-label="Clear filter"
 							class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted/40 transition-colors hover:text-muted"
 						>
-							<Icons.X size={13} />
+							<X size={13} />
 						</button>
 					{/if}
 				</div>

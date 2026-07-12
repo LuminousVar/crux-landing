@@ -131,7 +131,7 @@
 					stroke="var(--color-accent)"
 					stroke-width="1.5"
 				/>
-				<image href="/crux-logo-nobg.svg" x={CX - 22} y={CY - 22} width="44" height="44" />
+				<image href="/crux-logo.png" x={CX - 22} y={CY - 22} width="44" height="44" />
 
 				<!-- Vendor nodes -->
 				{#each nodes as node}

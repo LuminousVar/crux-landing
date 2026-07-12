@@ -37,7 +37,7 @@
 		<!-- Logo — left -->
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		<a href="/" aria-label="Crux home" class="flex items-center gap-2">
-			<img src="/crux-logo-nobg.svg" alt="" class="h-12 w-auto" aria-hidden="true" />
+			<img src="/crux-logo.png" alt="" class="h-12 w-auto" aria-hidden="true" />
 			<span class="font-mono text-xl font-bold leading-none text-accent">Crux</span>
 		</a>
 

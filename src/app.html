@@ -4,7 +4,11 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
-		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<!-- PNG, not the logo SVG: that file is an auto-trace of a raster image — 704 paths,
+		     585 fills, 582 KB — and it was being downloaded by every visitor to be drawn at
+		     16 px. The PNG is 3 KB and indistinguishable at this size. -->
+		<link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<script>
 			document.documentElement.classList.add('js');
 		</script>

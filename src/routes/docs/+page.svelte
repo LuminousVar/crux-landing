@@ -1,7 +1,7 @@
 <script lang="ts">
-	/* eslint-disable @typescript-eslint/no-explicit-any */
 	import { docGroups } from '$lib/docs';
-	import * as Icons from 'lucide-svelte';
+	import { Search, X } from 'lucide-svelte';
+	import { docIcon } from '$lib/doc-icons';
 
 	let query = $state('');
 	let inputEl = $state<HTMLInputElement | null>(null);
@@ -53,7 +53,7 @@
 
 		<!-- Search input -->
 		<div class="relative max-w-sm">
-			<Icons.Search
+			<Search
 				size={15}
 				class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted/50"
 			/>
@@ -70,7 +70,7 @@
 					class="absolute right-3 top-1/2 -translate-y-1/2 text-muted/40 transition-colors hover:text-muted"
 					aria-label="Clear search"
 				>
-					<Icons.X size={13} />
+					<X size={13} />
 				</button>
 			{:else}
 				<kbd
@@ -105,15 +105,17 @@
 
 				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 					{#each group.modules as module (module.slug)}
-						{@const Icon = (Icons as Record<string, any>)[module.icon]}
+						{@const Icon = docIcon(module.icon)}
 						<a
 							href="/docs/{module.slug}"
 							class="group flex flex-col rounded-lg border border-edge bg-surface p-5 transition-colors duration-150 hover:bg-elevated"
 						>
-							<Icon
-								size={20}
-								class="text-muted transition-colors duration-150 group-hover:text-accent"
-							/>
+							{#if Icon}
+								<Icon
+									size={20}
+									class="text-muted transition-colors duration-150 group-hover:text-accent"
+								/>
+							{/if}
 							<p class="mt-3 text-base font-semibold text-content">{module.label}</p>
 							<p class="mt-1 flex-1 text-sm leading-relaxed text-muted">{module.description}</p>
 							<span
