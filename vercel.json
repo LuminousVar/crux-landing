@@ -1,7 +1,6 @@
 {
 	"$schema": "https://openapi.vercel.sh/vercel.json",
 
-	"//": "cleanUrls is not cosmetic here — it is what makes the site work. adapter-static writes demo.html and docs/introduction.html, but every link in the navbar, the footer and the CTA buttons points at /demo and /docs/introduction. Without this, Vercel served those as 404 and nothing beyond the homepage was reachable.",
 	"cleanUrls": true,
 	"trailingSlash": false,
 
