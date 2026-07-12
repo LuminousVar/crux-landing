@@ -42,8 +42,14 @@ when they leave (the observer is never disconnected). The visual transition live
 
 A floating assistant that answers visitor questions about Crux.
 
-- Calls an **OpenAI-compatible** chat-completions endpoint configured via the
-  `PUBLIC_LLM_*` env vars.
+- Posts to **`/api/chat`** (`api/chat.js`, a Vercel Serverless Function). The widget never
+  sees the provider, the model, or the key: the function reads `GROQ_API_KEY` — deliberately
+  **not** `PUBLIC_`-prefixed, because Vite inlines every `PUBLIC_*` value into the client
+  bundle — and calls the OpenAI-compatible endpoint server-side.
+- The system prompt also lives in the function. It used to ship to the browser, where
+  anyone could read the anti-jailbreak rules they were meant to be constrained by.
+- The function caps requests itself (10 messages, 2,000 chars each, 8,000 total) and
+  rejects a `system` role from the client, so the prompt cannot be overridden.
 - State is **in-memory only** — history clears when the tab closes.
 - A hardened system prompt grounds answers in a `FACTS ABOUT CRUX` block and includes
   anti-jailbreak rules (refuses off-topic requests, never discloses configuration).
@@ -51,8 +57,8 @@ A floating assistant that answers visitor questions about Crux.
   (`crux_chat_usage` = `{ date, count }`), reset when the date changes. Incremented only
   after a successful response.
 
-> The cap is casual-abuse mitigation, not security — the API key ships in the bundle.
-> Real cost protection is a spending/rate limit set in the provider dashboard.
+> The `localStorage` cap is cosmetic — clearing site data resets it. The real limits are
+> the size checks in `api/chat.js` and a spending cap set in the provider dashboard.
 
 ### Demo form — `src/routes/demo/+page.svelte`
 
