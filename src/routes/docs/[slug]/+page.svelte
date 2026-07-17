@@ -17,7 +17,7 @@
 
 <!-- Sidebar navigation is provided by docs/+layout.svelte -->
 <main class="px-8 py-12 md:px-14">
-	<div class="max-w-2xl">
+	<div class="max-w-3xl">
 		<!-- Breadcrumb -->
 		<p class="mb-8 font-mono text-xs uppercase tracking-widest text-muted/50">
 			Docs / {module.groupLabel} / {module.label}

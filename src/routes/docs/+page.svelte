@@ -103,7 +103,7 @@
 					>
 				</div>
 
-				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+				<div class="grid max-w-6xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 					{#each group.modules as module (module.slug)}
 						{@const Icon = docIcon(module.icon)}
 						<a
