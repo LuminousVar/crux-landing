@@ -2,11 +2,16 @@
 	import { page } from '$app/state';
 	import { docGroups } from '$lib/docs';
 	import { Search, X } from 'lucide-svelte';
+	import type { LayoutData } from './$types';
 
-	let { children } = $props();
+	let { children, data }: { children: import('svelte').Snippet; data: LayoutData } = $props();
 
 	let isSlug = $derived(page.url.pathname !== '/docs');
 	let currentSlug = $derived(page.params.slug ?? '');
+	// Slug of the API collection currently open, e.g. /docs/api/devices → "devices".
+	let currentApi = $derived(
+		page.url.pathname.startsWith('/docs/api/') ? (page.params.collection ?? '') : ''
+	);
 
 	// Sidebar filter — quick navigation across all modules from any docs page.
 	let q = $state('');
@@ -19,6 +24,11 @@
 						modules: g.modules.filter((m) => m.label.toLowerCase().includes(q.toLowerCase()))
 					}))
 					.filter((g) => g.modules.length > 0)
+	);
+	let filteredApi = $derived(
+		q.trim() === ''
+			? data.apiNav
+			: data.apiNav.filter((c) => c.label.toLowerCase().includes(q.toLowerCase()))
 	);
 </script>
 
@@ -79,7 +89,7 @@
 					{/if}
 				</div>
 
-				{#if filteredGroups.length === 0}
+				{#if filteredGroups.length === 0 && filteredApi.length === 0}
 					<p class="px-2 text-sm text-muted/50">No matches</p>
 				{:else}
 					{#each filteredGroups as group (group.key)}
@@ -100,6 +110,30 @@
 							{/each}
 						</ul>
 					{/each}
+
+					{#if filteredApi.length > 0}
+						<a
+							href="/docs/api"
+							class="mb-2 flex items-center gap-1.5 px-2 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors
+								{page.url.pathname === '/docs/api' ? 'text-accent' : 'text-muted/50 hover:text-muted'}"
+						>
+							API Reference
+						</a>
+						<ul class="mb-5 space-y-0.5">
+							{#each filteredApi as col (col.slug)}
+								<li>
+									<a
+										href="/docs/api/{col.slug}"
+										class="flex items-center justify-between rounded px-2 py-1.5 text-sm transition-colors duration-100
+											{col.slug === currentApi ? 'font-medium text-accent' : 'text-muted hover:text-content'}"
+									>
+										<span>{col.label}</span>
+										<span class="font-mono text-[10px] text-muted/40">{col.count}</span>
+									</a>
+								</li>
+							{/each}
+						</ul>
+					{/if}
 				{/if}
 			</nav>
 		</aside>

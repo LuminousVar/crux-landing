@@ -127,5 +127,24 @@
 				</div>
 			</div>
 		{/each}
+
+		{#if !query}
+			<a
+				href="/docs/api"
+				class="group mt-10 flex items-center justify-between gap-4 rounded-lg border border-edge bg-surface p-5 transition-colors duration-150 hover:border-accent/50 hover:bg-elevated"
+			>
+				<div>
+					<p class="text-base font-semibold text-content group-hover:text-accent">API Reference</p>
+					<p class="mt-1 text-sm leading-relaxed text-muted">
+						Every REST endpoint — parameters, request bodies, responses, and copy-paste cURL /
+						JavaScript examples.
+					</p>
+				</div>
+				<span
+					class="shrink-0 text-base text-muted/30 transition-colors duration-150 group-hover:text-accent"
+					>→</span
+				>
+			</a>
+		{/if}
 	{/if}
 </main>
