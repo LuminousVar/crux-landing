@@ -49,7 +49,7 @@
 
 				<div class="flex flex-wrap items-center gap-4">
 					<a href="/demo" class="dfx-btn"> Get a Demo </a>
-					<a href="#introduction" class="dfx-ghost">
+					<a href="/cloud" class="dfx-ghost">
 						<span class="tick-tl"></span><span class="tick-tr"></span>
 						<span class="tick-bl"></span><span class="tick-br"></span>
 						Learn More

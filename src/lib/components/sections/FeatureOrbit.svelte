@@ -174,7 +174,7 @@
 							</div>
 						{:else}
 							<!-- 3D isometric network switch — drag to rotate, power LED to toggle -->
-							<div class="pointer-events-auto flex select-none flex-col items-center gap-2">
+							<div class="switch-3d pointer-events-auto flex select-none flex-col items-center gap-2">
 								<div>
 									<svg viewBox="0 0 195 110" width="195" height="110" aria-hidden="true">
 										<!-- Right face -->
@@ -420,6 +420,23 @@
 </section>
 
 <style>
+	/*
+	 * The 3D network switch is a hardware render — a real switch is dark metal, so it
+	 * should read as the SAME device in light and dark mode rather than inverting with
+	 * the page theme. Pin the palette tokens locally to their dark values (same trick
+	 * as the code cards); every `var(--color-*)` inside the SVG resolves against these.
+	 */
+	.switch-3d {
+		--color-canvas: #0b0c10;
+		--color-surface: #15171e;
+		--color-elevated: #1e212b;
+		--color-edge: #2a2d3e;
+		--color-muted: #94a3b8;
+		--color-success: #22c55e;
+		--color-warning: #f59e0b;
+		--color-accent: #3b82f6;
+	}
+
 	.orbit-scaler {
 		transform-origin: top center;
 	}

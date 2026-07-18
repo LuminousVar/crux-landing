@@ -17,11 +17,9 @@
 		{
 			label: 'Product',
 			items: [
-				{ label: 'Features', href: '/#features' },
-				{ label: 'Use Cases', href: '/#use-cases' },
-				{ label: 'AI Agent', href: '/#agent-features' },
-				{ label: 'Integrations', href: '/#integrations' },
-				{ label: 'Live Demo', href: '/demo' }
+				{ label: 'Self-host Crux', href: '/self-host' },
+				{ label: 'Crux Cloud', href: '/cloud' },
+				{ label: 'Get a Demo', href: '/demo' }
 			]
 		},
 		{ label: 'Pricing', href: '/pricing' },

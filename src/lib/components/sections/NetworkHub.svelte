@@ -18,9 +18,11 @@
 	const NODE_R = 30;
 	const CENTER_R = 46;
 
+	// `size` is the glyph render size in px (default 18). Cisco and Juniper are wide,
+	// low-ink marks that read small at 18px, so they get bumped up.
 	const vendors = [
-		{ label: 'Cisco', path: siCisco.path, angle: 270 },
-		{ label: 'Juniper', path: siJunipernetworks.path, angle: 315 },
+		{ label: 'Cisco', path: siCisco.path, angle: 270, size: 24 },
+		{ label: 'Juniper', path: siJunipernetworks.path, angle: 315, size: 24 },
 		{ label: 'MikroTik', path: siMikrotik.path, angle: 0 },
 		{ label: 'Huawei', path: siHuawei.path, angle: 45 },
 		{ label: 'Linux', path: siLinux.path, angle: 90 },
@@ -135,6 +137,7 @@
 
 				<!-- Vendor nodes -->
 				{#each nodes as node}
+					{@const s = node.size ?? 18}
 					<g>
 						<circle
 							cx={node.x}
@@ -144,7 +147,7 @@
 							stroke="var(--color-edge)"
 							stroke-width="1"
 						/>
-						<svg viewBox="0 0 24 24" width="18" height="18" x={node.x - 9} y={node.y - 9}>
+						<svg viewBox="0 0 24 24" width={s} height={s} x={node.x - s / 2} y={node.y - s / 2}>
 							<path d={node.path} fill="var(--color-muted)" />
 						</svg>
 					</g>

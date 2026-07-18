@@ -104,11 +104,12 @@ export const docGroups: DocGroup[] = [
 				icon: 'Terminal',
 				appRoute: '/',
 				commandsLabel: 'Commands',
-				description: 'Deploy Crux on a Linux host with Podman Compose (or Docker Compose).',
+				description: 'Deploy Crux on a Linux host (or VPS) with Docker Compose or Podman Compose.',
 				overview:
-					'Crux ships as a multi-container application defined in a single compose.yaml. Prebuilt images are published to GHCR, or the stack can be built locally. One `podman-compose up -d` starts seven services: frontend, backend, Celery worker, Celery beat, SNMP trap receiver, PostgreSQL, and Valkey. After the stack is up you bootstrap the first admin account with a one-time script.',
+					'Crux ships as a multi-container application defined in a single compose.yaml, so it runs on any Docker-compatible host. Use Docker Compose v2 or Podman Compose — the same file works unchanged — on your own hardware or any Linux VPS. Prebuilt images are published to GHCR, or the stack can be built locally. One `up -d` starts seven services: frontend, backend, Celery worker, Celery beat, SNMP trap receiver, PostgreSQL, and Valkey. After the stack is up you bootstrap the first admin account with a one-time script.',
 				capabilities: [
 					'Single compose.yaml brings up the full stack — frontend, backend, worker, beat, trap receiver, Postgres, Valkey',
+					'Runs on Docker Compose v2 or Podman Compose — the same file, unchanged — on bare metal or any Linux VPS',
 					'Prebuilt images on GHCR (ghcr.io/luminousvar/crux-backend and crux-frontend), or build locally',
 					'PostgreSQL 17 and Valkey 9 included — no external database or cache to provision',
 					'Environment-driven via .env — no code changes to customise',
@@ -116,7 +117,8 @@ export const docGroups: DocGroup[] = [
 					'Persistent named volumes for Postgres data, Valkey data, and firmware storage'
 				],
 				prerequisites: [
-					'A Linux host with podman-compose (or Docker Compose v2) installed.',
+					'A Linux host — Ubuntu 22.04 or 24.04 LTS recommended (see the tip below).',
+					'Docker Compose v2 (or Podman Compose) installed.',
 					'Outbound internet access to pull images from GHCR (or the ability to build locally).',
 					'UDP port 162 reachable from your devices if you want SNMP traps.'
 				],
@@ -143,14 +145,14 @@ export const docGroups: DocGroup[] = [
 					'The worker and beat containers run Celery; the trap receiver runs a standalone listener on UDP 162.'
 				],
 				steps: [
-					'Install podman-compose (or Docker Compose v2) on a Linux host.',
+					'Install Docker Compose v2 or Podman Compose on a Linux host (a local box or any VPS).',
 					'Clone the Crux repository and enter it.',
 					'Copy the example env file: cp env.example .env',
 					'Edit .env — at minimum set ENCRYPTION_KEY, JWT_SECRET_KEY, and POSTGRES_PASSWORD (see the Configuration guide).',
-					'Start the stack: podman-compose up -d',
-					'Verify all services are healthy: podman-compose ps',
+					'Start the stack: docker compose up -d (or podman-compose up -d).',
+					'Verify all services are healthy: docker compose ps (or podman-compose ps).',
 					'Bootstrap the first admin account (see commands), open the printed activation link, set a password.',
-					'Log in at http://localhost:3000.'
+					'Log in at http://localhost:3000 — or your domain if you set up a reverse proxy on a VPS.'
 				],
 				commands: [
 					{
@@ -163,13 +165,17 @@ cd crux`
 						code: `cp env.example .env`
 					},
 					{
-						label: 'Start the full stack',
-						code: `podman-compose up -d
-# or: docker compose up -d`
+						label: 'Start the full stack (Docker)',
+						code: `docker compose up -d`
+					},
+					{
+						label: 'Start the full stack (Podman)',
+						code: `podman-compose up -d`
 					},
 					{
 						label: 'Check service health',
-						code: `podman-compose ps`
+						code: `docker compose ps
+# or: podman-compose ps`
 					},
 					{
 						label: 'Bootstrap the first admin account',
@@ -179,18 +185,24 @@ uv run python scripts/bootstrap.py --email admin@company.com --username admin
 					},
 					{
 						label: 'View live logs',
-						code: `podman-compose logs -f
+						code: `docker compose logs -f
 # Filter to a single service:
-podman-compose logs -f backend`
+docker compose logs -f backend
+# Podman: swap "docker compose" for "podman-compose"`
 					},
 					{
 						label: 'Stop the stack',
-						code: `podman-compose down
+						code: `docker compose down
 # Stop and remove all data volumes (destructive):
-podman-compose down -v`
+docker compose down -v
+# Podman: swap "docker compose" for "podman-compose"`
 					}
 				],
 				callouts: [
+					{
+						type: 'tip',
+						text: 'Ubuntu 22.04 / 24.04 LTS is the recommended host OS. Its kernel ships WireGuard in-tree (needed for the Crux Cloud tunnel and any site-to-site VPN), Docker and Podman have first-class apt packages, and ufw makes the firewall rules (UDP 162 for SNMP traps, WireGuard port) trivial. Other modern distros work — Debian, Rocky, Fedora — but the docs and bootstrap script are validated on Ubuntu LTS.'
+					},
 					{
 						type: 'warning',
 						text: 'No admin user is auto-created. After the stack is healthy you must run scripts/bootstrap.py once — otherwise no one can log in.'
@@ -201,10 +213,11 @@ podman-compose down -v`
 					}
 				],
 				technicalNotes: [
-					'Podman rootless mode is supported.',
-					'The SNMP trap receiver needs UDP 162 reachable from devices: firewall-cmd --add-port=162/udp --permanent.',
+					'Both runtimes work: Docker Compose v2 (docker compose) and Podman Compose (podman-compose) with the same compose.yaml. Podman rootless mode is supported.',
+					'On a VPS: point a domain at the host, put Caddy (or another reverse proxy) in front of the frontend on 127.0.0.1:3000, and Caddy handles TLS automatically — see Production Deployment.',
+					'The SNMP trap receiver needs UDP 162 reachable from devices: ufw allow 162/udp (or firewall-cmd --add-port=162/udp --permanent).',
 					'Frontend is bound to 127.0.0.1:3000 by default — front it with a reverse proxy (Caddy) for external access.',
-					'To update: git pull, then podman-compose up -d --build (or re-pull the GHCR images).',
+					'To update: git pull, then docker compose up -d --build / podman-compose up -d --build (or re-pull the GHCR images).',
 					'Named volumes pgdata, valkeydata, and firmwaredata persist across restarts — `down -v` deletes them.'
 				],
 				related: ['configuration', 'production-deployment', 'architecture']

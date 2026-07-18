@@ -52,6 +52,7 @@ interface RawOperation {
 	tags?: string[];
 	summary?: string;
 	description?: string;
+	operationId?: string;
 	security?: Array<Record<string, string[]>>;
 	parameters?: RawParam[];
 	requestBody?: RawBodyOrResponse;
@@ -84,6 +85,17 @@ export interface ApiResponse {
 	description: string;
 	schemaName?: string;
 }
+/** One runnable request example, in a given language. */
+export interface ApiSample {
+	/** Stable id, e.g. 'curl' | 'python' | 'go'. */
+	id: string;
+	/** Tab label, e.g. 'cURL' | 'Python'. */
+	label: string;
+	/** Shiki grammar id used to highlight `code` at build time. */
+	lang: string;
+	code: string;
+}
+
 export interface ApiEndpoint {
 	id: string;
 	method: string;
@@ -91,11 +103,19 @@ export interface ApiEndpoint {
 	summary: string;
 	description?: string;
 	auth: boolean;
+	/** snake_case function name, e.g. list_devices — like an SDK method. */
+	operationId: string;
+	/** Required token scope, e.g. "Devices: READ" (READ for GET, WRITE otherwise). */
+	scope: string;
+	/** Request media type, present only when the endpoint takes a body. */
+	consumes?: string;
+	/** Response media type. */
+	produces: string;
 	params: ApiParam[];
 	body?: { schemaName?: string; required: boolean; fields: ApiField[] };
 	responses: ApiResponse[];
-	curl: string;
-	fetchJs: string;
+	/** Runnable request examples across languages (cURL, Python, Go, …). */
+	samples: ApiSample[];
 }
 export interface ApiCollection {
 	slug: string;
@@ -200,43 +220,177 @@ function buildBodyExample(fields: ApiField[]): Record<string, unknown> {
 	return out;
 }
 
-function buildCurl(ep: ApiEndpoint): string {
-	const url = API_BASE + fillPath(ep.path, ep.params);
+/** Shared request facts every language generator needs. */
+interface SampleCtx {
+	method: string;
+	url: string;
+	auth: boolean;
+	bodyObj?: Record<string, unknown>;
+	bodyJson?: string;
+}
+
+function sampleCtx(ep: ApiEndpoint): SampleCtx {
+	const base = API_BASE + fillPath(ep.path, ep.params);
 	const query = ep.params
 		.filter((p) => p.location === 'query' && p.required)
 		.map((p) => `${p.name}=${encodeURIComponent(String(sampleValue(p)))}`)
 		.join('&');
-	const full = query ? `${url}?${query}` : url;
+	const bodyObj = ep.body ? buildBodyExample(ep.body.fields) : undefined;
+	return {
+		method: ep.method,
+		url: query ? `${base}?${query}` : base,
+		auth: ep.auth,
+		bodyObj,
+		bodyJson: bodyObj ? JSON.stringify(bodyObj, null, 2) : undefined
+	};
+}
 
-	const lines = [`curl -X ${ep.method} '${full}'`];
-	if (ep.auth) lines.push(`  -H 'Authorization: Bearer <token>'`);
-	if (ep.body) {
+/** Indent a multi-line JSON blob so it nests cleanly inside generated code. */
+function indent(text: string, pad: string): string {
+	return text
+		.split('\n')
+		.map((l, i) => (i === 0 ? l : pad + l))
+		.join('\n');
+}
+
+function genCurl(c: SampleCtx): string {
+	const lines = [`curl -X ${c.method} '${c.url}'`];
+	if (c.auth) lines.push(`  -H 'Authorization: Bearer <token>'`);
+	if (c.bodyObj) {
 		lines.push(`  -H 'Content-Type: application/json'`);
-		lines.push(`  -d '${JSON.stringify(buildBodyExample(ep.body.fields))}'`);
+		lines.push(`  -d '${JSON.stringify(c.bodyObj)}'`);
 	}
 	return lines.join(' \\\n');
 }
 
-function buildFetch(ep: ApiEndpoint): string {
-	const url = API_BASE + fillPath(ep.path, ep.params);
-	const query = ep.params
-		.filter((p) => p.location === 'query' && p.required)
-		.map((p) => `${p.name}=${encodeURIComponent(String(sampleValue(p)))}`)
-		.join('&');
-	const full = query ? `${url}?${query}` : url;
-
+function genTypeScript(c: SampleCtx): string {
 	const headers: string[] = [];
-	if (ep.auth) headers.push(`    Authorization: \`Bearer \${token}\``);
-	if (ep.body) headers.push(`    'Content-Type': 'application/json'`);
-
-	const opts = [`  method: '${ep.method}'`];
+	if (c.auth) headers.push('    Authorization: `Bearer ${token}`');
+	if (c.bodyObj) headers.push(`    'Content-Type': 'application/json'`);
+	const opts = [`  method: '${c.method}'`];
 	if (headers.length) opts.push(`  headers: {\n${headers.join(',\n')}\n  }`);
-	if (ep.body)
-		opts.push(
-			`  body: JSON.stringify(${JSON.stringify(buildBodyExample(ep.body.fields), null, 2)})`
-		);
+	if (c.bodyJson) opts.push(`  body: JSON.stringify(${indent(c.bodyJson, '  ')})`);
+	return `const res = await fetch('${c.url}', {\n${opts.join(',\n')}\n});\nconst data = await res.json();`;
+}
 
-	return `const res = await fetch('${full}', {\n${opts.join(',\n')}\n});\nconst data = await res.json();`;
+function genPython(c: SampleCtx): string {
+	const lines = ['import requests', '', `res = requests.${c.method.toLowerCase()}(`, `    "${c.url}",`];
+	if (c.auth) lines.push(`    headers={"Authorization": "Bearer <token>"},`);
+	if (c.bodyObj) lines.push(`    json=${indent(pyLiteral(c.bodyObj), '    ')},`);
+	lines.push(')', 'data = res.json()');
+	return lines.join('\n');
+}
+
+/** Render a JSON value as a Python literal (True/False/None, dict/list). */
+function pyLiteral(value: unknown, pad = ''): string {
+	if (value === null) return 'None';
+	if (value === true) return 'True';
+	if (value === false) return 'False';
+	if (typeof value === 'number') return String(value);
+	if (typeof value === 'string') return JSON.stringify(value);
+	if (Array.isArray(value)) {
+		if (value.length === 0) return '[]';
+		const inner = value.map((v) => `${pad}    ${pyLiteral(v, pad + '    ')}`).join(',\n');
+		return `[\n${inner}\n${pad}]`;
+	}
+	const entries = Object.entries(value as Record<string, unknown>);
+	if (entries.length === 0) return '{}';
+	const inner = entries
+		.map(([k, v]) => `${pad}    ${JSON.stringify(k)}: ${pyLiteral(v, pad + '    ')}`)
+		.join(',\n');
+	return `{\n${inner}\n${pad}}`;
+}
+
+function genGo(c: SampleCtx): string {
+	const lines = ['package main', '', 'import (', '\t"fmt"', '\t"io"', '\t"net/http"'];
+	if (c.bodyJson) lines.push('\t"strings"');
+	lines.push(')', '', 'func main() {');
+	if (c.bodyJson) {
+		lines.push('\tbody := strings.NewReader(`' + c.bodyJson + '`)');
+		lines.push(`\treq, _ := http.NewRequest("${c.method}", "${c.url}", body)`);
+		lines.push('\treq.Header.Set("Content-Type", "application/json")');
+	} else {
+		lines.push(`\treq, _ := http.NewRequest("${c.method}", "${c.url}", nil)`);
+	}
+	if (c.auth) lines.push('\treq.Header.Set("Authorization", "Bearer <token>")');
+	lines.push(
+		'\tres, _ := http.DefaultClient.Do(req)',
+		'\tdefer res.Body.Close()',
+		'\tout, _ := io.ReadAll(res.Body)',
+		'\tfmt.Println(string(out))',
+		'}'
+	);
+	return lines.join('\n');
+}
+
+function genRust(c: SampleCtx): string {
+	const lines = [
+		'use reqwest::Client;',
+		'',
+		'#[tokio::main]',
+		'async fn main() -> Result<(), reqwest::Error> {',
+		'    let client = Client::new();',
+		`    let res = client.${c.method.toLowerCase()}("${c.url}")`
+	];
+	if (c.auth) lines.push('        .bearer_auth("<token>")');
+	if (c.bodyJson) lines.push(`        .json(&serde_json::json!(${indent(c.bodyJson, '        ')}))`);
+	lines.push(
+		'        .send()',
+		'        .await?;',
+		'    let data = res.text().await?;',
+		'    println!("{}", data);',
+		'    Ok(())',
+		'}'
+	);
+	return lines.join('\n');
+}
+
+function genRuby(c: SampleCtx): string {
+	const verb = c.method.charAt(0) + c.method.slice(1).toLowerCase(); // GET -> Get
+	const lines = [
+		'require "net/http"',
+		'require "json"',
+		'',
+		`uri = URI("${c.url}")`,
+		`req = Net::HTTP::${verb}.new(uri)`
+	];
+	if (c.auth) lines.push('req["Authorization"] = "Bearer <token>"');
+	if (c.bodyJson) {
+		lines.push('req["Content-Type"] = "application/json"');
+		lines.push(`req.body = ${indent(c.bodyJson, '')}.to_json`);
+	}
+	lines.push(
+		'',
+		'res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") do |http|',
+		'  http.request(req)',
+		'end',
+		'data = JSON.parse(res.body)'
+	);
+	return lines.join('\n');
+}
+
+function genPowerShell(c: SampleCtx): string {
+	const lines: string[] = [];
+	if (c.auth) lines.push('$headers = @{ Authorization = "Bearer <token>" }');
+	if (c.bodyJson) lines.push(`$body = '${JSON.stringify(c.bodyObj)}'`);
+	const args = [`-Method ${c.method}`, `-Uri "${c.url}"`];
+	if (c.auth) args.push('-Headers $headers');
+	if (c.bodyJson) args.push('-Body $body', '-ContentType "application/json"');
+	lines.push(`$res = Invoke-RestMethod ${args.join(' ')}`);
+	return lines.join('\n');
+}
+
+function buildSamples(ep: ApiEndpoint): ApiSample[] {
+	const c = sampleCtx(ep);
+	return [
+		{ id: 'curl', label: 'cURL', lang: 'bash', code: genCurl(c) },
+		{ id: 'python', label: 'Python', lang: 'python', code: genPython(c) },
+		{ id: 'typescript', label: 'TypeScript', lang: 'typescript', code: genTypeScript(c) },
+		{ id: 'go', label: 'Go', lang: 'go', code: genGo(c) },
+		{ id: 'rust', label: 'Rust', lang: 'rust', code: genRust(c) },
+		{ id: 'ruby', label: 'Ruby', lang: 'ruby', code: genRuby(c) },
+		{ id: 'powershell', label: 'PowerShell', lang: 'powershell', code: genPowerShell(c) }
+	];
 }
 
 // Known acronyms so tag slugs render as real product names, not "Ai Agent".
@@ -267,6 +421,24 @@ function endpointId(method: string, path: string): string {
 		.replace(/^-|-$/g, '');
 }
 
+/**
+ * A clean snake_case operation name, in the spirit of an SDK method (CrowdStrike shows
+ * these as the "PEP 8" name). Prefer the human summary ("List devices" → list_devices);
+ * fall back to method + the last non-param path segment.
+ */
+function deriveOperationId(method: string, path: string, op: RawOperation): string {
+	const fromSummary = op.summary
+		?.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '_')
+		.replace(/^_|_$/g, '');
+	if (fromSummary) return fromSummary;
+	const seg = path
+		.split('/')
+		.filter((s) => s && !s.startsWith('{'))
+		.pop();
+	return `${method.toLowerCase()}_${(seg ?? 'root').replace(/[^a-z0-9]+/gi, '_')}`;
+}
+
 function buildEndpoint(method: string, path: string, op: RawOperation): ApiEndpoint {
 	const params: ApiParam[] = (op.parameters ?? []).map((p) => ({
 		name: p.name,
@@ -295,6 +467,7 @@ function buildEndpoint(method: string, path: string, op: RawOperation): ApiEndpo
 		};
 	});
 
+	const resource = collectionLabel(op.tags?.[0] ?? 'general');
 	const ep: ApiEndpoint = {
 		id: endpointId(method, path),
 		method: method.toUpperCase(),
@@ -302,14 +475,16 @@ function buildEndpoint(method: string, path: string, op: RawOperation): ApiEndpo
 		summary: op.summary ?? `${method.toUpperCase()} ${path}`,
 		description: op.description,
 		auth: Boolean(op.security?.length),
+		operationId: deriveOperationId(method, path, op),
+		scope: `${resource}: ${method.toLowerCase() === 'get' ? 'READ' : 'WRITE'}`,
+		consumes: body ? 'application/json' : undefined,
+		produces: 'application/json',
 		params,
 		body,
 		responses,
-		curl: '',
-		fetchJs: ''
+		samples: []
 	};
-	ep.curl = buildCurl(ep);
-	ep.fetchJs = buildFetch(ep);
+	ep.samples = buildSamples(ep);
 	return ep;
 }
 
@@ -354,6 +529,21 @@ export const apiMeta = {
 	baseUrl: API_BASE,
 	totalEndpoints: apiCollections.reduce((n, c) => n + c.endpoints.length, 0)
 };
+
+/**
+ * Client libraries. Crux ships a standard OpenAPI 3 spec rather than hand-written SDKs,
+ * so a fully typed client for any of these languages is generated from that spec with the
+ * listed tool — always in lock-step with the current API version. (No invented package
+ * version numbers: the client tracks apiMeta.version.)
+ */
+export const clientLibraries: { language: string; generator: string }[] = [
+	{ language: 'Python', generator: 'openapi-python-client' },
+	{ language: 'TypeScript', generator: 'openapi-typescript' },
+	{ language: 'Go', generator: 'oapi-codegen' },
+	{ language: 'Rust', generator: 'openapi-generator (rust)' },
+	{ language: 'Ruby', generator: 'openapi-generator (ruby)' },
+	{ language: 'PowerShell', generator: 'openapi-generator (powershell)' }
+];
 
 export function getCollection(slug: string): ApiCollection | undefined {
 	return apiCollections.find((c) => c.slug === slug);

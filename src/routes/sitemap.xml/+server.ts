@@ -10,7 +10,16 @@ export const prerender = true;
 
 const SITE_URL = 'https://crux.watch';
 
-const STATIC_PAGES = ['/', '/docs', '/demo', '/api', '/pricing', '/pricing/self-host'];
+const STATIC_PAGES = [
+	'/',
+	'/docs',
+	'/demo',
+	'/api',
+	'/pricing',
+	'/pricing/self-host',
+	'/self-host',
+	'/cloud'
+];
 
 export const GET: RequestHandler = () => {
 	const docPages = docGroups.flatMap((g) => g.modules.map((m) => `/docs/${m.slug}`));

@@ -1,39 +1,33 @@
 <script lang="ts">
 	import CodeBlock from './code-block.svelte';
+	import type { ApiSample } from '$lib/api-reference';
 
-	interface Props {
-		curl: string;
-		curlHtml: string;
-		fetchJs: string;
-		fetchHtml: string;
-	}
-	let { curl, curlHtml, fetchJs, fetchHtml }: Props = $props();
+	// Each sample arrives with its Shiki-rendered HTML already attached (see the
+	// collection page's +page.server.ts).
+	type RenderedSample = ApiSample & { html: string };
 
-	let lang = $state<'curl' | 'js'>('curl');
+	let { samples }: { samples: RenderedSample[] } = $props();
+
+	// Empty until the user picks a tab; falls back to the first sample.
+	let active = $state('');
+	let currentId = $derived(active || (samples[0]?.id ?? ''));
+	let current = $derived(samples.find((s) => s.id === currentId) ?? samples[0]);
 </script>
 
 <div>
-	<div class="mb-2 flex gap-1">
-		<button
-			type="button"
-			onclick={() => (lang = 'curl')}
-			class="rounded px-2.5 py-1 font-mono text-[11px] transition-colors
-				{lang === 'curl' ? 'bg-elevated text-accent' : 'text-muted/60 hover:text-muted'}"
-		>
-			cURL
-		</button>
-		<button
-			type="button"
-			onclick={() => (lang = 'js')}
-			class="rounded px-2.5 py-1 font-mono text-[11px] transition-colors
-				{lang === 'js' ? 'bg-elevated text-accent' : 'text-muted/60 hover:text-muted'}"
-		>
-			JavaScript
-		</button>
+	<div class="mb-2 flex flex-wrap gap-1">
+		{#each samples as s (s.id)}
+			<button
+				type="button"
+				onclick={() => (active = s.id)}
+				class="rounded px-2.5 py-1 font-mono text-[11px] transition-colors
+					{currentId === s.id ? 'bg-elevated text-accent' : 'text-muted/60 hover:text-muted'}"
+			>
+				{s.label}
+			</button>
+		{/each}
 	</div>
-	{#if lang === 'curl'}
-		<CodeBlock label="Request" code={curl} html={curlHtml} />
-	{:else}
-		<CodeBlock label="Request" code={fetchJs} html={fetchHtml} />
+	{#if current}
+		<CodeBlock label="Request" code={current.code} html={current.html} />
 	{/if}
 </div>

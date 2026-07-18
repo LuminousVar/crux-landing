@@ -66,11 +66,11 @@
 				{#if item.imgSrc}
 					{#if item.wordmark}
 						<!-- Wordmark: image already contains the name -->
-						<img src={item.imgSrc} alt={item.label} class="vendor-img h-[13px] w-auto shrink-0" />
+						<img src={item.imgSrc} alt={item.label} class="vendor-img h-4 w-auto shrink-0" />
 					{:else}
 						<!-- Icon mark: show image + text label -->
 						<div class="flex items-center gap-2">
-							<img src={item.imgSrc} alt={item.label} class="vendor-img h-[15px] w-auto shrink-0" />
+							<img src={item.imgSrc} alt={item.label} class="vendor-img h-4 w-auto shrink-0" />
 							<span class="text-sm text-muted/60">{item.label}</span>
 						</div>
 					{/if}
@@ -79,10 +79,10 @@
 					<div class="flex items-center gap-2">
 						<svg
 							viewBox="0 0 24 24"
-							width="15"
-							height="15"
+							width="16"
+							height="16"
 							fill="currentColor"
-							class="shrink-0 text-muted/50"
+							class="vendor-symbol shrink-0 text-muted"
 							aria-hidden="true"
 						>
 							<path d={item.path} />
@@ -109,8 +109,15 @@
 		}
 	}
 
+	/* Image logos are normalised to white by the filter, so they read brighter than the
+	   muted-grey simple-icon symbols. Keep their opacity a touch lower so every logo —
+	   wordmark image or icon symbol — sits at the same visual weight. */
 	.vendor-img {
 		filter: var(--logo-filter);
-		opacity: 0.4;
+		opacity: 0.5;
+	}
+
+	.vendor-symbol {
+		opacity: 0.6;
 	}
 </style>

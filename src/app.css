@@ -120,6 +120,18 @@ html {
 	scrollbar-color: var(--color-edge) transparent;
 }
 
+/* Interactive controls get a pointer cursor on hover; disabled ones don't. */
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+label[for],
+summary {
+	cursor: pointer;
+}
+
+button:disabled {
+	cursor: not-allowed;
+}
+
 body {
 	background-color: var(--color-canvas);
 	color: var(--color-content);
