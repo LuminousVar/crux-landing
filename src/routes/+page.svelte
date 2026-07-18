@@ -4,7 +4,6 @@
 	import Faq from '$lib/components/sections/Faq.svelte';
 	import FeatureOrbit from '$lib/components/sections/FeatureOrbit.svelte';
 	import Footer from '$lib/components/sections/Footer.svelte';
-	import Hero from '$lib/components/sections/Hero.svelte';
 	import Introduction from '$lib/components/sections/Introduction.svelte';
 	import NetworkHub from '$lib/components/sections/NetworkHub.svelte';
 	import UseCases from '$lib/components/sections/UseCases.svelte';
@@ -13,9 +12,9 @@
 </script>
 
 <main>
-	<Hero />
-	<Reveal><VendorStrip /></Reveal>
+	<!-- <Hero /> -->
 	<Reveal><Demo /></Reveal>
+	<Reveal><VendorStrip /></Reveal>
 	<Reveal><Introduction /></Reveal>
 	<Reveal><FeatureOrbit /></Reveal>
 	<Reveal><NetworkHub /></Reveal>
