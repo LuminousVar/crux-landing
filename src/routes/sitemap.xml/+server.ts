@@ -1,4 +1,5 @@
 import { docGroups } from '$lib/docs';
+import { apiCollections } from '$lib/api-reference';
 import type { RequestHandler } from './$types';
 
 // Prerendered into a static sitemap.xml at build time, so it costs nothing to serve and
@@ -9,16 +10,18 @@ export const prerender = true;
 
 const SITE_URL = 'https://crux.watch';
 
-const STATIC_PAGES = ['/', '/docs', '/demo'];
+const STATIC_PAGES = ['/', '/docs', '/demo', '/api', '/pricing', '/pricing/self-host'];
 
 export const GET: RequestHandler = () => {
 	const docPages = docGroups.flatMap((g) => g.modules.map((m) => `/docs/${m.slug}`));
-	const paths = [...STATIC_PAGES, ...docPages];
+	const apiPages = apiCollections.map((c) => `/api/${c.slug}`);
+	const paths = [...STATIC_PAGES, ...docPages, ...apiPages];
 
 	const urls = paths
 		.map((path) => {
-			// The landing page is the entry point; docs are reference material.
-			const priority = path === '/' ? '1.0' : path.startsWith('/docs/') ? '0.6' : '0.8';
+			// The landing page is the entry point; docs and API pages are reference material.
+			const priority =
+				path === '/' ? '1.0' : path.startsWith('/docs/') || path.startsWith('/api/') ? '0.6' : '0.8';
 			return `	<url>
 		<loc>${SITE_URL}${path}</loc>
 		<changefreq>weekly</changefreq>

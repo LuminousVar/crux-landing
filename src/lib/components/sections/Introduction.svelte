@@ -173,7 +173,7 @@
 		justify-content: space-between;
 		width: 100%;
 		padding: 14px 20px;
-		border-radius: 999px;
+		border-radius: 10px;
 		font-size: 0.9375rem;
 		font-weight: 500;
 		text-decoration: none;

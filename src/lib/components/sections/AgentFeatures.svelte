@@ -334,7 +334,7 @@
 	.send-btn {
 		display: block;
 		padding: 8px 20px;
-		border-radius: 999px;
+		border-radius: 10px;
 		border: 1px solid var(--glass-border);
 		background: transparent;
 		color: var(--glass-fg);

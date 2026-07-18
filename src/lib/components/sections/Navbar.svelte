@@ -1,9 +1,56 @@
 <script lang="ts">
 	import GithubIcon from '$lib/components/ui/GithubIcon.svelte';
 	import { theme, toggleTheme } from '$lib/theme.svelte';
+	import { slide } from 'svelte/transition';
+
+	const REPO = 'https://github.com/LuminousVar/crux';
+
+	type NavItem = { label: string; href: string; external?: boolean };
+	type NavMenu = { label: string; items: NavItem[] };
+	type NavLink = { label: string; href: string };
+	type NavEntry = NavMenu | NavLink;
+
+	// A "menu" with `items` renders as a dropdown; one with just `href` is a plain link.
+	const isMenu = (e: NavEntry): e is NavMenu => 'items' in e;
+
+	const menus: NavEntry[] = [
+		{
+			label: 'Product',
+			items: [
+				{ label: 'Features', href: '/#features' },
+				{ label: 'Use Cases', href: '/#use-cases' },
+				{ label: 'AI Agent', href: '/#agent-features' },
+				{ label: 'Integrations', href: '/#integrations' },
+				{ label: 'Live Demo', href: '/demo' }
+			]
+		},
+		{ label: 'Pricing', href: '/pricing' },
+		{
+			label: 'Resources',
+			items: [
+				{ label: 'Documentation', href: '/docs' },
+				{ label: 'Installation', href: '/docs/installation' },
+				{ label: 'Configuration', href: '/docs/configuration' },
+				{ label: 'API Reference', href: '/api' },
+				{ label: 'FAQ', href: '/#faq' },
+				{ label: 'Glossary', href: '/docs/glossary' }
+			]
+		},
+		{
+			label: 'Open Source',
+			items: [
+				{ label: 'GitHub', href: REPO, external: true },
+				{ label: 'Report an Issue', href: `${REPO}/issues`, external: true },
+				{ label: 'Contributing', href: `${REPO}#contributing`, external: true },
+				{ label: 'MIT License', href: `${REPO}/blob/main/LICENSE`, external: true }
+			]
+		}
+	];
 
 	let scrolled = $state(false);
 	let mobileOpen = $state(false);
+	let openMenu = $state<string | null>(null); // desktop hover/focus dropdown
+	let mobileSubmenu = $state<string | null>(null); // mobile accordion
 
 	$effect(() => {
 		const handler = () => {
@@ -22,6 +69,19 @@
 
 	function closeMenu() {
 		mobileOpen = false;
+		mobileSubmenu = null;
+	}
+
+	function toggleDesktop(label: string) {
+		openMenu = openMenu === label ? null : label;
+	}
+
+	function toggleMobileSub(label: string) {
+		mobileSubmenu = mobileSubmenu === label ? null : label;
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') openMenu = null;
 	}
 </script>
 
@@ -68,6 +128,25 @@
 	</button>
 {/snippet}
 
+{#snippet chevron()}
+	<svg
+		class="nav-chevron"
+		width="12"
+		height="12"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="2.5"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		aria-hidden="true"
+	>
+		<path d="m6 9 6 6 6-6" />
+	</svg>
+{/snippet}
+
+<svelte:window onkeydown={handleKeydown} />
+
 <header
 	class="fixed top-0 z-50 w-full border-b backdrop-blur-md transition-colors duration-300"
 	style="background-color: {scrolled || mobileOpen
@@ -81,33 +160,63 @@
 		<!-- Logo — left -->
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		<a href="/" aria-label="Crux home" class="flex items-center gap-2">
-			<img src="/crux-logo.png" alt="" class="h-12 w-auto" aria-hidden="true" />
-			<span class="font-mono text-xl font-bold leading-none text-accent">Crux</span>
+			<img src="/crux-mark.png" alt="" class="h-12 w-auto" aria-hidden="true" />
+			<span class="text-2xl font-semibold leading-none tracking-tight text-accent">Crux</span>
 		</a>
 
-		<!-- Desktop nav links — center -->
-		<ul class="hidden items-center gap-8 lg:flex">
-			<li>
-				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-				<a href="/#features" class="text-sm text-muted transition-colors hover:text-content"
-					>Features</a
-				>
-			</li>
-			<li>
-				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-				<a href="/docs" class="text-sm text-muted transition-colors hover:text-content">Docs</a>
-			</li>
-			<li>
-				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-				<a href="/#use-cases" class="text-sm text-muted transition-colors hover:text-content"
-					>Use Cases</a
-				>
-			</li>
-			<li>
-				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-				<a href="/#faq" class="text-sm text-muted transition-colors hover:text-content">FAQ</a>
-			</li>
+		<!-- Desktop nav — center dropdown menus -->
+		<!-- eslint-disable svelte/no-navigation-without-resolve -->
+		<ul class="hidden items-center gap-1 justify-self-center lg:flex">
+			{#each menus as menu (menu.label)}
+				{#if isMenu(menu)}
+					<li
+						class="nav-menu relative"
+						onmouseenter={() => (openMenu = menu.label)}
+						onmouseleave={() => {
+							if (openMenu === menu.label) openMenu = null;
+						}}
+						onfocusout={(e) => {
+							if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node | null))
+								openMenu = null;
+						}}
+					>
+						<button
+							type="button"
+							class="nav-trigger"
+							aria-haspopup="true"
+							aria-expanded={openMenu === menu.label}
+							onclick={() => toggleDesktop(menu.label)}
+						>
+							{menu.label}
+							{@render chevron()}
+						</button>
+
+						<div class="dropdown-panel {openMenu === menu.label ? 'is-open' : ''}">
+							<ul class="dropdown-card">
+								{#each menu.items as item (item.label)}
+									<li>
+										<a
+											href={item.href}
+											class="dropdown-link"
+											target={item.external ? '_blank' : undefined}
+											rel={item.external ? 'noopener noreferrer' : undefined}
+											onclick={() => (openMenu = null)}
+										>
+											{item.label}
+										</a>
+									</li>
+								{/each}
+							</ul>
+						</div>
+					</li>
+				{:else}
+					<li>
+						<a href={menu.href} class="nav-link" onclick={() => (openMenu = null)}>{menu.label}</a>
+					</li>
+				{/if}
+			{/each}
 		</ul>
+		<!-- eslint-enable svelte/no-navigation-without-resolve -->
 
 		<!-- Desktop right: theme + GitHub + CTA — right (justify-end keeps it right-aligned) -->
 		<div class="hidden items-center justify-end gap-4 lg:flex">
@@ -195,58 +304,52 @@
 		</div>
 	</nav>
 
-	<!-- Mobile dropdown menu -->
+	<!-- Mobile accordion menu -->
 	{#if mobileOpen}
+		<!-- eslint-disable svelte/no-navigation-without-resolve -->
 		<div class="border-t border-edge bg-surface lg:hidden">
-			<ul class="mx-auto max-w-6xl px-6 pb-4 pt-1">
-				<li>
-					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-					<a
-						href="/#features"
-						onclick={closeMenu}
-						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
-					>
-						Features
-					</a>
-				</li>
-				<li>
-					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-					<a
-						href="/docs"
-						onclick={closeMenu}
-						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
-					>
-						Docs
-					</a>
-				</li>
-				<li>
-					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-					<a
-						href="/#use-cases"
-						onclick={closeMenu}
-						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
-					>
-						Use Cases
-					</a>
-				</li>
-				<li>
-					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-					<a
-						href="/#faq"
-						onclick={closeMenu}
-						class="block border-b border-edge py-3.5 text-sm text-muted transition-colors hover:text-content"
-					>
-						FAQ
-					</a>
-				</li>
-				<li class="pt-4">
-					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-					<a href="/demo" onclick={closeMenu} class="moonshot-cta w-full justify-center">
-						Get a Demo
-					</a>
-				</li>
-			</ul>
+			<div class="mx-auto max-w-6xl px-6 pb-5 pt-1">
+				{#each menus as menu (menu.label)}
+					<div class="border-b border-edge">
+						{#if isMenu(menu)}
+							<button
+								type="button"
+								class="mobile-trigger"
+								aria-expanded={mobileSubmenu === menu.label}
+								onclick={() => toggleMobileSub(menu.label)}
+							>
+								{menu.label}
+								{@render chevron()}
+							</button>
+							{#if mobileSubmenu === menu.label}
+								<ul class="mobile-sublist" transition:slide={{ duration: 180 }}>
+									{#each menu.items as item (item.label)}
+										<li>
+											<a
+												href={item.href}
+												class="mobile-sublink"
+												target={item.external ? '_blank' : undefined}
+												rel={item.external ? 'noopener noreferrer' : undefined}
+												onclick={closeMenu}
+											>
+												{item.label}
+											</a>
+										</li>
+									{/each}
+								</ul>
+							{/if}
+						{:else}
+							<a href={menu.href} class="mobile-trigger" onclick={closeMenu}>{menu.label}</a>
+						{/if}
+					</div>
+				{/each}
+
+				<a href="/demo" onclick={closeMenu} class="moonshot-cta mt-5 w-full justify-center">
+					Get a Demo
+				</a>
+			</div>
 		</div>
+		<!-- eslint-enable svelte/no-navigation-without-resolve -->
 	{/if}
 </header>
 
@@ -255,7 +358,7 @@
 		display: inline-flex;
 		align-items: center;
 		padding: 9px 18px;
-		border-radius: 999px;
+		border-radius: 10px;
 		border: 1px solid var(--glass-border);
 		background: transparent;
 		color: var(--glass-fg);
@@ -348,6 +451,141 @@
 
 	.hamburger:hover {
 		background: var(--color-elevated);
+		color: var(--color-content);
+	}
+
+	/* ── Desktop dropdown menus ───────────────────────────────── */
+	.nav-trigger {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 7px 12px;
+		border-radius: 8px;
+		border: none;
+		background: transparent;
+		color: var(--color-muted);
+		font-family: inherit;
+		font-size: 0.875rem;
+		cursor: pointer;
+		transition: color 0.15s;
+	}
+
+	.nav-menu:hover .nav-trigger,
+	.nav-trigger[aria-expanded='true'] {
+		color: var(--color-content);
+	}
+
+	/* Plain top-level link (e.g. Pricing) — matches nav-trigger sizing, no chevron */
+	.nav-link {
+		display: inline-flex;
+		align-items: center;
+		padding: 7px 12px;
+		border-radius: 8px;
+		color: var(--color-muted);
+		font-size: 0.875rem;
+		text-decoration: none;
+		transition: color 0.15s;
+	}
+
+	.nav-link:hover {
+		color: var(--color-content);
+	}
+
+	.nav-chevron {
+		transition: transform 0.2s ease;
+	}
+
+	.nav-trigger[aria-expanded='true'] .nav-chevron {
+		transform: rotate(180deg);
+	}
+
+	.dropdown-panel {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		padding-top: 10px; /* transparent hover bridge to the trigger */
+		min-width: 220px;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(6px);
+		transition:
+			opacity 0.15s ease,
+			transform 0.15s ease,
+			visibility 0.15s;
+	}
+
+	.dropdown-panel.is-open {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+	}
+
+	.dropdown-card {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		padding: 8px;
+		border-radius: 12px;
+		border: 1px solid var(--color-edge);
+		background: var(--color-elevated);
+	}
+
+	.dropdown-link {
+		display: block;
+		padding: 8px 12px;
+		border-radius: 8px;
+		font-size: 0.875rem;
+		color: var(--color-muted);
+		text-decoration: none;
+		white-space: nowrap;
+		transition:
+			background 0.12s,
+			color 0.12s;
+	}
+
+	.dropdown-link:hover {
+		background: color-mix(in oklab, var(--color-accent) 12%, transparent);
+		color: var(--color-content);
+	}
+
+	/* ── Mobile accordion ─────────────────────────────────────── */
+	.mobile-trigger {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		padding: 14px 2px;
+		border: none;
+		background: transparent;
+		color: var(--color-content);
+		font-family: inherit;
+		font-size: 0.9375rem;
+		font-weight: 500;
+		cursor: pointer;
+	}
+
+	.mobile-trigger[aria-expanded='true'] .nav-chevron {
+		transform: rotate(180deg);
+	}
+
+	.mobile-sublist {
+		padding: 0 0 10px 12px;
+	}
+
+	.mobile-sublink {
+		display: block;
+		padding: 9px 12px;
+		border-radius: 8px;
+		font-size: 0.875rem;
+		color: var(--color-muted);
+		text-decoration: none;
+		transition:
+			background 0.12s,
+			color 0.12s;
+	}
+
+	.mobile-sublink:hover {
+		background: color-mix(in oklab, var(--color-accent) 12%, transparent);
 		color: var(--color-content);
 	}
 </style>

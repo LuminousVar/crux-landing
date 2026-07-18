@@ -130,7 +130,7 @@
 
 		{#if !query}
 			<a
-				href="/docs/api"
+				href="/api"
 				class="group mt-10 flex items-center justify-between gap-4 rounded-lg border border-edge bg-surface p-5 transition-colors duration-150 hover:border-accent/50 hover:bg-elevated"
 			>
 				<div>

@@ -1,15 +1,10 @@
-import { apiCollections, apiMeta } from '$lib/api-reference';
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const prerender = true;
 
+// API Reference moved out of /docs into its own top-level /api section. Keep the old
+// URL working for bookmarks and external links — prerenders as a static redirect.
 export const load: PageServerLoad = () => {
-	const collections = apiCollections.map((c) => ({
-		slug: c.slug,
-		label: c.label,
-		description: c.description,
-		count: c.endpoints.length,
-		methods: [...new Set(c.endpoints.map((e) => e.method))]
-	}));
-	return { collections, meta: apiMeta };
+	redirect(308, '/api');
 };

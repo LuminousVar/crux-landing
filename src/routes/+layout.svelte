@@ -6,8 +6,6 @@
 
 	let { children } = $props();
 
-	let isDocs = $derived(page.url.pathname.startsWith('/docs'));
-
 	// Absolute URLs, because Open Graph consumers do not resolve relative ones — a bare
 	// "/og-image.png" is silently dropped and the card renders with no image at all.
 	const SITE_URL = 'https://crux.watch';
@@ -48,8 +46,6 @@
 	<meta name="twitter:image" content="{SITE_URL}/og-image.png" />
 </svelte:head>
 
-{#if !isDocs}
-	<Navbar />
-{/if}
+<Navbar />
 {@render children()}
 <AIChatWidget />

@@ -160,7 +160,7 @@
 		display: inline-flex;
 		align-items: center;
 		padding: 14px 28px;
-		border-radius: 999px;
+		border-radius: 10px;
 		border: 1px solid var(--glass-border-strong);
 		background: var(--glass-fill);
 		color: var(--glass-fg-strong);

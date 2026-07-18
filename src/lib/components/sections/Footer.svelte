@@ -53,7 +53,7 @@
 					</svg>
 				</span>
 			</a>
-			<a href="#features" class="cta-secondary">View Features</a>
+			<a href="/#features" class="cta-secondary">View Features</a>
 		</div>
 	</div>
 </div>
@@ -78,8 +78,8 @@
 			<div class="lg:col-span-2">
 				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 				<a href="/" aria-label="Crux home" class="flex items-center gap-2">
-					<img src="/crux-logo.png" alt="" class="h-7 w-auto" aria-hidden="true" />
-					<span class="font-mono text-lg font-bold text-accent">Crux</span>
+					<img src="/crux-mark.png" alt="" class="h-7 w-auto" aria-hidden="true" />
+					<span class="text-lg font-semibold leading-none tracking-tight text-accent">Crux</span>
 				</a>
 
 				<p class="mt-4 max-w-xs text-sm leading-relaxed text-muted">
@@ -125,17 +125,17 @@
 				<p class="mb-6 text-sm font-semibold text-content">Product</p>
 				<ul class="flex flex-col gap-4">
 					<li>
-						<a href="#features" class="text-sm text-muted transition-colors hover:text-content"
+						<a href="/#features" class="text-sm text-muted transition-colors hover:text-content"
 							>Features</a
 						>
 					</li>
 					<li>
-						<a href="#use-cases" class="text-sm text-muted transition-colors hover:text-content"
+						<a href="/#use-cases" class="text-sm text-muted transition-colors hover:text-content"
 							>Use Cases</a
 						>
 					</li>
 					<li>
-						<a href="#faq" class="text-sm text-muted transition-colors hover:text-content">FAQ</a>
+						<a href="/#faq" class="text-sm text-muted transition-colors hover:text-content">FAQ</a>
 					</li>
 				</ul>
 			</div>
@@ -179,7 +179,7 @@
 		display: inline-flex;
 		align-items: center;
 		padding: 14px 28px;
-		border-radius: 999px;
+		border-radius: 10px;
 		border: 1px solid var(--glass-border-strong);
 		background: var(--glass-fill);
 		color: var(--glass-fg-strong);
@@ -224,7 +224,7 @@
 		display: inline-flex;
 		align-items: center;
 		padding: 14px 28px;
-		border-radius: 999px;
+		border-radius: 10px;
 		border: 1px solid var(--glass-border);
 		background: transparent;
 		color: var(--glass-fg);
