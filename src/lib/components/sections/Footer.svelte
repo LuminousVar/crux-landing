@@ -180,9 +180,9 @@
 		align-items: center;
 		padding: 14px 28px;
 		border-radius: 999px;
-		border: 1px solid rgba(255, 255, 255, 0.6);
-		background: rgba(255, 255, 255, 0.13);
-		color: #fff;
+		border: 1px solid var(--glass-border-strong);
+		background: var(--glass-fill);
+		color: var(--glass-fg-strong);
 		font-size: 1rem;
 		font-weight: 600;
 		text-decoration: none;
@@ -195,8 +195,8 @@
 	}
 
 	.cta-primary:hover {
-		background: rgba(255, 255, 255, 0.2);
-		border-color: rgba(255, 255, 255, 0.8);
+		background: var(--glass-fill-hover);
+		border-color: var(--glass-border-hover);
 		padding-right: 18px;
 	}
 
@@ -225,9 +225,9 @@
 		align-items: center;
 		padding: 14px 28px;
 		border-radius: 999px;
-		border: 1px solid rgba(255, 255, 255, 0.18);
+		border: 1px solid var(--glass-border);
 		background: transparent;
-		color: rgba(255, 255, 255, 0.45);
+		color: var(--glass-fg);
 		font-size: 1rem;
 		font-weight: 500;
 		text-decoration: none;
@@ -238,8 +238,8 @@
 	}
 
 	.cta-secondary:hover {
-		border-color: rgba(255, 255, 255, 0.4);
-		color: #fff;
+		border-color: var(--glass-border-hover);
+		color: var(--glass-fg-strong);
 	}
 
 	/* ── Social icon circles ──────────────────────────────────── */
@@ -250,15 +250,15 @@
 		width: 40px;
 		height: 40px;
 		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.07);
-		color: rgba(255, 255, 255, 0.5);
+		background: var(--glass-fill-subtle);
+		color: var(--glass-fg);
 		transition:
 			background 0.2s,
 			color 0.2s;
 	}
 
 	.social-icon:hover {
-		background: rgba(255, 255, 255, 0.13);
-		color: #fff;
+		background: var(--glass-fill);
+		color: var(--glass-fg-strong);
 	}
 </style>

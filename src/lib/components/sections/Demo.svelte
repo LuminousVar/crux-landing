@@ -119,7 +119,7 @@
 	section {
 		--dfx-accent: var(--color-accent);
 		--dfx-accent-hover: var(--color-accent-muted);
-		--tick: rgba(255, 255, 255, 0.28);
+		--tick: var(--grid-tick);
 	}
 
 	/* Accent status dot in the badge */
@@ -216,7 +216,7 @@
 	}
 
 	.vendor-logo {
-		filter: brightness(0) invert(1);
+		filter: var(--logo-filter);
 		opacity: 0.7;
 	}
 

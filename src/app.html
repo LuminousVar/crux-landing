@@ -11,6 +11,22 @@
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<script>
 			document.documentElement.classList.add('js');
+			// Set the theme before first paint to avoid a flash. Explicit choice in
+			// localStorage wins; otherwise follow the OS preference.
+			(function () {
+				try {
+					var stored = localStorage.getItem('theme');
+					var theme =
+						stored === 'light' || stored === 'dark'
+							? stored
+							: window.matchMedia('(prefers-color-scheme: light)').matches
+								? 'light'
+								: 'dark';
+					document.documentElement.setAttribute('data-theme', theme);
+				} catch (e) {
+					document.documentElement.setAttribute('data-theme', 'dark');
+				}
+			})();
 		</script>
 		%sveltekit.head%
 	</head>

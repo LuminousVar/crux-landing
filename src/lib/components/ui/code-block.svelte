@@ -21,7 +21,7 @@
 	}
 </script>
 
-<div class={cn('overflow-hidden rounded-lg border border-edge', className)}>
+<div class={cn('code-card overflow-hidden rounded-lg border border-edge', className)}>
 	<!-- Header bar -->
 	<div class="flex items-center justify-between border-b border-edge bg-elevated px-4 py-2.5">
 		<div class="flex items-center gap-3">
@@ -55,12 +55,27 @@
 	</div>
 
 	<!-- Code body — shiki renders a <pre><code> inside the div -->
-	<div class="shiki-wrap overflow-x-auto px-5 py-4">
+	<div class="shiki-wrap overflow-x-auto bg-surface px-5 py-4">
 		{@html html}
 	</div>
 </div>
 
 <style>
+	/*
+	 * The shiki output uses the one-dark-pro (dark) syntax theme, so the card is
+	 * pinned to the dark palette in every theme — a dark terminal card on the
+	 * light page. Tailwind utilities inside (bg-elevated, border-edge, text-muted)
+	 * resolve against these locally overridden tokens.
+	 */
+	.code-card {
+		--color-canvas: #0b0c10;
+		--color-surface: #15171e;
+		--color-elevated: #1e212b;
+		--color-edge: #2a2d3e;
+		--color-content: #f1f5f9;
+		--color-muted: #94a3b8;
+	}
+
 	/* Strip shiki's own background so our container bg shows through */
 	.shiki-wrap :global(pre) {
 		background: transparent !important;

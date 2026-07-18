@@ -161,9 +161,9 @@
 		align-items: center;
 		padding: 14px 28px;
 		border-radius: 999px;
-		border: 1px solid rgba(255, 255, 255, 0.6);
-		background: rgba(255, 255, 255, 0.13);
-		color: #fff;
+		border: 1px solid var(--glass-border-strong);
+		background: var(--glass-fill);
+		color: var(--glass-fg-strong);
 		font-size: 1rem;
 		font-weight: 600;
 		text-decoration: none;
@@ -176,8 +176,8 @@
 	}
 
 	.hero-cta:hover {
-		background: rgba(255, 255, 255, 0.2);
-		border-color: rgba(255, 255, 255, 0.8);
+		background: var(--glass-fill-hover);
+		border-color: var(--glass-border-hover);
 		padding-right: 18px;
 	}
 

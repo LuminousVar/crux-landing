@@ -296,7 +296,7 @@
 							bind:this={textareaEl}
 							bind:value={editText}
 							class="w-full resize-none bg-transparent text-sm leading-relaxed text-content placeholder:text-muted/40 focus:outline-none"
-							style="caret-color: white; user-select: text;"
+							style="caret-color: var(--color-content); user-select: text;"
 							rows="5"
 							placeholder="Have an idea for the AI agent? Describe the command or workflow you want supported."
 						></textarea>
@@ -335,9 +335,9 @@
 		display: block;
 		padding: 8px 20px;
 		border-radius: 999px;
-		border: 1px solid rgba(255, 255, 255, 0.35);
+		border: 1px solid var(--glass-border);
 		background: transparent;
-		color: rgba(255, 255, 255, 0.55);
+		color: var(--glass-fg);
 		font-family: ui-monospace, 'Cascadia Code', monospace;
 		font-size: 11px;
 		text-transform: uppercase;
@@ -350,8 +350,8 @@
 	}
 
 	.send-btn:hover:not(:disabled) {
-		border-color: rgba(255, 255, 255, 0.75);
-		background: rgba(255, 255, 255, 0.06);
-		color: #fff;
+		border-color: var(--glass-border-hover);
+		background: var(--glass-fill-subtle);
+		color: var(--glass-fg-strong);
 	}
 </style>

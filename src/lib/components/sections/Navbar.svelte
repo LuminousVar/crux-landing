@@ -1,5 +1,6 @@
 <script lang="ts">
 	import GithubIcon from '$lib/components/ui/GithubIcon.svelte';
+	import { theme, toggleTheme } from '$lib/theme.svelte';
 
 	let scrolled = $state(false);
 	let mobileOpen = $state(false);
@@ -23,6 +24,49 @@
 		mobileOpen = false;
 	}
 </script>
+
+{#snippet themeToggle(size: number)}
+	<button
+		type="button"
+		class="theme-toggle"
+		onclick={toggleTheme}
+		aria-label={theme.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+		title={theme.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+	>
+		{#if theme.value === 'dark'}
+			<!-- Sun — click to go light -->
+			<svg
+				width={size}
+				height={size}
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
+				<circle cx="12" cy="12" r="4" />
+				<path
+					d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+				/>
+			</svg>
+		{:else}
+			<!-- Moon — click to go dark -->
+			<svg
+				width={size}
+				height={size}
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
+				<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+			</svg>
+		{/if}
+	</button>
+{/snippet}
 
 <header
 	class="fixed top-0 z-50 w-full border-b backdrop-blur-md transition-colors duration-300"
@@ -65,8 +109,9 @@
 			</li>
 		</ul>
 
-		<!-- Desktop right: GitHub + CTA — right (justify-end keeps it right-aligned) -->
+		<!-- Desktop right: theme + GitHub + CTA — right (justify-end keeps it right-aligned) -->
 		<div class="hidden items-center justify-end gap-4 lg:flex">
+			{@render themeToggle(20)}
 			<a
 				href="https://github.com/LuminousVar/crux-landing"
 				target="_blank"
@@ -96,8 +141,9 @@
 			</a>
 		</div>
 
-		<!-- Mobile: GitHub + hamburger -->
+		<!-- Mobile: theme + GitHub + hamburger -->
 		<div class="flex items-center justify-end gap-3 lg:hidden">
+			{@render themeToggle(18)}
 			<a
 				href="https://github.com/LuminousVar/crux-landing"
 				target="_blank"
@@ -210,9 +256,9 @@
 		align-items: center;
 		padding: 9px 18px;
 		border-radius: 999px;
-		border: 1px solid rgba(255, 255, 255, 0.35);
+		border: 1px solid var(--glass-border);
 		background: transparent;
-		color: rgba(255, 255, 255, 0.55);
+		color: var(--glass-fg);
 		font-size: 0.875rem;
 		font-weight: 500;
 		text-decoration: none;
@@ -224,9 +270,32 @@
 	}
 
 	.moonshot-cta:hover {
-		border-color: rgba(255, 255, 255, 0.75);
-		background: rgba(255, 255, 255, 0.06);
-		color: #fff;
+		border-color: var(--glass-border-hover);
+		background: var(--glass-fill-subtle);
+		color: var(--glass-fg-strong);
+	}
+
+	.theme-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		border-radius: 999px;
+		border: 1px solid transparent;
+		background: transparent;
+		color: var(--color-muted);
+		cursor: pointer;
+		transition:
+			background 0.15s,
+			color 0.15s,
+			border-color 0.15s;
+	}
+
+	.theme-toggle:hover {
+		color: var(--color-content);
+		background: var(--color-elevated);
+		border-color: var(--color-edge);
 	}
 
 	/* Arrow clip — expands from 0 to 14px on hover */

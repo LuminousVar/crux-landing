@@ -3,6 +3,7 @@
 
 @theme {
 	--font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+	/* Default (dark) palette. Light values are overridden below via [data-theme]. */
 	--color-canvas: #0b0c10;
 	--color-surface: #15171e;
 	--color-elevated: #1e212b;
@@ -14,6 +15,51 @@
 	--color-success: #22c55e;
 	--color-warning: #f59e0b;
 	--color-danger: #ef4444;
+}
+
+/*
+ * Theme-aware helpers for the handful of "glass" surfaces and chart ticks that
+ * are painted with literal rgba(255,255,255,…) — those assume a dark backdrop,
+ * so they get flipped to a dark-on-light tint in light mode.
+ */
+:root {
+	--glass-border: rgba(255, 255, 255, 0.35);
+	--glass-border-strong: rgba(255, 255, 255, 0.6);
+	--glass-border-hover: rgba(255, 255, 255, 0.8);
+	--glass-fill: rgba(255, 255, 255, 0.13);
+	--glass-fill-hover: rgba(255, 255, 255, 0.2);
+	--glass-fill-subtle: rgba(255, 255, 255, 0.06);
+	--glass-fg: rgba(255, 255, 255, 0.55);
+	--glass-fg-strong: #ffffff;
+	--grid-tick: rgba(255, 255, 255, 0.28);
+	/* Monochrome vendor logos (raster <img>) — normalize to white on dark. */
+	--logo-filter: brightness(0) invert(1);
+}
+
+/* Light theme — the toggle / OS preference sets data-theme on <html>. */
+:root[data-theme='light'] {
+	--color-canvas: #eef1f6;
+	--color-surface: #f6f8fb;
+	--color-elevated: #ffffff;
+	--color-edge: #d7deea;
+	--color-content: #0f172a;
+	--color-muted: #55617a;
+	--color-accent: #2563eb;
+	--color-accent-muted: #1d4ed8;
+	--color-success: #16a34a;
+	--color-warning: #b45309;
+	--color-danger: #dc2626;
+
+	--glass-border: rgba(15, 23, 42, 0.22);
+	--glass-border-strong: rgba(15, 23, 42, 0.38);
+	--glass-border-hover: rgba(15, 23, 42, 0.62);
+	--glass-fill: rgba(15, 23, 42, 0.05);
+	--glass-fill-hover: rgba(15, 23, 42, 0.09);
+	--glass-fill-subtle: rgba(15, 23, 42, 0.04);
+	--glass-fg: rgba(15, 23, 42, 0.62);
+	--glass-fg-strong: #0f172a;
+	--grid-tick: rgba(15, 23, 42, 0.18);
+	--logo-filter: brightness(0);
 }
 
 @keyframes path-travel {
@@ -79,6 +125,9 @@ body {
 	color: var(--color-content);
 	font-family: var(--font-sans);
 	overflow-x: hidden;
+	transition:
+		background-color 0.3s ease,
+		color 0.3s ease;
 }
 
 ::-webkit-scrollbar {

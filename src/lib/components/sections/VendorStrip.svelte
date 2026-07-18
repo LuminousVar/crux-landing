@@ -110,7 +110,7 @@
 	}
 
 	.vendor-img {
-		filter: brightness(0) invert(1);
+		filter: var(--logo-filter);
 		opacity: 0.4;
 	}
 </style>
